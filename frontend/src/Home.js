@@ -24,7 +24,7 @@ export function Home() {
       getAccessTokenSilently().then((token) => {
         getUserData(token).then((response) => {
           history.push('/', {userData: response.data})
-        })
+        }, (error) => console.log(error.response))
       })
     } else {
       if (userData['user_type'] === 'student') {
