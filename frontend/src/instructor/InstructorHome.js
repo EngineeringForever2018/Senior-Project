@@ -1,3 +1,4 @@
+import './Classrooms.scss'
 import React, {useEffect, useState} from "react";
 import {useAuth0} from "@auth0/auth0-react";
 import {useHistory} from "react-router-dom";
@@ -25,7 +26,7 @@ function Classrooms() {
       getClassrooms(token).then((response) => {
         setClassroomTitles(
           response.data.map((data) => <li>
-            <button onClick={() => {
+            <button className="classroom-btn" onClick={() => {
               deleteClassroom(data['id'], token).then(() => history.push('/'), (error) => console.log(error.response))
             }}>
               {data['title']}
@@ -37,12 +38,12 @@ function Classrooms() {
   }, [])
 
   return (
-    <div>
-      <div>
-        <div>
-          <p>Classes</p>
+    <div className="Classrooms">
+      <div className="classrooms-background">
+        <div className="classes-background">
+          <p className="classes-text">Classes</p>
         </div>
-        <ul>
+        <ul className="classroom-titles">
           {classroomTitles}
         </ul>
       </div>
