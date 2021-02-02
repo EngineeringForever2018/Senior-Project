@@ -36,7 +36,12 @@ Open-source corpus of student writing: MICUSP (Michigan Corpus of Upper Level St
 
 #### Technical Reports
 
-Hayden
+Eigenfaces for Recognition technique used for POS feature detection: https://www.cse.unr.edu/~bebis/CS479/Readings/TurkEigenfaces.pdf
+
+Technical Report on using Neural Networks for Pattern Recognition: https://www-sciencedirect-com.unr.idm.oclc.org/science/article/pii/S0031320306003049
+
+Literature Review on Computational Methods to detect plagiarism: https://dl.acm.org/doi/pdf/10.1145/3345317
+
 
 #### News
 
