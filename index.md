@@ -24,6 +24,16 @@ Stamatatos, E. (2009), A survey of modern authorship attribution methods. J. Am.
 
 Daniel
 
+Linguistic feature analysis: SpaCy: https://spacy.io/usage/linguistic-features
+
+API collaboration environment: Postman: https://www.postman.com/use-cases/application-development/
+
+Data science toolkit: Anaconda: https://www.anaconda.com/open-source
+
+Collection of E-Books: Project Gutenberg: https://www.gutenberg.org/policy/robot_access.html
+
+Open-source corpus of student writing: MICUSP (Michigan Corpus of Upper Level Student Papers): https://elicorpora.info/
+
 #### Technical Reports
 
 Hayden
