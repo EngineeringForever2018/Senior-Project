@@ -40,7 +40,21 @@ Hayden
 
 #### News
 
-Noah
+Anti-Plagiarism Software Market Growth Trends Analysis 2020-2025:
+https://www.business-newsupdate.com/anti-plagiarism-software-market-6824 
+
+Why Online Plagiarism Checkers are an Integral Part of E-Learning:
+https://www.hackernoon.com/why-online-plagiarism-checkers-are-an-integral-part-of-e-learning-ls443u7c 
+
+6 Best Accessible Essay Writing Services Available Online:
+https://goodmenproject.com/education-2/6-accessible-essay-writing-services/
+
+Intrinsic Plagiarism Detection Using Character n-gram Profiles:
+http://ceur-ws.org/Vol-502/paper8.pdf
+
+An integrated approach for intrinsic plagiarism detection:
+https://www.sciencedirect.com/science/article/abs/pii/S0167739X17326018
+
 
 ## Welcome to GitHub Pages
 
