@@ -36,3 +36,13 @@ export async function deleteClassroom(classroomID, token) {
 
   return axios.delete(`${serverUrl()}/instructor/classrooms/${classroomID}`, requestConfig)
 }
+
+export async function getSubmissionReport(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/report`,
+    requestConfig)
+}
