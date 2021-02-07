@@ -4,7 +4,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {useHistory} from "react-router-dom";
 import axios from "axios";
 import {NavBar} from "../nav/NavBar";
-import {createClassroom, deleteClassroom, getClassrooms} from "../requests";
+import {createAssignment, createClassroom, deleteClassroom, getClassrooms} from "../requests";
 
 export function InstructorHome(props) {
   return (
@@ -27,7 +27,7 @@ function Classrooms() {
         setClassroomTitles(
           response.data.map((data) => <li>
             <button className="classroom-btn" onClick={() => {
-              deleteClassroom(data['id'], token).then(() => history.push('/'), (error) => console.log(error.response))
+              history.push(`/instructor/classrooms/${data['id']}`)
             }}>
               {data['title']}
             </button>

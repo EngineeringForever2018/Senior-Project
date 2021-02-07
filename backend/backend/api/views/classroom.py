@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from backend.api.models.classroom import Classroom, Assignment, Submission
 from backend.api.models.essay import Essay
-from backend.api.models.user import Instructor, Student
+from backend.api.models.user import Instructor, Student, User
 from backend.api.serializers.classroom import ClassroomSerializer, ClassroomStudentSerializer, AssignmentSerializer, \
     SubmissionSerializer
 from backend.api.utils import location
@@ -177,7 +177,13 @@ class ClassroomStudentView(APIView):
         student = self.get_object(classroom, pk)
         serializer = ClassroomStudentSerializer(student)
 
-        return Response(serializer.data)
+        student_user = User.objects.get(student=student)
+
+        data = serializer.data
+        data['first_name'] = student_user.first_name
+        data['last_name'] = student_user.last_name
+
+        return Response(data)
 
     def delete(self, request, classroom_pk, pk):
         """Remove a student from this class as an instructor."""
