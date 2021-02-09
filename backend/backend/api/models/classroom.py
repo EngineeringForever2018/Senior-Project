@@ -4,6 +4,8 @@ from docx import Document
 from backend.api.models.essay import Essay
 from backend.api.models.user import Instructor, Student
 from notebooks import StyleProfile
+from notebooks.bawe_neural_extractor import BaweNeuralExtractor
+from notebooks.mahalonibis_profile import MahalanobisProfile
 
 
 class Classroom(models.Model):
@@ -39,7 +41,7 @@ class Submission(models.Model):
         documents = [Document(essay.file) for essay in essays]
         essays = [document_text(document) for document in documents]
 
-        style_profile = StyleProfile()
+        style_profile = MahalanobisProfile(BaweNeuralExtractor())
 
         # Feed the student's history into their style profile.
         for essay in essays:
@@ -49,7 +51,7 @@ class Submission(models.Model):
 
         # Score this submission based on the style profile.
         authorship_probability = style_profile.score(submission_essay)
-        flag = authorship_probability < 0.05
+        flag = authorship_probability < 0.5
 
         return {'authorship_probability': authorship_probability, 'flag': flag}
 
