@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 import torch
 from notebooks.bawe_neural_extractor import BaweNeuralExtractor
+from notebooks.mahalonibis_profile import MahalanobisProfile
 
+extractor = BaweNeuralExtractor()
+dist = MahalanobisProfile(extractor)
 
-# In[ ]:
+dist.feed("You can take the mean of every sentence or paragraph or whatever you might be using it for (x bar) and subtract xbar from each Gamma to get each corresponding Phi. You can arrange each Phi next to eachother to create a (19*19)xN array, A.  From here you find A*A.tranpose() or A.transpose()*A and use numpy.linalg.eig() to find the eigenvectors and eigenvector coefficients. These eigenvectors there are a fairly abstract way of presenting the best features used in the data used to build this model.  The 0th eigenvector is the best data, 1st is the 2nd best data, etc.  I guess there's no real \"best\" way of deciding the best range now, but i figure its worth normalizing the data to some range [0, something a little bit less than max(Gamma)] To determine the probability that a given Gamma is or is not written by the current author, we'd find the Euclidean distance of Phi - Phi (which is just any Gamma or given sentence/paragraph minus xbar defined earlier), where Phi hat is the sum of each corresponding eigenvector*eigenvector coefficient up to a threshold, k, where k represents the number of eigenvector coefficients corresponding to some percent of the data.  I haven't quite figured out how we determine the cutoff, but i figure it should be fairly straightforward to come up with some cutoff using normal distrubtion from confirmed student Gammas.")
 
-
-
-
+dist.score("yep feel free to replace non ascii characters with spaces or whatever you need to do. I definitely wont need a bunch of data for a demo. I think i ran into a similar problem with my script where that example file couldnt be parsed because of a &s character, and i ended up just doing a find all and replace within a text editor to get rid of those, because i couldn't do it within the program itself since it wouldnt even parse into an element tree. I think what you could is to load everything into text files first and get rid of the culprit characters, and then re-save and parse those into xml. but you probably still have to figure out what every culprit character is which would take time, so don't worry about it unless you get the other stuff done.")

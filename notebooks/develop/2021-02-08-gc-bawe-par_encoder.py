@@ -1,12 +1,28 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 import torch
 import pickle
 from tqdm import tqdm
+bad code
+
+
+# In[3]:
+
+
+flake8
+
+
+# In[3]:
+
+
+apples = []
+
+for a in apples
+    print(a)
 
 
 # In[2]:
