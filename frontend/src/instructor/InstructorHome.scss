@@ -1,0 +1,49 @@
+.Instructor-Classrooms {
+
+  .classrooms-background {
+    background-color: #B7B4B4;
+    margin: 0 auto;
+    width: 65em;
+    height: 40em;
+  
+    .classes-title {
+      background-color: #734C4C; 
+      height: 3em;
+  
+      .classes-text {
+        font-size: 20px;
+        padding: 0.5em 0 0 0.4em;
+
+      }
+    }
+  
+    .classroom-scroll{
+      height: 90%;
+      overflow-y: scroll;
+  
+      .classroom-titles {
+        list-style-type: none;
+        width: 60%;
+        margin: 0 auto;
+  
+          .classroom-btn {
+            background-color: #8B8181;
+            font-size: 30px;
+            margin: 2em 0 0 0;
+            width: 20em;
+            height: 5em;
+            
+          }
+        }
+      }
+
+    .classroom-create{
+      background-color: #634C4C;
+      height: 2em;
+      font-size: 20px;
+      padding: 0.5em 0.5em 0 0.4em;
+      text-align-last: right;
+
+    }
+  }
+}
