@@ -2,16 +2,18 @@ import pickle
 
 import spacy
 import torch
+from numpy import ndarray
 from torch.nn import Embedding
 from torch.nn.utils.rnn import pack_padded_sequence
 from pkg_resources import resource_stream
 
-from notebooks.bawe_neural_net import SentenceEncoder, ParEncoder, StyleEncoder
+from notebooks.feature_extractors.base_feature_extractor import BaseFeatureExtractor
+from notebooks.nets._style_encoder import StyleEncoder, ParEncoder, SentenceEncoder
 
 nlp = spacy.load('en_core_web_sm')
 
 
-class BaweNeuralExtractor:
+class BaweNeuralExtractor(BaseFeatureExtractor):
     def __init__(self):
         bawe_train_stats = pickle.load(resource_stream('notebooks', 'bawe_train_stats.p'))
         self._pos_vocab = bawe_train_stats['pos_vocab']
@@ -20,9 +22,9 @@ class BaweNeuralExtractor:
         sentence_encoder = SentenceEncoder(10, 10)
         par_encoder = ParEncoder(10, 5)
         self._style_encoder = StyleEncoder(sentence_encoder, par_encoder)
-        self._style_encoder.load_state_dict(torch.load(resource_stream('notebooks', 'bawe_style_encoder_sd.pt')))
+        self._style_encoder.load_state_dict(torch.load(resource_stream('notebooks.resources', 'bawe_style_encoder_sd.pt')))
 
-    def __call__(self, text):
+    def extract(self, text: str) -> ndarray:
         doc = nlp(text)
 
         tokens = [[token.text for token in sent] for sent in doc.sents]

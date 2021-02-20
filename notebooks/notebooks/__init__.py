@@ -1,1 +1,1 @@
-from notebooks.style_profile import StyleProfile
+from notebooks.profiles.style_profile import StyleProfile

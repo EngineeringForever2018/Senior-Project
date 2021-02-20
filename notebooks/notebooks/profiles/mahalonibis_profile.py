@@ -1,3 +1,5 @@
+from typing import List, Union
+
 import numpy as np
 from scipy import stats
 from scipy.spatial.distance import mahalanobis
@@ -9,7 +11,11 @@ class MahalanobisProfile:
         self._v = None
         self._u = None
 
-    def feed(self, text: str):
+    def reset(self):
+        self._v = None
+        self._u = None
+
+    def feed(self, text: Union[str, List[str]]):
         features = self.feature_extractor(text)
 
         features = features.T
@@ -17,12 +23,16 @@ class MahalanobisProfile:
         self._v = np.cov(features)
         self._u = np.reshape(np.mean(features, axis=1), [-1])
 
-    def score(self, text: str):
+    def score(self, text: Union[str, List[str]]):
         features = self.feature_extractor(text)
 
-        feature = features[np.random.randint(0, len(features))]
+        # feature = features[np.random.randint(0, len(features))]
+        feature = np.mean(features, axis=0)
 
-        inv = np.linalg.inv(self._v)
+        try:
+            inv = np.linalg.inv(self._v)
+        except np.linalg.LinAlgError:
+            return 0.
         distance = np.matmul(np.matmul((self._u - feature), inv), (self._u - feature).T)
         # distance = mahalanobis(self._u, feature, np.linalg.inv(self._v))
         # distance = distance**2

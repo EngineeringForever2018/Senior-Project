@@ -1,12 +1,14 @@
 import re
 
-mostUsedWords = open('resources/mostusedwords.txt').read()
+from pkg_resources import resource_stream
+mostUsedWords = resource_stream('notebooks.resources', 'mostusedwords.txt').read().decode('ascii')
+
 
 class ParsedDoc:
     def __init__(self, body: str):
         self._words = re.findall(r'\w+', body)
         self._wordCount = len(self._words)
-        self._periodCount = len(re.findall(r'\.', body))
+        self._periodCount = len(re.findall(r'../..', body))
         self._commaCount = len(re.findall(r',', body))
         self._quoteCount = len(re.findall(r'\"', body)) / 2
         self._totalChars = len(re.sub(r'[^a-zA-Z0-9]', '', body))
@@ -20,7 +22,10 @@ class ParsedDoc:
                 self._frequency[word] = count + 1
         
         self._averageWordLength = self._totalChars / self._wordCount
-        self._pToWRatio = self._wordCount / self._periodCount
+        if self._periodCount != 0:
+            self._pToWRatio = self._wordCount / self._periodCount
+        else:
+            self._pToWRatio = 0.
         
     def getWords(self):
         return self._words

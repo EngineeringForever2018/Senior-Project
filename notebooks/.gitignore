@@ -1,3 +1,8 @@
-blogs/
 data/
 /develop/runs
+**/.pytest_cache
+build
+dist
+notebooks.egg-info
+runs/
+**/.ipynb_checkpoints

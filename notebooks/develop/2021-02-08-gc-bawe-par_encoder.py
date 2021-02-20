@@ -1,48 +1,16 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 import torch
 import pickle
 from tqdm import tqdm
-bad code
 
+torch.zeros(4)
 
-# In[3]:
-
-
-flake8
-
-
-# In[3]:
-
-
-apples = []
-
-for a in apples
-    print(a)
-
-
-# In[2]:
-
-
-dev = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-# dev = torch.device('cpu')
-
-
-# In[3]:
-
+# dev = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+dev = torch.device('cuda')
 
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
 
 writer = SummaryWriter(f'runs/{datetime.now()}-bawe-par-encoder')
-
-
-# In[4]:
-
 
 labels = torch.load('../data/bawe-preprocess/labels.pt')
 data = torch.load('../data/bawe-preprocess/data.pt')
@@ -52,12 +20,6 @@ label_set = pickle.load(open('../data/bawe-preprocess/label_set.p', 'rb'))
 bawe_train_stats = pickle.load(open('../data/bawe_train_stats.p', 'rb'))
 max_sent_len = bawe_train_stats['max_sent_len']
 pos_vocab = bawe_train_stats['pos_vocab']
-
-
-# Validation split
-
-# In[5]:
-
 
 torch.manual_seed(0)
 
@@ -71,10 +33,6 @@ valid_selection = torch.zeros(len(labels), dtype=bool)
 valid_selection[valid_indices] = True
 
 train_selection = torch.logical_not(valid_selection)
-
-
-# In[6]:
-
 
 train_labels = labels[train_selection].contiguous()
 train_data = data[train_selection].contiguous()
@@ -90,18 +48,10 @@ valid_label_set = sorted(list(set([int(label) for label in valid_labels])))
 train_label_set = torch.tensor(train_label_set)
 valid_label_set = torch.tensor(valid_label_set)
 
-
-# In[7]:
-
-
 from torch.utils.data import TensorDataset
 
 train_set = TensorDataset(train_data, train_sent_lens, train_labels)
 valid_set = TensorDataset(valid_data, valid_sent_lens, valid_labels)
-
-
-# In[9]:
-
 
 class EqualOpDataLoader:
     def __init__(self, dataset, label_set, bs=1):
@@ -153,10 +103,6 @@ class EqualOpDataLoader:
     def __len__(self):
         return int(len(self.dataset) / self.bs)
 
-
-# In[8]:
-
-
 from torch.nn.utils.rnn import pack_padded_sequence
 
 class GPUDataLoader:
@@ -187,10 +133,6 @@ class GPUDataLoader:
     
     def __len__(self):
         return len(self.dl)
-
-
-# In[21]:
-
 
 from torch.nn import Linear, LSTM, Module
 from torch.nn.functional import softmax
@@ -273,10 +215,6 @@ class EuclideanDiscriminator(Module):
         
         return probability
 
-
-# In[22]:
-
-
 from torch.nn import Embedding
 
 embedding = Embedding(len(pos_vocab), 10, padding_idx=pos_vocab['<pad>'])
@@ -285,10 +223,6 @@ par_encoder = ParEncoder(10, 5).to(dev)
 
 style_encoder = StyleEncoder(sentence_encoder, par_encoder).to(dev)
 style_discriminator = EuclideanDiscriminator().to(dev)
-
-
-# In[23]:
-
 
 class CombinedModel(Module):
     def __init__(self, style_encoder_, style_discriminator_):
@@ -307,10 +241,6 @@ combined = CombinedModel(style_encoder, style_discriminator)
 writer.add_graph(combined, (torch.zeros([24, 80, 10]).to(dev), torch.zeros([24, 80, 10]).to(dev)))
 writer.flush()
 
-
-# In[12]:
-
-
 from torch import optim
 from torch.nn.functional import mse_loss
 from torch.utils.data import DataLoader
@@ -327,37 +257,35 @@ bs = 75
 train_dl = GPUDataLoader(EqualOpDataLoader(train_set, train_label_set, bs=bs), embedding, dev)
 valid_dl = GPUDataLoader(EqualOpDataLoader(valid_set, valid_label_set, bs=bs), embedding, dev)
 
-
-# In[13]:
-
-
 from tqdm import tqdm
 
 torch.seed()
+
 
 def fit(validate=True):
     for epoch in range(epochs):
         for index, (x1b, y1b, x2b, y2b) in tqdm(enumerate(train_dl), total=len(train_dl)):
             x1_encoding = style_encoder(x1b)
             x2_encoding = style_encoder(x2b)
-            
+
             pred = style_discriminator(x1_encoding, x2_encoding).squeeze(1)
-            
+
             yb = y_difference(y1b, y2b).to(dtype=torch.float)
-            
+
             loss = criterion(pred, yb)
-            
+
             loss.backward()
 
             opt.step()
             opt.zero_grad()
-            
+
             writer.add_scalar('Training Loss', loss, index)
             writer.flush()
-            
+
             if index % 100 == 0:
-                valid_loss = evaluate(valid_dl)
+                valid_loss, valid_accuracy = evaluate(valid_dl, give_acc=True)
                 writer.add_scalar('Validation Loss', valid_loss, index)
+                writer.add_scalar('Validation Accuracy', valid_accuracy, index)
 
             if index == 900:
                 break
@@ -365,57 +293,47 @@ def fit(validate=True):
 #         train_loss = evaluate(train_eval_dl)
 #         writer.add_scalar('Training Loss', train_loss, epoch)
         if validate:
-            valid_loss = evaluate(valid_dl)
+            valid_loss, valid_accuracy = evaluate(valid_dl, give_acc=True)
             writer.add_scalar('Validation Loss', valid_loss, epoch)
+            writer.add_scalar('Validation Accuracy', valid_accuracy, epoch)
 #             writer.add_scalar('Validation Accuracy', valid_accuracy, epoch)
-        
+
         writer.flush()
+
 
 def y_difference(y1, y2):
     return torch.logical_not((y1 == y2)).to(dtype=int).to(dev)
-        
+
+
 def evaluate(dl, give_acc=False):
     with torch.no_grad():
-        preds_y = [(style_discriminator(style_encoder(x1b), style_encoder(x2b)), y_difference(y1b, y2b)) for x1b, y1b, x2b, y2b in dl]
+        preds_y = [(style_discriminator(style_encoder(x1b),
+                                        style_encoder(x2b)),
+                    y_difference(y1b, y2b))
+                   for x1b, y1b, x2b, y2b in dl]
 
         losses = [criterion(preds_b.squeeze(1), yb) for preds_b, yb in preds_y]
         loss = sum(losses) / len(losses)
 
-#         if give_acc:
-#             accs = [accuracy(preds_b, yb) for preds_b, yb in preds_y]
-#             acc = sum(accs) / len(accs)
-            
-#             return loss, acc
-        
+        if give_acc:
+            accs = [accuracy(preds_b, yb) for preds_b, yb in preds_y]
+            acc = sum(accs) / len(accs)
+
+            return loss, acc
+
         return loss
 
-# def accuracy(out, y):
-#     preds = ((preds > 0.5)).to()
-#     return (preds == y).float().mean()
 
+def accuracy(out, y):
+    preds = out > 0.999
+    return (preds == y).float().mean()
 
-# In[16]:
-
-
-torch.save(embedding.state_dict(), '../resources/bawe_embedding_sd.pt')
-torch.save(style_encoder.state_dict(), '../resources/bawe_style_encoder_sd.pt')
-torch.save(style_discriminator.state_dict(), '../resources/bawe_style_discriminator_sd.pt')
-
-
-# In[24]:
-
+# torch.save(embedding.state_dict(), '../resources/bawe_embedding_sd.pt')
+# torch.save(style_encoder.state_dict(), '../resources/bawe_style_encoder_sd.pt')
+# torch.save(style_discriminator.state_dict(), '../resources/bawe_style_discriminator_sd.pt')
 
 writer.flush()
 
-
-# In[15]:
-
-
 fit()
 
-
-# In[25]:
-
-
 writer.close()
-

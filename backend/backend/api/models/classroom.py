@@ -4,8 +4,8 @@ from docx import Document
 from backend.api.models.essay import Essay
 from backend.api.models.user import Instructor, Student
 from notebooks import StyleProfile
-from notebooks.bawe_neural_extractor import BaweNeuralExtractor
-from notebooks.mahalonibis_profile import MahalanobisProfile
+# from notebooks.bawe_neural_extractor import BaweNeuralExtractor
+# from notebooks.mahalonibis_profile import MahalanobisProfile
 
 
 class Classroom(models.Model):
@@ -41,7 +41,7 @@ class Submission(models.Model):
         documents = [Document(essay.file) for essay in essays]
         essays = [document_text(document) for document in documents]
 
-        style_profile = MahalanobisProfile(BaweNeuralExtractor())
+        style_profile = StyleProfile()
 
         # Feed the student's history into their style profile.
         for essay in essays:

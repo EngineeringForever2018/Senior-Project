@@ -8,7 +8,7 @@ wordcount = len(words)
 print("The amount of words are: ")
 print(wordcount)
 
-periodSearch = re.findall(r'\.', f)
+periodSearch = re.findall(r'../..', f)
 periodCount = len(periodSearch)
 print("The amount of periods are: ")
 print(periodCount)
