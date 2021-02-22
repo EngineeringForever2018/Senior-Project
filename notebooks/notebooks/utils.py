@@ -4,6 +4,10 @@ from os.path import join
 import spacy
 
 
+class POSVocab:
+    pass
+
+
 def split_text(text: str, sentences_per_split, nlp=None):
     nlp = nlp or default_nlp()
     doc = nlp(text)
@@ -47,3 +51,14 @@ def init_data_dir(project_path):
         if not os.path.isdir(dir_):
             os.mkdir(dir_)
 
+
+def tokenize(sentence: str, nlp=None):
+    nlp = nlp or default_nlp()
+
+    return [str(token.pos_) for token in nlp(sentence)]
+
+
+def pos_tag(sentence: list, pos_vocab=None):
+    pos_vocab = pos_vocab or POSVocab()
+
+    return [pos_vocab[token] for token in sentence]

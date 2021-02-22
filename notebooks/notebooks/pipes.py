@@ -2,7 +2,7 @@ from itertools import chain, tee, repeat
 
 from tqdm import tqdm
 
-from notebooks.utils import split_into_sentences
+from notebooks.utils import split_into_sentences, tokenize, pos_tag
 import pandas as pd
 from pdpipe import PdPipelineStage
 
@@ -93,3 +93,55 @@ class GroupSentences(PdPipelineStage):
 
         return df.reset_index(drop=True)
 
+
+class POSTokenize(PdPipelineStage):
+    def __init__(self, nlp, pos_vocab):
+        desc = 'A pipeline that will split sentences into tokens and then replace each token with a POS tag.'
+        super().__init__(desc=desc)
+        self.tokenize = Tokenize(nlp=nlp)
+        self.pos_tag = POSTag(pos_vocab=pos_vocab)
+
+    def _prec(self, df): # noqa
+        return True
+
+    def _transform(self, df, verbose):
+        df = self.tokenize(df)
+        df = self.pos_tag(df)
+
+        df['sentence_length'] = [len(sentence) for sentence in df['sentence']]
+
+        return df
+
+
+class Tokenize(PdPipelineStage):
+    def __init__(self, nlp):
+        desc = 'A pipeline that will split sentences into tokens.'
+        super().__init__(desc=desc)
+        self.nlp = nlp
+
+    def _prec(self, df): # noqa
+        return True
+
+    def _transform(self, df, verbose):
+        df = df.copy()
+
+        df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in df['sentence']]
+
+        return df
+
+
+class POSTag(PdPipelineStage):
+    def __init__(self, pos_vocab):
+        desc = 'A pipeline that will tag tokens with their POS.'
+        super().__init__(desc=desc)
+        self.pos_vocab = pos_vocab
+
+    def _prec(self, df): # noqa
+        return True
+
+    def _transform(self, df, verbose):
+        df = df.copy()
+
+        df['sentence'] = [pos_tag(sentence, pos_vocab=self.pos_vocab) for sentence in df['sentence']]
+
+        return df
