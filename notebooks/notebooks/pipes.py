@@ -1,6 +1,8 @@
 from itertools import chain, tee, repeat
 
 import numpy as np
+import torch
+from torch.nn.utils.rnn import pack_padded_sequence
 from tqdm import tqdm
 
 from notebooks.utils import split_into_sentences, tokenize, pos_tag
@@ -159,3 +161,29 @@ class Tokenize(PdPipelineStage):
         df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in df['sentence']]
 
         return df
+
+
+class PackSequence(PdPipelineStage):
+    def __init__(self, dev):
+        super().__init__()
+        self.dev = dev
+
+    def _prec(self, df): # noqa
+        return True
+
+    def _transform(self, df, verbose):
+        sentences = df['sentence'].tolist()
+        sentence_lengths = torch.tensor(df['sentence_length'].tolist())
+        max_sentence_length = max(sentence_lengths)
+        authors, _, _, _ = zip(*df.index.tolist())
+        authors = torch.tensor(list(dict.fromkeys(authors).keys())).to(self.dev)
+
+        result = torch.zeros(len(df), max_sentence_length)
+
+        for index, (sentence, sentence_length) in enumerate(zip(sentences, sentence_lengths)):
+            result[index, :sentence_length] = torch.tensor(sentence)
+
+        result = pack_padded_sequence(torch.transpose(result, 0, 1), sentence_lengths, enforce_sorted=False)
+        result = result.to(self.dev)
+
+        return result, authors
