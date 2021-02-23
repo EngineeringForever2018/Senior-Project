@@ -7,14 +7,18 @@ from torch.utils.data import TensorDataset
 
 
 class EqualOpDataLoader:
-    def __init__(self, dataset, bs=1, collate_fn=None):
+    def __init__(self, dataset, bs=1, pipeline=None):
         self.dataset = dataset
         self.bs = bs
-        self.collate_fn = collate_fn or (lambda a, b: (a, b))
+        self.collate_fn = pipeline or (lambda x: x)
 
-        _, _, self.labels = dataset[:]
-        self.label_set = torch.tensor(sorted(list(set([int(label) for label in self.labels]))))
-        self.batch_count = int(len(dataset) / bs)
+        authors, _, _, _ = zip(*self.dataset.df.index.tolist())
+
+        self.label_set = torch.tensor(sorted(list(set(authors))))
+
+        # _, _, self.labels = dataset[:]
+        # self.label_set = torch.tensor(sorted(list(set([int(label) for label in self.labels]))))
+        self.batch_count = int(len(dataset.df) / bs)
 
     def __iter__(self):
         bs = self.bs
@@ -36,11 +40,16 @@ class EqualOpDataLoader:
             different_selection = torch.bernoulli(torch.full([bs], 0.5)).to(bool)
             second_labels[different_selection] = different_labels[different_selection]
 
-            first_data, first_sent_lens, first_labels = self._sample_data(first_labels)
-            second_data, second_sent_lens, second_labels = self._sample_data(second_labels)
+            first_df = self.dataset.sample_authors(first_labels.tolist())
+            second_df = self.dataset.sample_authors(second_labels.tolist())
 
-            yield self.collate_fn((first_data, first_sent_lens, first_labels),
-                                  (second_data, second_sent_lens, second_labels))
+            yield self.collate_fn(first_df), self.collate_fn(second_df)
+
+            # first_data, first_sent_lens, first_labels = self._sample_data(first_labels)
+            # second_data, second_sent_lens, second_labels = self._sample_data(second_labels)
+
+            # yield self.collate_fn((first_data, first_sent_lens, first_labels),
+            #                       (second_data, second_sent_lens, second_labels))
 
     def _sample_data(self, chosen_labels):
         """Get random data points for every label in :param chosen_labels"""
@@ -129,7 +138,7 @@ if __name__ == '__main__':
     train_set = TensorDataset(train_data, train_sentence_lengths, train_labels)
     valid_set = TensorDataset(valid_data, valid_sentence_lengths, valid_labels)
 
-    valid_dl = EqualOpDataLoader(valid_set, bs=64, collate_fn=Preprocessor(torch.device(0)))
+    valid_dl = EqualOpDataLoader(valid_set, bs=64, pipeline=Preprocessor(torch.device(0)))
 
     for (x1b, y1b), (x2b, y2b) in valid_dl:
         pass
