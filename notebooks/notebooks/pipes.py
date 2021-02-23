@@ -1,10 +1,35 @@
 from itertools import chain, tee, repeat
 
+import numpy as np
 from tqdm import tqdm
 
 from notebooks.utils import split_into_sentences, tokenize, pos_tag
 import pandas as pd
 from pdpipe import PdPipelineStage
+
+
+class IDText(PdPipelineStage):
+    def __init__(self):
+        super().__init__()
+
+    def _prec(self, df):  # noqa
+        return True
+
+    def _transform(self, df, verbose):
+        def id_text(df_group):
+            result = df_group.copy()
+            text_count = len(result['text'])
+
+            result['text_id'] = np.arange(text_count)
+
+            return result
+
+        df = df.groupby('author').apply(id_text)
+
+        new_df = pd.DataFrame(df['text'].copy(), columns=['text'])
+        new_df.index = pd.MultiIndex.from_frame(df[['author', 'text_id']])
+
+        return new_df
 
 
 class SplitText(PdPipelineStage):
@@ -18,80 +43,27 @@ class SplitText(PdPipelineStage):
         return 'text' in df.columns
 
     def _transform(self, df, verbose):
-        authors = []
-        text_ids = []
-        sentence_positions = []
-        sentences = []
-
         if self.show_loading:
-            rows = tqdm(df.itertuples())
-        else:
-            rows = df.itertuples()
+            progress_bar = tqdm(total=len(df))
 
-        for row in rows:
-            row_authors, row_text_ids, row_sentence_positions, row_sentences = self._split_row(row)
+        def split_text(row):
+            sentences = list(split_into_sentences(row['text'].iloc[0], nlp=self.nlp))
 
-            authors.append(row_authors)
-            text_ids.append(row_text_ids)
-            sentence_positions.append(row_sentence_positions)
-            sentences.append(row_sentences)
+            new_row = row.drop(columns=['text']).copy()
 
-        authors = chain(*authors)
-        text_ids = chain(*text_ids)
-        sentence_positions = chain(*sentence_positions)
-        sentences = chain(*sentences)
+            new_row['sentence'] = [sentences]
+            new_row = new_row.explode('sentence', ignore_index=True)
 
-        col_dict = {'author': list(authors), 'text_id': list(text_ids), 'sentence_position': list(sentence_positions),
-                    'sentence': list(sentences)}
+            new_row.index = pd.MultiIndex.from_tuples(zip(new_row.index), names=['sentence_position'])
 
-        return pd.DataFrame(col_dict)
+            if self.show_loading:
+                progress_bar.update()
 
-    def _split_row(self, row):
-        sentences = split_into_sentences(row.text, nlp=self.nlp)
-        sentences, sentences_copy = tee(sentences)
-        sentence_count = len(list(sentences_copy))
+            return new_row
 
-        authors = repeat(row.author, times=sentence_count)
-        text_ids = repeat(row.Index, times=sentence_count)
-        sentence_positions = (position for position, _ in enumerate(range(sentence_count)))
+        new_df = df.groupby(['author', 'text_id']).apply(split_text)
 
-        return authors, text_ids, sentence_positions, sentences
-
-
-class GroupSentences(PdPipelineStage):
-    def __init__(self, n):
-        desc = 'A pipeline that will group sentences from a dataframe into ordered groups of n.'
-        super().__init__(desc=desc)
-        self.n = n
-
-    def _prec(self, df): # noqa
-        return True
-
-    def _transform(self, df, verbose):
-        def group_sentences(text_group):
-            sentence_positions = text_group['sentence_position']
-            result = text_group.copy()
-
-            # Just integer divide by the group length. If the sentence positions are [0, 1, 2, 3], and the group length
-            # is 2, then the resulting group positions would be [0, 0, 1, 1], which is desirable.
-            result['group_position'] = (sentence_positions / self.n).astype(int)
-            result['sentence_position'] -= result['group_position'] * self.n
-
-            last_sentence_position = max(sentence_positions)
-            remainder = (last_sentence_position + 1) % self.n
-            max_sentence_position = last_sentence_position - remainder
-
-            # Wherever the sentence position is greater than the max sentence position, we need to replace group with
-            # -1 (which means we're going to drop those rows later).
-            result['group_position'][sentence_positions > max_sentence_position] = -1
-
-            return result
-
-        df = df.groupby('text_id').apply(group_sentences)
-
-        df = df[df['group_position'] != -1]
-
-        return df.reset_index(drop=True)
+        return new_df
 
 
 class POSTokenize(PdPipelineStage):
@@ -101,7 +73,7 @@ class POSTokenize(PdPipelineStage):
         self.tokenize = Tokenize(nlp=nlp)
         self.pos_tag = POSTag(pos_vocab=pos_vocab)
 
-    def _prec(self, df): # noqa
+    def _prec(self, df):  # noqa
         return True
 
     def _transform(self, df, verbose):
@@ -113,19 +85,44 @@ class POSTokenize(PdPipelineStage):
         return df
 
 
-class Tokenize(PdPipelineStage):
-    def __init__(self, nlp):
-        desc = 'A pipeline that will split sentences into tokens.'
+class GroupSentences(PdPipelineStage):
+    def __init__(self, n):
+        desc = 'A pipeline that will group sentences from a dataframe into ordered groups of n.'
         super().__init__(desc=desc)
-        self.nlp = nlp
+        self.n = n
 
-    def _prec(self, df): # noqa
+    def _prec(self, df):  # noqa
         return True
 
     def _transform(self, df, verbose):
-        df = df.copy()
+        def group_sentences(text_group):
+            _, _, sentence_positions = zip(*text_group.index.tolist())
+            sentence_positions = np.array(sentence_positions)
+            result = text_group.copy()
 
-        df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in df['sentence']]
+            # Just integer divide by the group length. If the sentence positions are [0, 1, 2, 3], and the group length
+            # is 2, then the resulting group positions would be [0, 0, 1, 1], which is desirable.
+            # result['group_position'] = (sentence_positions / self.n).astype(int)
+            group_positions = (sentence_positions / self.n).astype(int)
+            # result['sentence_position'] -= result['group_position'] * self.n
+            new_sentence_positions = sentence_positions - (group_positions * self.n)
+
+            last_sentence_position = max(sentence_positions)
+            remainder = (last_sentence_position + 1) % self.n
+            max_sentence_position = last_sentence_position - remainder
+
+            # Wherever the sentence position is greater than the max sentence position, we need to replace group with
+            # -1 (which means we're going to drop those rows later).
+            group_positions[sentence_positions > max_sentence_position] = -1
+
+            result.index = pd.MultiIndex.from_tuples(zip(group_positions, new_sentence_positions),
+                                                     names=['group_position', 'sentence_position'])
+
+            return result
+
+        df = df.groupby(['author', 'text_id']).apply(group_sentences)
+
+        df = df.query('group_position != -1')
 
         return df
 
@@ -136,12 +133,29 @@ class POSTag(PdPipelineStage):
         super().__init__(desc=desc)
         self.pos_vocab = pos_vocab
 
-    def _prec(self, df): # noqa
+    def _prec(self, df):  # noqa
         return True
 
     def _transform(self, df, verbose):
         df = df.copy()
 
         df['sentence'] = [pos_tag(sentence, pos_vocab=self.pos_vocab) for sentence in df['sentence']]
+
+        return df
+
+
+class Tokenize(PdPipelineStage):
+    def __init__(self, nlp):
+        desc = 'A pipeline that will split sentences into tokens.'
+        super().__init__(desc=desc)
+        self.nlp = nlp
+
+    def _prec(self, df):  # noqa
+        return True
+
+    def _transform(self, df, verbose):
+        df = df.copy()
+
+        df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in df['sentence']]
 
         return df
