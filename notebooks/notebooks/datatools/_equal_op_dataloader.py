@@ -40,6 +40,8 @@ class EqualOpDataLoader:
             different_selection = torch.bernoulli(torch.full([bs], 0.5)).to(bool)
             second_labels[different_selection] = different_labels[different_selection]
 
+            first_labels, _ = torch.sort(first_labels)
+            second_labels, _ = torch.sort(second_labels)
             first_df = self.dataset.sample_authors(first_labels.tolist())
             second_df = self.dataset.sample_authors(second_labels.tolist())
 

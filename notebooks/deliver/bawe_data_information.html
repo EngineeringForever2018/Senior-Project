@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>bawe_rnn_train</title>
+<title>bawe_data_information</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13084,102 +13084,50 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">pdpipe</span> <span class="k">as</span> <span class="nn">pdp</span>
 <span class="kn">import</span> <span class="nn">spacy</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
-<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">Embedding</span><span class="p">,</span> <span class="n">LSTM</span>
-<span class="kn">from</span> <span class="nn">torch.nn.functional</span> <span class="kn">import</span> <span class="n">mse_loss</span>
-<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">TensorDataset</span>
-<span class="kn">from</span> <span class="nn">torch.utils.tensorboard</span> <span class="kn">import</span> <span class="n">SummaryWriter</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">project_root</span><span class="p">))</span>
 <span class="kn">from</span> <span class="nn">notebooks.utils</span> <span class="kn">import</span> <span class="n">init_data_dir</span>  <span class="c1"># noqa</span>
 
 <span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">pipes</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">notebooks.datatools</span> <span class="kn">import</span> <span class="n">AuthorDataset</span><span class="p">,</span> <span class="n">EqualOpDataLoader</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">notebooks.nets</span> <span class="kn">import</span> <span class="n">EuclideanDiscriminator</span><span class="p">,</span> <span class="n">PackedEmbedder</span><span class="p">,</span> <span class="n">StyleEncoder</span><span class="p">,</span> <span class="n">Seq2Vec</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">notebooks.utils</span> <span class="kn">import</span> <span class="n">POSVocab</span>  <span class="c1"># noqa</span>
 
 <span class="n">init_data_dir</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
 
 <span class="n">preprocess_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/preprocess&#39;</span><span class="p">))</span>
 
-<span class="n">dev</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
-<span class="n">pos_vocab</span> <span class="o">=</span> <span class="n">POSVocab</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;bawe_df.hdf5&#39;</span><span class="p">)))</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Information-for-the-British-Academic-Written-English-Corpus">Information for the British Academic Written English Corpus<a class="anchor-link" href="#Information-for-the-British-Academic-Written-English-Corpus">&#182;</a></h1><p>This notebook is for gathering information about the BAWE dataset. The dataset should already be parsed and stored in <code>data/preprocess/bawe_df.hdf5</code>.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">writer_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="s1">&#39;runs&#39;</span><span class="p">)</span>
-
-<span class="n">writer</span> <span class="o">=</span> <span class="n">SummaryWriter</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">writer_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s1">-bawe-par-encoder&#39;</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">reprocess</span> <span class="o">=</span> <span class="kc">False</span>
-
-<span class="n">train_data_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences_tokenized.hdf5&#39;</span><span class="p">)</span>
-<span class="n">valid_data_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences_tokenized.hdf5&#39;</span><span class="p">)</span>
-
-<span class="n">train_data_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">train_data_path</span><span class="p">)</span>
-<span class="n">valid_data_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">valid_data_path</span><span class="p">)</span>
-
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipes</span><span class="o">.</span><span class="n">POSTokenize</span><span class="p">(</span><span class="n">nlp</span><span class="o">=</span><span class="n">nlp</span><span class="p">,</span> <span class="n">pos_vocab</span><span class="o">=</span><span class="n">pos_vocab</span><span class="p">,</span> <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">train_data_exists</span> <span class="ow">and</span> <span class="n">valid_data_exists</span><span class="p">)</span> <span class="ow">or</span> <span class="n">reprocess</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Processing...&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences.hdf5&#39;</span><span class="p">))</span>
-    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences.hdf5&#39;</span><span class="p">))</span>
-
-    <span class="n">train_data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
-    <span class="n">valid_data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
-
-    <span class="n">train_data</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">train_data_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences_tokenized&#39;</span><span class="p">)</span>
-    <span class="n">valid_data</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">valid_data_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences_tokenized&#39;</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">train_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">train_data_path</span><span class="p">)</span>
-    <span class="n">valid_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">valid_data_path</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">train_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span>
 </pre></div>
 
     </div>
@@ -13192,15 +13140,117 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[4]:</div>
+    <div class="prompt output_prompt">Out[2]:</div>
 
 
 
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-<div class="output_text output_subarea output_execute_result">
-<pre>sentence           [8, 2, 10, 3, 8, 10, 5, 12, 18, 8, 10, 3, 15, ...
-sentence_length                                                   71
-Name: (28, 0, 1), dtype: object</pre>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>author</th>
+      <th>genre</th>
+      <th>text</th>
+      <th>sentence_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>a</td>
+      <td>Racism is still a problem within our society t...</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>b</td>
+      <td>Official statistics are those produced by eith...</td>
+      <td>46</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>c</td>
+      <td>Since the fourteenth century the practice of m...</td>
+      <td>56</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>d</td>
+      <td>Much more reproductive choice is now available...</td>
+      <td>67</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>a</td>
+      <td>Victorian notions of women's madness were larg...</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2572</th>
+      <td>6998</td>
+      <td>a</td>
+      <td>E. Warwick Slinn describes dramatic monologue ...</td>
+      <td>149</td>
+    </tr>
+    <tr>
+      <th>2573</th>
+      <td>6998</td>
+      <td>b</td>
+      <td>Hugh Blair voices an attack on the practices o...</td>
+      <td>75</td>
+    </tr>
+    <tr>
+      <th>2574</th>
+      <td>6998</td>
+      <td>c</td>
+      <td>'The first thing to remember about Donne,' wri...</td>
+      <td>115</td>
+    </tr>
+    <tr>
+      <th>2575</th>
+      <td>6998</td>
+      <td>d</td>
+      <td>Susan Wiseman calculated that the latest possi...</td>
+      <td>116</td>
+    </tr>
+    <tr>
+      <th>2576</th>
+      <td>6998</td>
+      <td>e</td>
+      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
+      <td>180</td>
+    </tr>
+  </tbody>
+</table>
+<p>2577 rows × 4 columns</p>
+</div>
 </div>
 
 </div>
@@ -13211,142 +13261,321 @@ Name: (28, 0, 1), dtype: object</pre>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">num_sentences</span> <span class="o">=</span> <span class="mi">20</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">resample_splits</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">train_df_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_df.hdf5&#39;</span><span class="p">)</span>
+<span class="n">valid_df_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_df.hdf5&#39;</span><span class="p">)</span>
+
+<span class="n">train_df_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">train_df_path</span><span class="p">)</span>
+<span class="n">valid_df_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">valid_df_path</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">train_df_exists</span> <span class="ow">and</span> <span class="n">valid_df_exists</span><span class="p">)</span> <span class="ow">or</span> <span class="n">resample_splits</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Resampling...&#39;</span><span class="p">)</span>
+
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">])</span>
+    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">valid_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">train_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">train_df_path</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_df&#39;</span><span class="p">)</span>
+    <span class="n">valid_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">valid_df_path</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_valid_df&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">train_df_path</span><span class="p">)</span>
+    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">valid_df_path</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train Set:&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Validation Set:&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Train Set:
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>author</th>
+      <th>genre</th>
+      <th>text</th>
+      <th>sentence_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>a</td>
+      <td>Racism is still a problem within our society t...</td>
+      <td>48</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>b</td>
+      <td>Official statistics are those produced by eith...</td>
+      <td>46</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>c</td>
+      <td>Since the fourteenth century the practice of m...</td>
+      <td>56</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>d</td>
+      <td>Much more reproductive choice is now available...</td>
+      <td>67</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>a</td>
+      <td>Victorian notions of women's madness were larg...</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2057</th>
+      <td>6215</td>
+      <td>e</td>
+      <td>&lt;heading&gt;INTRODUCTION&lt;/heading&gt;Both Macrochloa...</td>
+      <td>55</td>
+    </tr>
+    <tr>
+      <th>2058</th>
+      <td>6998</td>
+      <td>b</td>
+      <td>Hugh Blair voices an attack on the practices o...</td>
+      <td>75</td>
+    </tr>
+    <tr>
+      <th>2059</th>
+      <td>6998</td>
+      <td>c</td>
+      <td>'The first thing to remember about Donne,' wri...</td>
+      <td>115</td>
+    </tr>
+    <tr>
+      <th>2060</th>
+      <td>6998</td>
+      <td>d</td>
+      <td>Susan Wiseman calculated that the latest possi...</td>
+      <td>116</td>
+    </tr>
+    <tr>
+      <th>2061</th>
+      <td>6998</td>
+      <td>e</td>
+      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
+      <td>180</td>
+    </tr>
+  </tbody>
+</table>
+<p>2062 rows × 4 columns</p>
+</div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Validation Set:
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>author</th>
+      <th>genre</th>
+      <th>text</th>
+      <th>sentence_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3</td>
+      <td>l</td>
+      <td>The advent of the Solidarity strikes and prote...</td>
+      <td>139</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5</td>
+      <td>a</td>
+      <td>The once fashionable belief that class analysi...</td>
+      <td>156</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6</td>
+      <td>a</td>
+      <td>&lt;abstract&gt;&lt;heading&gt;Aim / Abstract&lt;/heading&gt;The...</td>
+      <td>62</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7</td>
+      <td>a</td>
+      <td>&lt;abstract&gt;&lt;heading&gt;Summary&lt;/heading&gt;The experi...</td>
+      <td>56</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>8</td>
+      <td>b</td>
+      <td>&lt;abstract&gt;&lt;heading&gt;Summary&lt;/heading&gt;The purpos...</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>510</th>
+      <td>6210</td>
+      <td>j</td>
+      <td>&lt;heading&gt;Introduction:&lt;/heading&gt;Polymers based...</td>
+      <td>66</td>
+    </tr>
+    <tr>
+      <th>511</th>
+      <td>6211</td>
+      <td>h</td>
+      <td>The world of Odysseus by M. I. Finley, (hencef...</td>
+      <td>46</td>
+    </tr>
+    <tr>
+      <th>512</th>
+      <td>6214</td>
+      <td>e</td>
+      <td>An increasing demand for organically produced ...</td>
+      <td>79</td>
+    </tr>
+    <tr>
+      <th>513</th>
+      <td>6215</td>
+      <td>f</td>
+      <td>&lt;list&gt;&lt;/list&gt;&lt;abstract&gt;&lt;heading&gt;Abstract&lt;/head...</td>
+      <td>311</td>
+    </tr>
+    <tr>
+      <th>514</th>
+      <td>6998</td>
+      <td>a</td>
+      <td>E. Warwick Slinn describes dramatic monologue ...</td>
+      <td>149</td>
+    </tr>
+  </tbody>
+</table>
+<p>515 rows × 4 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipes</span><span class="o">.</span><span class="n">GroupSentences</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">num_sentences</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdp</span><span class="o">.</span><span class="n">PdPipeline</span><span class="p">([</span><span class="n">pipes</span><span class="o">.</span><span class="n">IDText</span><span class="p">(),</span>
+                           <span class="n">pipes</span><span class="o">.</span><span class="n">SplitText</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
 
-<span class="n">train_data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
-<span class="n">valid_data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">valid_data</span><span class="p">)</span>
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+<span class="n">valid_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 
-<span class="n">train_set</span> <span class="o">=</span> <span class="n">AuthorDataset</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
-<span class="n">valid_set</span> <span class="o">=</span> <span class="n">AuthorDataset</span><span class="p">(</span><span class="n">valid_data</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">embedder</span> <span class="o">=</span> <span class="n">PackedEmbedder</span><span class="p">(</span><span class="n">Embedding</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pos_vocab</span><span class="p">),</span> <span class="mi">10</span><span class="p">,</span>
-                                    <span class="n">padding_idx</span><span class="o">=</span><span class="n">pos_vocab</span><span class="p">[</span><span class="s1">&#39;&lt;pad&gt;&#39;</span><span class="p">]))</span>
-<span class="n">sentence_encoder</span> <span class="o">=</span> <span class="n">Seq2Vec</span><span class="p">(</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-
-<span class="n">style_encoder</span> <span class="o">=</span> <span class="n">StyleEncoder</span><span class="p">(</span><span class="n">embedder</span><span class="p">,</span> <span class="n">sentence_encoder</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
-<span class="n">style_discriminator</span> <span class="o">=</span> <span class="n">EuclideanDiscriminator</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">num_sentences</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">torch</span><span class="o">.</span><span class="n">seed</span><span class="p">()</span>
-
-<span class="c1"># Hyperparameters</span>
-<span class="n">batch_count</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-6</span>
-<span class="n">opt</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">([{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">style_discriminator</span><span class="o">.</span><span class="n">parameters</span><span class="p">()},</span>
-                 <span class="p">{</span><span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="n">style_encoder</span><span class="o">.</span><span class="n">parameters</span><span class="p">()}],</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">)</span>
-<span class="n">criterion</span> <span class="o">=</span> <span class="n">mse_loss</span>
-<span class="n">bs</span> <span class="o">=</span> <span class="mi">75</span>
-
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipes</span><span class="o">.</span><span class="n">PackSequence</span><span class="p">(</span><span class="n">dev</span><span class="o">=</span><span class="n">dev</span><span class="p">)</span>
-<span class="n">train_dl</span> <span class="o">=</span> <span class="n">EqualOpDataLoader</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">bs</span><span class="o">=</span><span class="n">bs</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
-<span class="n">valid_dl</span> <span class="o">=</span> <span class="n">EqualOpDataLoader</span><span class="p">(</span><span class="n">valid_set</span><span class="p">,</span> <span class="n">bs</span><span class="o">=</span><span class="n">bs</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate_every</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-    <span class="n">train_dl</span><span class="o">.</span><span class="n">batch_count</span> <span class="o">=</span> <span class="n">batch_count</span>
-    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">((</span><span class="n">x1b</span><span class="p">,</span> <span class="n">y1b</span><span class="p">),</span> <span class="p">(</span><span class="n">x2b</span><span class="p">,</span> <span class="n">y2b</span><span class="p">))</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">train_dl</span><span class="p">),</span>
-                                                <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">train_dl</span><span class="p">)):</span>
-        <span class="n">x1_encoding</span> <span class="o">=</span> <span class="n">style_encoder</span><span class="p">(</span><span class="n">x1b</span><span class="p">)</span>
-        <span class="n">x2_encoding</span> <span class="o">=</span> <span class="n">style_encoder</span><span class="p">(</span><span class="n">x2b</span><span class="p">)</span>
-
-        <span class="n">pred</span> <span class="o">=</span> <span class="n">style_discriminator</span><span class="p">(</span><span class="n">x1_encoding</span><span class="p">,</span> <span class="n">x2_encoding</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">yb</span> <span class="o">=</span> <span class="n">y_difference</span><span class="p">(</span><span class="n">y1b</span><span class="p">,</span> <span class="n">y2b</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
-
-        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">yb</span><span class="p">)</span>
-
-        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-
-        <span class="n">opt</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-        <span class="n">opt</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;Training Loss&#39;</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">valid_loss</span><span class="p">,</span> <span class="n">valid_acc</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">valid_dl</span><span class="p">,</span> <span class="n">give_acc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;Validation Loss&#39;</span><span class="p">,</span> <span class="n">valid_loss</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;Validation Accuracy&#39;</span><span class="p">,</span> <span class="n">valid_acc</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
-
-
-<span class="k">def</span> <span class="nf">y_difference</span><span class="p">(</span><span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">logical_not</span><span class="p">((</span><span class="n">y1</span> <span class="o">==</span> <span class="n">y2</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">dl</span><span class="p">,</span> <span class="n">give_acc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-        <span class="n">preds_y</span> <span class="o">=</span> <span class="p">[(</span><span class="n">style_discriminator</span><span class="p">(</span><span class="n">style_encoder</span><span class="p">(</span><span class="n">x1b</span><span class="p">),</span>
-                                        <span class="n">style_encoder</span><span class="p">(</span><span class="n">x2b</span><span class="p">)),</span>
-                    <span class="n">y_difference</span><span class="p">(</span><span class="n">y1b</span><span class="p">,</span> <span class="n">y2b</span><span class="p">))</span>
-                   <span class="k">for</span> <span class="p">(</span><span class="n">x1b</span><span class="p">,</span> <span class="n">y1b</span><span class="p">),</span> <span class="p">(</span><span class="n">x2b</span><span class="p">,</span> <span class="n">y2b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">dl</span><span class="p">]</span>
-
-        <span class="n">losses</span> <span class="o">=</span> <span class="p">[</span><span class="n">criterion</span><span class="p">(</span><span class="n">preds_b</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">yb</span><span class="p">)</span> <span class="k">for</span> <span class="n">preds_b</span><span class="p">,</span> <span class="n">yb</span> <span class="ow">in</span> <span class="n">preds_y</span><span class="p">]</span>
-        <span class="n">loss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">give_acc</span><span class="p">:</span>
-            <span class="n">accs</span> <span class="o">=</span> <span class="p">[</span><span class="n">accuracy</span><span class="p">(</span><span class="n">preds_b</span><span class="p">,</span> <span class="n">yb</span><span class="p">)</span> <span class="k">for</span> <span class="n">preds_b</span><span class="p">,</span> <span class="n">yb</span> <span class="ow">in</span> <span class="n">preds_y</span><span class="p">]</span>
-            <span class="n">acc</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">accs</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">accs</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span>
-
-        <span class="k">return</span> <span class="n">loss</span>
-
-
-<span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="n">preds</span> <span class="o">=</span> <span class="n">out</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">preds</span> <span class="o">==</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">fit</span><span class="p">(</span><span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train set:&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Validation set:&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13363,7 +13592,18 @@ Name: (28, 0, 1), dtype: object</pre>
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre> 24%|##4       | 241/1000 [04:11&lt;13:12,  1.04s/it]
+<pre>100%|██████████| 2062/2062 [09:14&lt;00:00,  3.72it/s]
+100%|██████████| 515/515 [02:12&lt;00:00,  2.92it/s]</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Train set:
 </pre>
 </div>
 </div>
@@ -13373,37 +13613,200 @@ Name: (28, 0, 1), dtype: object</pre>
     <div class="prompt"></div>
 
 
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">KeyboardInterrupt</span>                         Traceback (most recent call last)
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.7/site-packages/IPython/core/interactiveshell.py</span>, in <span class="ansi-green-fg">run_code</span>:
-Line <span class="ansi-blue-fg">3427</span>:  exec(code_obj, <span class="ansi-cyan-fg">self</span>.user_global_ns, <span class="ansi-cyan-fg">self</span>.user_ns)
 
-In  <span class="ansi-blue-fg">[9]</span>:
-Line <span class="ansi-blue-fg">1</span>:     fit(validate=<span class="ansi-blue-fg">False</span>)
+<div class="output_html rendered_html output_subarea ">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-In  <span class="ansi-blue-fg">[8]</span>:
-Line <span class="ansi-blue-fg">19</span>:    total=<span class="ansi-cyan-fg">len</span>(train_dl)):
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
 
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.7/site-packages/tqdm/std.py</span>, in <span class="ansi-green-fg">__iter__</span>:
-Line <span class="ansi-blue-fg">1170</span>:  <span class="ansi-blue-fg">for</span> obj <span class="ansi-magenta-fg">in</span> iterable:
-
-File <span class="ansi-blue-fg">/home/gchristensen/base/repos/avpd/notebooks/notebooks/datatools/_equal_op_dataloader.py</span>, in <span class="ansi-green-fg">__iter__</span>:
-Line <span class="ansi-blue-fg">45</span>:    first_df = <span class="ansi-cyan-fg">self</span>.dataset.sample_authors(first_labels.tolist())
-
-File <span class="ansi-blue-fg">/home/gchristensen/base/repos/avpd/notebooks/notebooks/datatools/_author_dataset.py</span>, in <span class="ansi-green-fg">sample_authors</span>:
-Line <span class="ansi-blue-fg">31</span>:    groups = <span class="ansi-cyan-fg">self</span>.df[<span class="ansi-cyan-fg">self</span>.df.index.droplevel([<span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">group_position</span><span class="ansi-yellow-fg">&#39;</span>, <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">sentence_position</span><span class="ansi-yellow-fg">&#39;</span>]).isin(<span class="ansi-cyan-fg">zip</span>(authors, text_ids))]
-
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.7/site-packages/pandas/core/indexes/multi.py</span>, in <span class="ansi-green-fg">isin</span>:
-Line <span class="ansi-blue-fg">3849</span>:  <span class="ansi-blue-fg">return</span> algos.isin(<span class="ansi-cyan-fg">self</span>._values, values)
-
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.7/site-packages/pandas/core/algorithms.py</span>, in <span class="ansi-green-fg">isin</span>:
-Line <span class="ansi-blue-fg">493</span>:   <span class="ansi-blue-fg">return</span> f(comps, values)
-
-<span class="ansi-red-fg">KeyboardInterrupt</span>: 
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span></pre>
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>sentence</th>
+    </tr>
+    <tr>
+      <th>author</th>
+      <th>text_id</th>
+      <th>sentence_position</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">1</th>
+      <th rowspan="5" valign="top">0</th>
+      <th>0</th>
+      <td>Racism is still a problem within our society t...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Ethnic minorities are concentrated into certai...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>This can be seen in a survey, carried out in 1...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>In this essay I will look at what racism is, a...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>In this section I will cover three areas that ...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">6998</th>
+      <th rowspan="5" valign="top">3</th>
+      <th>175</th>
+      <td>Yerma never wants the life of a man, yet she i...</td>
+    </tr>
+    <tr>
+      <th>176</th>
+      <td>She resents her ability to exercise new freedo...</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>However, Hedda resents her inactivity and depe...</td>
+    </tr>
+    <tr>
+      <th>178</th>
+      <td>She rejects motherhood and matrimony in favour...</td>
+    </tr>
+    <tr>
+      <th>179</th>
+      <td>While Hedda aspires to acquire the authority o...</td>
+    </tr>
+  </tbody>
+</table>
+<p>237192 rows × 1 columns</p>
 </div>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Validation set:
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>sentence</th>
+    </tr>
+    <tr>
+      <th>author</th>
+      <th>text_id</th>
+      <th>sentence_position</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">3</th>
+      <th rowspan="5" valign="top">0</th>
+      <th>0</th>
+      <td>The advent of the Solidarity strikes and prote...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Whilst it provided a powerful response of work...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Where from came this powerful articulation of ...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>To answer this question, it may be fruitful to...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Economic and political developments throughout...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">6998</th>
+      <th rowspan="5" valign="top">0</th>
+      <th>144</th>
+      <td>The task of women writers is particularly rema...</td>
+    </tr>
+    <tr>
+      <th>145</th>
+      <td>For example, Dante Gabriel Rossetti uses the p...</td>
+    </tr>
+    <tr>
+      <th>146</th>
+      <td>Men and women are united in their concern for ...</td>
+    </tr>
+    <tr>
+      <th>147</th>
+      <td>The dramatic monologue requires the writer to ...</td>
+    </tr>
+    <tr>
+      <th>148</th>
+      <td>While Browning often fails to solve moral prob...</td>
+    </tr>
+  </tbody>
+</table>
+<p>59729 rows × 1 columns</p>
+</div>
+</div>
+
 </div>
 
 </div>
@@ -13412,17 +13815,13 @@ Line <span class="ansi-blue-fg">493</span>:   <span class="ansi-blue-fg">return<
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">outputs_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">)</span>
-
-<span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">style_encoder</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
-           <span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="s1">&#39;bawe_style_encoder_sd.pt&#39;</span><span class="p">))</span>
-<span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">style_discriminator</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
-           <span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="s1">&#39;bawe_style_discriminator_sd.pt&#39;</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences.hdf5&#39;</span><span class="p">),</span>
+                <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_sentences&#39;</span><span class="p">)</span>
+<span class="n">valid_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences.hdf5&#39;</span><span class="p">),</span>
+                <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_valid_sentences&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13432,13 +13831,33 @@ Line <span class="ansi-blue-fg">493</span>:   <span class="ansi-blue-fg">return<
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="mi">237192</span> <span class="o">/</span> <span class="mi">20</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[10]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>11859.6</pre>
+</div>
+
+</div>
+
 </div>
 </div>
 

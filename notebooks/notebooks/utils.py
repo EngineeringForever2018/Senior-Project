@@ -1,11 +1,39 @@
 import os
+from collections import Counter
 from os.path import join
 
 import spacy
+from torchtext.vocab import Vocab
 
 
-class POSVocab:
-    pass
+class POSVocab(Vocab):
+    def __init__(self):
+        # Note, this seems to preserve order but come back here if models stop working after using a different vocab
+        # instance
+        pos_glossary = {
+            "ADJ",
+            "ADP",
+            "ADV`",
+            "AUX",
+            "CONJ",
+            "CCONJ",
+            "DET",
+            "INTJ",
+            "NOUN",
+            "NUM",
+            "PART",
+            "PRON",
+            "PROPN",
+            "PUNCT",
+            "SCONJ",
+            "SYM",
+            "VERB"
+            # "X", We are not including "other" because that is handled by <UNK> with the torchtext vocab.
+            # "EOL", We'll let the models treat EOL and SPACE tokens as unknown.
+            # "SPACE",
+        }
+
+        super().__init__(Counter(pos_glossary))
 
 
 def split_text(text: str, sentences_per_split, nlp=None):

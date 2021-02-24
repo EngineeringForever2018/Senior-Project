@@ -1,53 +1,83 @@
 from datetime import datetime
 import os
 from os.path import join
+import pandas as pd
 from pathlib import Path
 import pickle
+import spacy
 import sys
 import torch
 from torch import optim
-from torch.nn import Embedding
+from torch.nn import Embedding, LSTM
 from torch.nn.functional import mse_loss
 from torch.utils.data import TensorDataset
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-sys.path.append(os.path.abspath(Path('..')))
+project_root = Path('..')
+sys.path.append(os.path.abspath(project_root))
+from notebooks.utils import init_data_dir  # noqa
 
-from notebooks.datatools import EqualOpDataLoader, Preprocessor  # noqa
-from notebooks.nets import EuclideanDiscriminator, PackedEmbedder, ParEncoder, SentenceEncoder, StyleEncoder  # noqa
+from notebooks import pipes  # noqa
+from notebooks.datatools import AuthorDataset, EqualOpDataLoader  # noqa
+from notebooks.nets import EuclideanDiscriminator, PackedEmbedder, StyleEncoder, Seq2Vec  # noqa
+from notebooks.utils import POSVocab  # noqa
 
-writer_dir = Path('../runs')
+init_data_dir(project_root)
+
+preprocess_path = join(project_root, Path('data/preprocess'))
 
 dev = torch.device(0)
+nlp = spacy.load('en_core_web_sm')
+pos_vocab = POSVocab()
+
+writer_dir = join(project_root, 'runs')
+
 writer = SummaryWriter(join(writer_dir, f'{datetime.now()}-bawe-par-encoder'))
 
-preprocessed_data_dir = Path('../data/preprocess')
-resources_dir = Path('../resources')
+reprocess = False
 
-train_data = torch.load(join(preprocessed_data_dir, 'bawe_train_data.pt'))
-train_sentence_lengths = torch.load(join(preprocessed_data_dir,
-                                         'bawe_train_sentence_lengths.pt'))
-train_labels = torch.load(join(preprocessed_data_dir, 'bawe_train_labels.pt'))
+train_data_path = join(preprocess_path, 'bawe_train_sentences_tokenized.hdf5')
+valid_data_path = join(preprocess_path, 'bawe_valid_sentences_tokenized.hdf5')
 
-valid_data = torch.load(join(preprocessed_data_dir, 'bawe_valid_data.pt'))
-valid_sentence_lengths = torch.load(join(preprocessed_data_dir,
-                                         'bawe_valid_sentence_lengths.pt'))
-valid_labels = torch.load(join(preprocessed_data_dir, 'bawe_valid_labels.pt'))
+train_data_exists = os.path.exists(train_data_path)
+valid_data_exists = os.path.exists(valid_data_path)
 
-with open(join(resources_dir, 'pos_vocab.p'), 'rb') as f:
-    pos_vocab = pickle.load(f)
+pipeline = pipes.POSTokenize(nlp=nlp, pos_vocab=pos_vocab, show_loading=True)
 
-train_set = TensorDataset(train_data, train_sentence_lengths, train_labels)
-valid_set = TensorDataset(valid_data, valid_sentence_lengths, valid_labels)
+if not (train_data_exists and valid_data_exists) or reprocess:
+    print('Processing...', flush=True)
 
-embedder = PackedEmbedder(Embedding(len(pos_vocab), 100,
+    train_df = pd.read_hdf(join(preprocess_path, 'bawe_train_sentences.hdf5'))
+    valid_df = pd.read_hdf(join(preprocess_path, 'bawe_valid_sentences.hdf5'))
+
+    train_data = pipeline(train_df)
+    valid_data = pipeline(valid_df)
+
+    train_data.to_hdf(train_data_path, 'bawe_train_sentences_tokenized')
+    valid_data.to_hdf(valid_data_path, 'bawe_valid_sentences_tokenized')
+else:
+    train_data = pd.read_hdf(train_data_path)
+    valid_data = pd.read_hdf(valid_data_path)
+
+train_data.loc[(28, 0, 1)]
+
+num_sentences = 20
+
+pipeline = pipes.GroupSentences(n=num_sentences)
+
+train_data = pipeline(train_data)
+valid_data = pipeline(valid_data)
+
+train_set = AuthorDataset(train_data)
+valid_set = AuthorDataset(valid_data)
+
+embedder = PackedEmbedder(Embedding(len(pos_vocab), 10,
                                     padding_idx=pos_vocab['<pad>']))
-sentence_encoder = SentenceEncoder(100, 100)
-par_encoder = ParEncoder(100, 100)
+sentence_encoder = Seq2Vec(LSTM(10, 5))
 
-style_encoder = StyleEncoder(embedder, sentence_encoder, par_encoder).to(dev)
-style_discriminator = EuclideanDiscriminator().to(dev)
+style_encoder = StyleEncoder(embedder, sentence_encoder).to(dev)
+style_discriminator = EuclideanDiscriminator(n=num_sentences).to(dev)
 
 torch.seed()
 
@@ -59,9 +89,9 @@ opt = optim.SGD([{'params': style_discriminator.parameters()},
 criterion = mse_loss
 bs = 75
 
-preprocessor = Preprocessor(dev)
-train_dl = EqualOpDataLoader(train_set, bs=bs, collate_fn=preprocessor)
-valid_dl = EqualOpDataLoader(valid_set, bs=bs, collate_fn=preprocessor)
+pipeline = pipes.PackSequence(dev=dev)
+train_dl = EqualOpDataLoader(train_set, bs=bs, pipeline=pipeline)
+valid_dl = EqualOpDataLoader(valid_set, bs=bs, pipeline=pipeline)
 
 
 def fit(validate=True, validate_every=100):
@@ -120,9 +150,9 @@ def accuracy(out, y):
     preds = out > 0.5
     return (preds == y).float().mean()
 
-fit()
+fit(validate=False)
 
-outputs_dir = Path('../outputs')
+outputs_dir = join(project_root, 'outputs')
 if not os.path.isdir(outputs_dir):
     os.mkdir(outputs_dir)
 

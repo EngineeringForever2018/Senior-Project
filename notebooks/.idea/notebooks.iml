@@ -10,7 +10,6 @@
       <excludeFolder url="file://$MODULE_DIR$/notebooks/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/notebooks/test/nets/.pytest_cache" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/inspectionProfiles" />
-      <excludeFolder url="file://$MODULE_DIR$/deliver" />
       <excludeFolder url="file://$MODULE_DIR$/notebooks/test/feature_extractors/.pytest_cache" />
       <excludeFolder url="file://$MODULE_DIR$/notebooks/test/nets/attn/.pytest_cache" />
       <excludeFolder url="file://$MODULE_DIR$/notebooks/test/.pytest_cache" />

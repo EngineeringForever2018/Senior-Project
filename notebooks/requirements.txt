@@ -10,3 +10,5 @@ tables
 pdpipe
 setuptools
 pep517
+nltk
+sklearn

@@ -6,20 +6,15 @@ from notebooks.nets import Seq2Vec
 
 
 class StyleEncoder(Module):
-    def __init__(self, packed_embedder, sentence_encoder, par_encoder):
+    def __init__(self, packed_embedder, sentence_encoder):
         super().__init__()
         self.packed_embedder = packed_embedder
         self.sentence_encoder = sentence_encoder
-        self.par_encoder = par_encoder
 
     def forward(self, x):
         pos_embedding = self.packed_embedder(x)
 
-        sentence_encoding = self.sentence_encoder(pos_embedding)
-
-        sentence_encoding = torch.reshape(sentence_encoding, [4, -1, sentence_encoding.shape[1]])
-
-        return self.par_encoder(sentence_encoding)
+        return self.sentence_encoder(pos_embedding)
 
 
 class ParEncoder(Module):

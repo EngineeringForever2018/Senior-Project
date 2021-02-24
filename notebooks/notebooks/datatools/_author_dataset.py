@@ -1,22 +1,30 @@
 import numpy as np
 
 
+# Edge case hell, enter at your own risk
 class AuthorDataset:
+    """This is the worst class that Gage has ever written."""
     def __init__(self, df):
         self.df = df
 
     def sample_authors(self, authors):
+        """:param authors should be sorted"""
         texts = self.df.loc[authors]
 
         def get_max_text_id(text_group):
             _, group_text_ids, _, _ = zip(*text_group.index.tolist())
+            min_group_text_id = min(group_text_ids)
+            max_group_text_id = max(group_text_ids)
 
-            return max(group_text_ids)
+            return min_group_text_id, max_group_text_id
 
-        max_text_ids = texts.groupby('author').apply(get_max_text_id) + 1
+        min_text_ids, max_text_ids = zip(*texts.groupby('author').apply(get_max_text_id))
+        min_text_ids, max_text_ids = np.array(min_text_ids), np.array(max_text_ids)
+        max_text_ids += 1
+        max_text_ids -= min_text_ids
         max_text_id = max(max_text_ids)
 
-        text_ids = np.random.randint(max_text_id, size=len(authors)) % max_text_ids
+        text_ids = (np.random.randint(max_text_id, size=len(authors)) % max_text_ids) + min_text_ids
         text_ids = text_ids.tolist()
 
         # groups = self.df.loc[list(zip(authors, text_ids)), :, :]

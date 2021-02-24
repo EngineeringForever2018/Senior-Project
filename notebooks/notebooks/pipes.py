@@ -28,6 +28,7 @@ class IDText(PdPipelineStage):
 
         df = df.groupby('author').apply(id_text)
 
+        # TODO: Drop other columns, don't just take text column
         new_df = pd.DataFrame(df['text'].copy(), columns=['text'])
         new_df.index = pd.MultiIndex.from_frame(df[['author', 'text_id']])
 
@@ -69,10 +70,10 @@ class SplitText(PdPipelineStage):
 
 
 class POSTokenize(PdPipelineStage):
-    def __init__(self, nlp, pos_vocab):
+    def __init__(self, nlp, pos_vocab, show_loading=False):
         desc = 'A pipeline that will split sentences into tokens and then replace each token with a POS tag.'
         super().__init__(desc=desc)
-        self.tokenize = Tokenize(nlp=nlp)
+        self.tokenize = Tokenize(nlp=nlp, show_loading=show_loading)
         self.pos_tag = POSTag(pos_vocab=pos_vocab)
 
     def _prec(self, df):  # noqa
@@ -147,10 +148,11 @@ class POSTag(PdPipelineStage):
 
 
 class Tokenize(PdPipelineStage):
-    def __init__(self, nlp):
+    def __init__(self, nlp, show_loading=False):
         desc = 'A pipeline that will split sentences into tokens.'
         super().__init__(desc=desc)
         self.nlp = nlp
+        self.show_loading = show_loading
 
     def _prec(self, df):  # noqa
         return True
@@ -158,7 +160,12 @@ class Tokenize(PdPipelineStage):
     def _transform(self, df, verbose):
         df = df.copy()
 
-        df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in df['sentence']]
+        sentence_itr = df['sentence']
+
+        if self.show_loading:
+            sentence_itr = tqdm(sentence_itr)
+
+        df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in sentence_itr]
 
         return df
 
@@ -173,12 +180,12 @@ class PackSequence(PdPipelineStage):
 
     def _transform(self, df, verbose):
         sentences = df['sentence'].tolist()
-        sentence_lengths = torch.tensor(df['sentence_length'].tolist())
+        sentence_lengths = torch.tensor(df['sentence_length'].tolist(), dtype=int)
         max_sentence_length = max(sentence_lengths)
         authors, _, _, _ = zip(*df.index.tolist())
         authors = torch.tensor(list(dict.fromkeys(authors).keys())).to(self.dev)
 
-        result = torch.zeros(len(df), max_sentence_length)
+        result = torch.zeros(len(df), max_sentence_length, dtype=int)
 
         for index, (sentence, sentence_length) in enumerate(zip(sentences, sentence_lengths)):
             result[index, :sentence_length] = torch.tensor(sentence)

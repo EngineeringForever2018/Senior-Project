@@ -51,8 +51,13 @@ class TestAuthorDataset:
             columns=['sentence', 'sentence_length'])
     ]
 
+    # This comment is placed here to remind Gage of that time he managed to only test his code with in-order sequences,
+    # leading to a very confusing bug with the real dataset that had random order. Hopefully next time Gage will not be
+    # such a dumb ass.
     authors = [
-        [7, 12]
+        [7, 12],
+        [5, 7],
+        [7, 8]
     ]
 
     expected_results = [
