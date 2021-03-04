@@ -44,23 +44,23 @@ df = df.sort_values(by=['author', 'genre']).reset_index(drop=True)
 
 df
 
-print('Counting sentences...', flush=True)
-sentence_counts = [len(list(nlp(text).sents)) for text in tqdm(df['text'])]
+# print('Counting sentences...', flush=True)
+# sentence_counts = [len(list(nlp(text).sents)) for text in tqdm(df['text'])]
 
-df['sentence_count'] = sentence_counts
+# df['sentence_count'] = sentence_counts
 
-authors = set(df['author'])
-sentence_count = sum(sentence_counts)
-min_sentence_count = min(sentence_counts)
-max_sentence_count = max(sentence_counts)
-avg_sentence_count = sentence_count / len(sentence_counts)
+# authors = set(df['author'])
+# sentence_count = sum(sentence_counts)
+# min_sentence_count = min(sentence_counts)
+# max_sentence_count = max(sentence_counts)
+# avg_sentence_count = sentence_count / len(sentence_counts)
 
-print(f'Author count: {len(authors)}')
-print(f'Sentence count: {sentence_count}')
-print(f'Minimum sentence count: {min_sentence_count}')
-print(f'Maximum sentence count: {max_sentence_count}')
-print(f'Average sentence count: {avg_sentence_count}')
+# print(f'Author count: {len(authors)}')
+# print(f'Sentence count: {sentence_count}')
+# print(f'Minimum sentence count: {min_sentence_count}')
+# print(f'Maximum sentence count: {max_sentence_count}')
+# print(f'Average sentence count: {avg_sentence_count}')
 
-df
+# df
 
 df.to_hdf(join(preprocess_path, 'bawe_df.hdf5'), key='bawe_df')

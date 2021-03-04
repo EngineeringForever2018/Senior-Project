@@ -13084,7 +13084,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">pdpipe</span> <span class="k">as</span> <span class="nn">pdp</span>
 <span class="kn">import</span> <span class="nn">spacy</span>
@@ -13127,7 +13127,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">df</span>
 </pre></div>
 
     </div>
@@ -13166,7 +13166,6 @@ div#notebook {
       <th>author</th>
       <th>genre</th>
       <th>text</th>
-      <th>sentence_count</th>
     </tr>
   </thead>
   <tbody>
@@ -13175,39 +13174,33 @@ div#notebook {
       <td>1</td>
       <td>a</td>
       <td>Racism is still a problem within our society t...</td>
-      <td>48</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
       <td>b</td>
       <td>Official statistics are those produced by eith...</td>
-      <td>46</td>
     </tr>
     <tr>
       <th>2</th>
       <td>1</td>
       <td>c</td>
       <td>Since the fourteenth century the practice of m...</td>
-      <td>56</td>
     </tr>
     <tr>
       <th>3</th>
       <td>1</td>
       <td>d</td>
       <td>Much more reproductive choice is now available...</td>
-      <td>67</td>
     </tr>
     <tr>
       <th>4</th>
       <td>2</td>
       <td>a</td>
       <td>Victorian notions of women's madness were larg...</td>
-      <td>58</td>
     </tr>
     <tr>
       <th>...</th>
-      <td>...</td>
       <td>...</td>
       <td>...</td>
       <td>...</td>
@@ -13217,39 +13210,34 @@ div#notebook {
       <td>6998</td>
       <td>a</td>
       <td>E. Warwick Slinn describes dramatic monologue ...</td>
-      <td>149</td>
     </tr>
     <tr>
       <th>2573</th>
       <td>6998</td>
       <td>b</td>
       <td>Hugh Blair voices an attack on the practices o...</td>
-      <td>75</td>
     </tr>
     <tr>
       <th>2574</th>
       <td>6998</td>
       <td>c</td>
       <td>'The first thing to remember about Donne,' wri...</td>
-      <td>115</td>
     </tr>
     <tr>
       <th>2575</th>
       <td>6998</td>
       <td>d</td>
       <td>Susan Wiseman calculated that the latest possi...</td>
-      <td>116</td>
     </tr>
     <tr>
       <th>2576</th>
       <td>6998</td>
       <td>e</td>
       <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
-      <td>180</td>
     </tr>
   </tbody>
 </table>
-<p>2577 rows × 4 columns</p>
+<p>2577 rows × 3 columns</p>
 </div>
 </div>
 
@@ -13264,7 +13252,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">resample_splits</span> <span class="o">=</span> <span class="kc">False</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">resample_splits</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="n">train_df_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_df.hdf5&#39;</span><span class="p">)</span>
 <span class="n">valid_df_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_df.hdf5&#39;</span><span class="p">)</span>
@@ -13275,7 +13263,7 @@ div#notebook {
 <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">train_df_exists</span> <span class="ow">and</span> <span class="n">valid_df_exists</span><span class="p">)</span> <span class="ow">or</span> <span class="n">resample_splits</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Resampling...&#39;</span><span class="p">)</span>
 
-    <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">])</span>
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">])</span>
     <span class="n">valid_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
     <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -13307,7 +13295,8 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Train Set:
+<pre>Resampling...
+Train Set:
 </pre>
 </div>
 </div>
@@ -13340,7 +13329,6 @@ div#notebook {
       <th>author</th>
       <th>genre</th>
       <th>text</th>
-      <th>sentence_count</th>
     </tr>
   </thead>
   <tbody>
@@ -13349,81 +13337,70 @@ div#notebook {
       <td>1</td>
       <td>a</td>
       <td>Racism is still a problem within our society t...</td>
-      <td>48</td>
     </tr>
     <tr>
       <th>1</th>
       <td>1</td>
-      <td>b</td>
-      <td>Official statistics are those produced by eith...</td>
-      <td>46</td>
+      <td>c</td>
+      <td>Since the fourteenth century the practice of m...</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1</td>
-      <td>c</td>
-      <td>Since the fourteenth century the practice of m...</td>
-      <td>56</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1</td>
-      <td>d</td>
-      <td>Much more reproductive choice is now available...</td>
-      <td>67</td>
-    </tr>
-    <tr>
-      <th>4</th>
       <td>2</td>
       <td>a</td>
       <td>Victorian notions of women's madness were larg...</td>
-      <td>58</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>b</td>
+      <td>The development of feminist thought and action...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3</td>
+      <td>f</td>
+      <td>While it is certain that the reformation which...</td>
     </tr>
     <tr>
       <th>...</th>
       <td>...</td>
       <td>...</td>
       <td>...</td>
-      <td>...</td>
     </tr>
     <tr>
-      <th>2057</th>
-      <td>6215</td>
-      <td>e</td>
-      <td>&lt;heading&gt;INTRODUCTION&lt;/heading&gt;Both Macrochloa...</td>
-      <td>55</td>
-    </tr>
-    <tr>
-      <th>2058</th>
-      <td>6998</td>
+      <th>1283</th>
+      <td>6214</td>
       <td>b</td>
-      <td>Hugh Blair voices an attack on the practices o...</td>
-      <td>75</td>
+      <td>&lt;abstract&gt;&lt;heading&gt;Abstract&lt;/heading&gt;Aquaponic...</td>
     </tr>
     <tr>
-      <th>2059</th>
+      <th>1284</th>
+      <td>6215</td>
+      <td>c</td>
+      <td>&lt;heading&gt;INTRODUCTION&lt;/heading&gt;Seed quality in...</td>
+    </tr>
+    <tr>
+      <th>1285</th>
+      <td>6215</td>
+      <td>d</td>
+      <td>&lt;heading&gt;Question 1 Forest Growth Rates&lt;/headi...</td>
+    </tr>
+    <tr>
+      <th>1286</th>
+      <td>6215</td>
+      <td>f</td>
+      <td>&lt;list&gt;&lt;/list&gt;&lt;abstract&gt;&lt;heading&gt;Abstract&lt;/head...</td>
+    </tr>
+    <tr>
+      <th>1287</th>
       <td>6998</td>
       <td>c</td>
       <td>'The first thing to remember about Donne,' wri...</td>
-      <td>115</td>
-    </tr>
-    <tr>
-      <th>2060</th>
-      <td>6998</td>
-      <td>d</td>
-      <td>Susan Wiseman calculated that the latest possi...</td>
-      <td>116</td>
-    </tr>
-    <tr>
-      <th>2061</th>
-      <td>6998</td>
-      <td>e</td>
-      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
-      <td>180</td>
     </tr>
   </tbody>
 </table>
-<p>2062 rows × 4 columns</p>
+<p>1288 rows × 3 columns</p>
 </div>
 </div>
 
@@ -13468,90 +13445,78 @@ div#notebook {
       <th>author</th>
       <th>genre</th>
       <th>text</th>
-      <th>sentence_count</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>3</td>
-      <td>l</td>
-      <td>The advent of the Solidarity strikes and prote...</td>
-      <td>139</td>
+      <td>1</td>
+      <td>b</td>
+      <td>Official statistics are those produced by eith...</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>5</td>
-      <td>a</td>
-      <td>The once fashionable belief that class analysi...</td>
-      <td>156</td>
+      <td>1</td>
+      <td>d</td>
+      <td>Much more reproductive choice is now available...</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>6</td>
+      <td>3</td>
       <td>a</td>
-      <td>&lt;abstract&gt;&lt;heading&gt;Aim / Abstract&lt;/heading&gt;The...</td>
-      <td>62</td>
+      <td>The publication of The Bell Curve in 1994, the...</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>7</td>
-      <td>a</td>
-      <td>&lt;abstract&gt;&lt;heading&gt;Summary&lt;/heading&gt;The experi...</td>
-      <td>56</td>
+      <td>3</td>
+      <td>b</td>
+      <td>On Friday afternoon, the 26 th of November, I ...</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>8</td>
-      <td>b</td>
-      <td>&lt;abstract&gt;&lt;heading&gt;Summary&lt;/heading&gt;The purpos...</td>
-      <td>102</td>
+      <td>3</td>
+      <td>c</td>
+      <td>The nineteenth century was, until recently, pr...</td>
     </tr>
     <tr>
       <th>...</th>
       <td>...</td>
       <td>...</td>
       <td>...</td>
-      <td>...</td>
     </tr>
     <tr>
-      <th>510</th>
-      <td>6210</td>
-      <td>j</td>
-      <td>&lt;heading&gt;Introduction:&lt;/heading&gt;Polymers based...</td>
-      <td>66</td>
-    </tr>
-    <tr>
-      <th>511</th>
-      <td>6211</td>
-      <td>h</td>
-      <td>The world of Odysseus by M. I. Finley, (hencef...</td>
-      <td>46</td>
-    </tr>
-    <tr>
-      <th>512</th>
-      <td>6214</td>
-      <td>e</td>
-      <td>An increasing demand for organically produced ...</td>
-      <td>79</td>
-    </tr>
-    <tr>
-      <th>513</th>
+      <th>1284</th>
       <td>6215</td>
-      <td>f</td>
-      <td>&lt;list&gt;&lt;/list&gt;&lt;abstract&gt;&lt;heading&gt;Abstract&lt;/head...</td>
-      <td>311</td>
+      <td>e</td>
+      <td>&lt;heading&gt;INTRODUCTION&lt;/heading&gt;Both Macrochloa...</td>
     </tr>
     <tr>
-      <th>514</th>
+      <th>1285</th>
       <td>6998</td>
       <td>a</td>
       <td>E. Warwick Slinn describes dramatic monologue ...</td>
-      <td>149</td>
+    </tr>
+    <tr>
+      <th>1286</th>
+      <td>6998</td>
+      <td>b</td>
+      <td>Hugh Blair voices an attack on the practices o...</td>
+    </tr>
+    <tr>
+      <th>1287</th>
+      <td>6998</td>
+      <td>d</td>
+      <td>Susan Wiseman calculated that the latest possi...</td>
+    </tr>
+    <tr>
+      <th>1288</th>
+      <td>6998</td>
+      <td>e</td>
+      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
     </tr>
   </tbody>
 </table>
-<p>515 rows × 4 columns</p>
+<p>1289 rows × 3 columns</p>
 </div>
 </div>
 
@@ -13563,18 +13528,18 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdp</span><span class="o">.</span><span class="n">PdPipeline</span><span class="p">([</span><span class="n">pipes</span><span class="o">.</span><span class="n">IDText</span><span class="p">(),</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdp</span><span class="o">.</span><span class="n">PdPipeline</span><span class="p">([</span><span class="n">pipes</span><span class="o">.</span><span class="n">IDText</span><span class="p">(),</span>
                            <span class="n">pipes</span><span class="o">.</span><span class="n">SplitText</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
 
 <span class="n">train_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
 <span class="n">valid_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train set:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train set:&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Validation set:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Validation set:&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 </pre></div>
 
@@ -13592,221 +13557,8 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 2062/2062 [09:14&lt;00:00,  3.72it/s]
-100%|██████████| 515/515 [02:12&lt;00:00,  2.92it/s]</pre>
+<pre> 61%|######    | 783/1288 [03:50&lt;01:58,  4.28it/s]</pre>
 </div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Train set:
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th></th>
-      <th></th>
-      <th>sentence</th>
-    </tr>
-    <tr>
-      <th>author</th>
-      <th>text_id</th>
-      <th>sentence_position</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="5" valign="top">1</th>
-      <th rowspan="5" valign="top">0</th>
-      <th>0</th>
-      <td>Racism is still a problem within our society t...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Ethnic minorities are concentrated into certai...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>This can be seen in a survey, carried out in 1...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>In this essay I will look at what racism is, a...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>In this section I will cover three areas that ...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <th>...</th>
-      <th>...</th>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th rowspan="5" valign="top">6998</th>
-      <th rowspan="5" valign="top">3</th>
-      <th>175</th>
-      <td>Yerma never wants the life of a man, yet she i...</td>
-    </tr>
-    <tr>
-      <th>176</th>
-      <td>She resents her ability to exercise new freedo...</td>
-    </tr>
-    <tr>
-      <th>177</th>
-      <td>However, Hedda resents her inactivity and depe...</td>
-    </tr>
-    <tr>
-      <th>178</th>
-      <td>She rejects motherhood and matrimony in favour...</td>
-    </tr>
-    <tr>
-      <th>179</th>
-      <td>While Hedda aspires to acquire the authority o...</td>
-    </tr>
-  </tbody>
-</table>
-<p>237192 rows × 1 columns</p>
-</div>
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Validation set:
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th></th>
-      <th></th>
-      <th>sentence</th>
-    </tr>
-    <tr>
-      <th>author</th>
-      <th>text_id</th>
-      <th>sentence_position</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="5" valign="top">3</th>
-      <th rowspan="5" valign="top">0</th>
-      <th>0</th>
-      <td>The advent of the Solidarity strikes and prote...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Whilst it provided a powerful response of work...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>Where from came this powerful articulation of ...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>To answer this question, it may be fruitful to...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>Economic and political developments throughout...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <th>...</th>
-      <th>...</th>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th rowspan="5" valign="top">6998</th>
-      <th rowspan="5" valign="top">0</th>
-      <th>144</th>
-      <td>The task of women writers is particularly rema...</td>
-    </tr>
-    <tr>
-      <th>145</th>
-      <td>For example, Dante Gabriel Rossetti uses the p...</td>
-    </tr>
-    <tr>
-      <th>146</th>
-      <td>Men and women are united in their concern for ...</td>
-    </tr>
-    <tr>
-      <th>147</th>
-      <td>The dramatic monologue requires the writer to ...</td>
-    </tr>
-    <tr>
-      <th>148</th>
-      <td>While Browning often fails to solve moral prob...</td>
-    </tr>
-  </tbody>
-</table>
-<p>59729 rows × 1 columns</p>
-</div>
-</div>
-
 </div>
 
 </div>
@@ -13815,10 +13567,10 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">train_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences.hdf5&#39;</span><span class="p">),</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">train_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences.hdf5&#39;</span><span class="p">),</span>
                 <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_sentences&#39;</span><span class="p">)</span>
 <span class="n">valid_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences.hdf5&#39;</span><span class="p">),</span>
                 <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_valid_sentences&#39;</span><span class="p">)</span>
@@ -13831,33 +13583,13 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="mi">237192</span> <span class="o">/</span> <span class="mi">20</span>
+<div class=" highlight hl-python"><pre><span></span><span class="mi">237192</span> <span class="o">/</span> <span class="mi">20</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[10]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>11859.6</pre>
-</div>
-
-</div>
-
 </div>
 </div>
 

@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import os
 import pandas as pd
 import pdpipe as pdp
@@ -28,21 +22,9 @@ nlp = spacy.load('en_core_web_sm')
 
 df = pd.read_hdf(join(preprocess_path, Path('bawe_df.hdf5')))
 
-
-# # Information for the British Academic Written English Corpus
-# 
-# This notebook is for gathering information about the BAWE dataset. The dataset should already be parsed and stored in `data/preprocess/bawe_df.hdf5`.
-
-# In[2]:
-
-
 df
 
-
-# In[3]:
-
-
-resample_splits = False
+resample_splits = True
 
 train_df_path = join(preprocess_path, 'bawe_train_df.hdf5')
 valid_df_path = join(preprocess_path, 'bawe_valid_df.hdf5')
@@ -53,7 +35,7 @@ valid_df_exists = os.path.exists(valid_df_path)
 if not (train_df_exists and valid_df_exists) or resample_splits:
     print('Resampling...')
 
-    train_df = df.sample(frac=0.8).sort_values(by=['author', 'genre'])
+    train_df = df.sample(frac=0.5).sort_values(by=['author', 'genre'])
     valid_df = df.drop(train_df.index)
 
     train_df = train_df.reset_index(drop=True)
@@ -70,33 +52,20 @@ display(train_df)
 print('Validation Set:')
 display(valid_df)
 
-
-# In[4]:
-
-
 pipeline = pdp.PdPipeline([pipes.IDText(),
                            pipes.SplitText(nlp, show_loading=True)])
 
 train_df = pipeline(train_df)
 valid_df = pipeline(valid_df)
 
-print('Train set:')
+print('Train set:', flush=True)
 display(train_df)
-print('Validation set:')
+print('Validation set:', flush=True)
 display(valid_df)
-
-
-# In[5]:
-
 
 train_df.to_hdf(join(preprocess_path, 'bawe_train_sentences.hdf5'),
                 key='bawe_train_sentences')
 valid_df.to_hdf(join(preprocess_path, 'bawe_valid_sentences.hdf5'),
                 key='bawe_valid_sentences')
 
-
-# In[10]:
-
-
 237192 / 20
-

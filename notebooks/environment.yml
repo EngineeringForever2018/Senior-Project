@@ -6,4 +6,5 @@ dependencies:
   - jupyter
   - pip:
       - pytest
+      - pytest-benchmark
       - pytest-pycharm

@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>bawe_data_extraction</title>
+<title>report_2</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13088,22 +13088,18 @@ div#notebook {
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">spacy</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
+<span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../..&#39;</span><span class="p">)</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">project_root</span><span class="p">))</span>
 <span class="kn">from</span> <span class="nn">notebooks.utils</span> <span class="kn">import</span> <span class="n">init_data_dir</span>  <span class="c1"># noqa</span>
 
+<span class="c1"># from notebooks.benchmarking import benchmark_profiles  # noqa</span>
+
 <span class="n">init_data_dir</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
 
-<span class="n">raw_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../data/raw&#39;</span><span class="p">)</span>
-<span class="n">preprocess_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../data/preprocess&#39;</span><span class="p">)</span>
-<span class="n">resources_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../resources&#39;</span><span class="p">)</span>
-
-<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
+<span class="n">preprocess_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/preprocess&#39;</span><span class="p">))</span>
+<span class="n">outputs_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13114,32 +13110,9 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Extracting-the-British-Academic-Written-English-Corpus">Extracting the British Academic Written English Corpus<a class="anchor-link" href="#Extracting-the-British-Academic-Written-English-Corpus">&#182;</a></h1><p>This script is for extracting essays from the British Academic Written English Corpus (BAWE)<a href="#fn1"><sup>1</sup></a>. The corpus contains about 3000 student assignments from four different disciplinary areas: Arts and Humanities, Social Sciences, Life Sciences, and Physical Sciences. These assignments are further distributed across four levels of study.</p>
-<h3 id="Benefits">Benefits<a class="anchor-link" href="#Benefits">&#182;</a></h3><ul>
-<li>There are ~300,000 sentences within the corpus, which is enough data for fairly high-parametric models, though likely not enough for neural networks.</li>
-<li>The corpus is made up of university-level essays, which is close to the data that our program will encounter.</li>
-<li>There are many authors in the dataset, so a wide range of writing style is represented.</li>
-</ul>
-<h3 id="Flaws">Flaws<a class="anchor-link" href="#Flaws">&#182;</a></h3><ul>
-<li>Peering through the dataset, the essays seem to mostly be for different prompts. More investigation is needed here. Having examples of essays from the same prompt is desirable so that style differences between very similar essays can be tested.</li>
-<li>Having a large set of authors means that the dataset is unbalanced when considering one author vs. the rest.</li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Instructions">Instructions<a class="anchor-link" href="#Instructions">&#182;</a></h2><p>First, download the BAWE data and extract it into the <code>/data/raw</code> directory. Move the <code>download</code> folder into the <code>/data/raw</code> directory, and rename it to <code>bawe</code>. The data directory should look like this:</p>
-
-<pre><code>|-- data
-|   |-- raw
-|   |   |-- bawe
-|   |   |   |-- CORPUS_ASCII
-|   |   |   |-- CORPUS_ByDisc
-|   |   |   |-- ...</code></pre>
-<p>Now, run the following code cells to process the data into a pandas dataframe. The dataframe will be saved as <code>/data/preprocess/bawe_df.hdf5</code>.</p>
+<h1 id="Progress-Report-2">Progress Report 2<a class="anchor-link" href="#Progress-Report-2">&#182;</a></h1><p>Much of the data preprocessing code was refactored so that different datasets could be quickly trained/evaluated on and so that the amount of sentences in a text group could be quickly modified. Benchmarks were computed for each of the profile methods using the new preprocessing functionality. Plans have been made to create a detailed report screen where the sentences that are most suspicious are highlighted.</p>
+<h2 id="Benchmarks">Benchmarks<a class="anchor-link" href="#Benchmarks">&#182;</a></h2><p>The dataset was split into groups of 50 sentences each, with the author and the ID of the text attached to each group. Each of the profiles were tested on 10 samples of 30 authors (profile/benchmark code is very slow right now and needs to be optimized so that we can more easily test on larger sets). Out of each set of 30 authors, one author was chosen to be the "profile" author, and the others were chosen to be suspects. Out of the texts for the profile author, one was chosen to be a suspect and the rest were fed into the profile. The profile was then tested on all the suspects, and the true/false positives and negatives were collected. We score the profiles based on sensitivity, specificity, balanced accuracy, and precision.</p>
+<p>POSPCA is performing at chance accuracy (but this seems to be due to a bug that causes it to flag everything). The heuristics are performing the best at ~75% balanced accuracy.</p>
 
 </div>
 </div>
@@ -13149,41 +13122,10 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">bawe_texts</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
-    <span class="c1"># We use the plain text version of the corpus</span>
-    <span class="n">corpus_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">raw_path</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;bawe/CORPUS_TXT&#39;</span><span class="p">))</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_path</span><span class="p">,</span>
+                                     <span class="s1">&#39;bawe_train_benchmarks.hdf5&#39;</span><span class="p">))</span>
 
-    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
-        <span class="c1"># The first 4 characters of the filename indicate the author, 5th</span>
-        <span class="c1"># character indicates the genre.</span>
-        <span class="n">author</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
-        <span class="n">genre</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">corpus_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-        <span class="k">yield</span> <span class="n">author</span><span class="p">,</span> <span class="n">genre</span><span class="p">,</span> <span class="n">text</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">resources_path</span><span class="p">,</span> <span class="s1">&#39;bawe_splits.p&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">bawe_splits</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">train_filenames</span> <span class="o">=</span> <span class="n">bawe_splits</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">bawe_texts</span><span class="p">(</span><span class="n">train_filenames</span><span class="p">),</span>
-                  <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">])</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="n">df</span>
+<span class="n">benchmark_results</span>
 </pre></div>
 
     </div>
@@ -13196,18 +13138,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 2577/2577 [00:00&lt;00:00, 6550.34it/s]
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[3]:</div>
+    <div class="prompt output_prompt">Out[2]:</div>
 
 
 
@@ -13230,140 +13161,34 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>author</th>
-      <th>genre</th>
-      <th>text</th>
+      <th>balanced accuracy</th>
+      <th>specificity</th>
+      <th>sensitivity (recall)</th>
+      <th>precision</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>a</td>
-      <td>Racism is still a problem within our society t...</td>
+      <th>pospca</th>
+      <td>0.500000</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>1.00000</td>
     </tr>
     <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>b</td>
-      <td>Official statistics are those produced by eith...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>c</td>
-      <td>Since the fourteenth century the practice of m...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1</td>
-      <td>d</td>
-      <td>Much more reproductive choice is now available...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2</td>
-      <td>a</td>
-      <td>Victorian notions of women's madness were larg...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>2572</th>
-      <td>6998</td>
-      <td>a</td>
-      <td>E. Warwick Slinn describes dramatic monologue ...</td>
-    </tr>
-    <tr>
-      <th>2573</th>
-      <td>6998</td>
-      <td>b</td>
-      <td>Hugh Blair voices an attack on the practices o...</td>
-    </tr>
-    <tr>
-      <th>2574</th>
-      <td>6998</td>
-      <td>c</td>
-      <td>'The first thing to remember about Donne,' wri...</td>
-    </tr>
-    <tr>
-      <th>2575</th>
-      <td>6998</td>
-      <td>d</td>
-      <td>Susan Wiseman calculated that the latest possi...</td>
-    </tr>
-    <tr>
-      <th>2576</th>
-      <td>6998</td>
-      <td>e</td>
-      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
+      <th>heuristics</th>
+      <td>0.757503</td>
+      <td>0.7</td>
+      <td>0.815005</td>
+      <td>0.99125</td>
     </tr>
   </tbody>
 </table>
-<p>2577 rows × 3 columns</p>
 </div>
 </div>
 
 </div>
 
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># print(&#39;Counting sentences...&#39;, flush=True)</span>
-<span class="c1"># sentence_counts = [len(list(nlp(text).sents)) for text in tqdm(df[&#39;text&#39;])]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># df[&#39;sentence_count&#39;] = sentence_counts</span>
-
-<span class="c1"># authors = set(df[&#39;author&#39;])</span>
-<span class="c1"># sentence_count = sum(sentence_counts)</span>
-<span class="c1"># min_sentence_count = min(sentence_counts)</span>
-<span class="c1"># max_sentence_count = max(sentence_counts)</span>
-<span class="c1"># avg_sentence_count = sentence_count / len(sentence_counts)</span>
-
-<span class="c1"># print(f&#39;Author count: {len(authors)}&#39;)</span>
-<span class="c1"># print(f&#39;Sentence count: {sentence_count}&#39;)</span>
-<span class="c1"># print(f&#39;Minimum sentence count: {min_sentence_count}&#39;)</span>
-<span class="c1"># print(f&#39;Maximum sentence count: {max_sentence_count}&#39;)</span>
-<span class="c1"># print(f&#39;Average sentence count: {avg_sentence_count}&#39;)</span>
-
-<span class="c1"># df</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_df.hdf5&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_df&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
 </div>
 </div>
 
@@ -13371,9 +13196,10 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="References">References<a class="anchor-link" href="#References">&#182;</a></h3><ol>
-<li><span id="fn1"> https://www.coventry.ac.uk/research/research-directories/current-projects/2015/british-academic-written-english-corpus-bawe/ </span></li>
-</ol>
+<h2 id="Explainability-and-the-Detailed-Report-Screen">Explainability and the Detailed Report Screen<a class="anchor-link" href="#Explainability-and-the-Detailed-Report-Screen">&#182;</a></h2><p>Our current idea for model explainability is to architecture each profile to work on a sentence level and then use the average of many sentence vectors to profile. This way we can analyze the difference between each sentence in a suspect text compared to the profile. If a sentence is very far from the profile, we can highlight that sentence based on how far it is, indicating that this sentence is part of the reason that the suspect text was flagged. For a profile that is more interpretable, such as the heuristics, we could display additional information on mouseover, such as whether the sentence has more punctuation than usual. If the models are not able to work accurately enough on a sentence level, we could group sentences and employ the same process by highlighting groups of sentences. Smaller groups are preferred for usability.</p>
+<p><img src="essay_no_numbers.png" alt="">
+<img src="wireframe1.png" alt="">
+<img src="wireframe2.png" alt=""></p>
 
 </div>
 </div>

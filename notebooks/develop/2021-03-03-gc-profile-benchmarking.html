@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>bawe_data_extraction</title>
+<title>2021-03-03-gc-profile-benchmarking</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13088,22 +13088,26 @@ div#notebook {
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">spacy</span>
+<span class="kn">import</span> <span class="nn">pdpipe</span> <span class="k">as</span> <span class="nn">pdp</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">project_root</span><span class="p">))</span>
 <span class="kn">from</span> <span class="nn">notebooks.utils</span> <span class="kn">import</span> <span class="n">init_data_dir</span>  <span class="c1"># noqa</span>
 
+<span class="kn">from</span> <span class="nn">notebooks.benchmarking</span> <span class="kn">import</span> <span class="n">benchmark_profiles</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">pipes</span>
+<span class="kn">from</span> <span class="nn">notebooks.profiles</span> <span class="kn">import</span> <span class="n">MahalanobisProfile</span>
+<span class="kn">from</span> <span class="nn">notebooks.feature_extractors</span> <span class="kn">import</span> <span class="n">HeuristicExtractor</span><span class="p">,</span> <span class="n">POS2GramExtractor</span><span class="p">,</span> <span class="n">ConcatExtractor</span>
+
 <span class="n">init_data_dir</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
 
-<span class="n">raw_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../data/raw&#39;</span><span class="p">)</span>
-<span class="n">preprocess_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../data/preprocess&#39;</span><span class="p">)</span>
-<span class="n">resources_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../resources&#39;</span><span class="p">)</span>
+<span class="n">preprocess_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/preprocess&#39;</span><span class="p">))</span>
+<span class="n">outputs_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">)</span>
 
-<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences.hdf5&#39;</span><span class="p">))</span>
+<span class="n">valid_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences.hdf5&#39;</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -13111,58 +13115,16 @@ div#notebook {
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Extracting-the-British-Academic-Written-English-Corpus">Extracting the British Academic Written English Corpus<a class="anchor-link" href="#Extracting-the-British-Academic-Written-English-Corpus">&#182;</a></h1><p>This script is for extracting essays from the British Academic Written English Corpus (BAWE)<a href="#fn1"><sup>1</sup></a>. The corpus contains about 3000 student assignments from four different disciplinary areas: Arts and Humanities, Social Sciences, Life Sciences, and Physical Sciences. These assignments are further distributed across four levels of study.</p>
-<h3 id="Benefits">Benefits<a class="anchor-link" href="#Benefits">&#182;</a></h3><ul>
-<li>There are ~300,000 sentences within the corpus, which is enough data for fairly high-parametric models, though likely not enough for neural networks.</li>
-<li>The corpus is made up of university-level essays, which is close to the data that our program will encounter.</li>
-<li>There are many authors in the dataset, so a wide range of writing style is represented.</li>
-</ul>
-<h3 id="Flaws">Flaws<a class="anchor-link" href="#Flaws">&#182;</a></h3><ul>
-<li>Peering through the dataset, the essays seem to mostly be for different prompts. More investigation is needed here. Having examples of essays from the same prompt is desirable so that style differences between very similar essays can be tested.</li>
-<li>Having a large set of authors means that the dataset is unbalanced when considering one author vs. the rest.</li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Instructions">Instructions<a class="anchor-link" href="#Instructions">&#182;</a></h2><p>First, download the BAWE data and extract it into the <code>/data/raw</code> directory. Move the <code>download</code> folder into the <code>/data/raw</code> directory, and rename it to <code>bawe</code>. The data directory should look like this:</p>
-
-<pre><code>|-- data
-|   |-- raw
-|   |   |-- bawe
-|   |   |   |-- CORPUS_ASCII
-|   |   |   |-- CORPUS_ByDisc
-|   |   |   |-- ...</code></pre>
-<p>Now, run the following code cells to process the data into a pandas dataframe. The dataframe will be saved as <code>/data/preprocess/bawe_df.hdf5</code>.</p>
-
-</div>
-</div>
-</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">bawe_texts</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
-    <span class="c1"># We use the plain text version of the corpus</span>
-    <span class="n">corpus_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">raw_path</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;bawe/CORPUS_TXT&#39;</span><span class="p">))</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipes</span><span class="o">.</span><span class="n">GroupSentences</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
-        <span class="c1"># The first 4 characters of the filename indicate the author, 5th</span>
-        <span class="c1"># character indicates the genre.</span>
-        <span class="n">author</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">filename</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
-        <span class="n">genre</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">grouped_train_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">corpus_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-        <span class="k">yield</span> <span class="n">author</span><span class="p">,</span> <span class="n">genre</span><span class="p">,</span> <span class="n">text</span>
+<span class="n">grouped_valid_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13175,15 +13137,37 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">resources_path</span><span class="p">,</span> <span class="s1">&#39;bawe_splits.p&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">bawe_splits</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">train_filenames</span> <span class="o">=</span> <span class="n">bawe_splits</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># pospca_extractor = POSPCAExtractor(25, 10)</span>
+<span class="c1"># pospca_profile = MahalanobisProfile(pospca_extractor)</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">bawe_texts</span><span class="p">(</span><span class="n">train_filenames</span><span class="p">),</span>
-                  <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">])</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">heuristics_extractor</span> <span class="o">=</span> <span class="n">HeuristicExtractor</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">heuristics_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">heuristics_extractor</span><span class="p">)</span>
 
-<span class="n">df</span>
+<span class="n">pos2gram_extractor</span> <span class="o">=</span> <span class="n">POS2GramExtractor</span><span class="p">(</span><span class="n">paragraph_length</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pos2gram_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">pos2gram_extractor</span><span class="p">)</span>
+
+<span class="n">combined_extractor</span> <span class="o">=</span> <span class="n">ConcatExtractor</span><span class="p">(</span><span class="n">heuristics_extractor</span><span class="p">,</span> <span class="n">pos2gram_extractor</span><span class="p">)</span>
+<span class="n">combined_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">combined_extractor</span><span class="p">)</span>
+
+<span class="n">profiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">heuristics_profile</span><span class="p">,</span> <span class="n">pos2gram_profile</span><span class="p">,</span> <span class="n">combined_profile</span><span class="p">]</span>
+<span class="n">profile_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Heuristics&#39;</span><span class="p">,</span> <span class="s1">&#39;POS Bigrams&#39;</span><span class="p">,</span> <span class="s1">&#39;Combined Heuristics/Bigrams&#39;</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">benchmark_profiles</span><span class="p">(</span><span class="n">grouped_train_df</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
+                                       <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">profile_names</span><span class="p">,</span>
+                                       <span class="n">authors_per_sample</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">benchmark_results</span>
 </pre></div>
 
     </div>
@@ -13200,14 +13184,14 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 2577/2577 [00:00&lt;00:00, 6550.34it/s]
+<pre>100%|##########| 2/2 [00:12&lt;00:00,  6.43s/it]
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[3]:</div>
+    <div class="prompt output_prompt">Out[4]:</div>
 
 
 
@@ -13230,81 +13214,71 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>author</th>
-      <th>genre</th>
-      <th>text</th>
+      <th>flag</th>
+      <th>Heuristics</th>
+      <th>POS Bigrams</th>
+      <th>Combined Heuristics/Bigrams</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>1</td>
-      <td>a</td>
-      <td>Racism is still a problem within our society t...</td>
+      <td>False</td>
+      <td>0.330821</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1</td>
-      <td>b</td>
-      <td>Official statistics are those produced by eith...</td>
+      <td>True</td>
+      <td>0.894906</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1</td>
-      <td>c</td>
-      <td>Since the fourteenth century the practice of m...</td>
+      <td>True</td>
+      <td>0.897627</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1</td>
-      <td>d</td>
-      <td>Much more reproductive choice is now available...</td>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2</td>
-      <td>a</td>
-      <td>Victorian notions of women's madness were larg...</td>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
+      <th>5</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>2572</th>
-      <td>6998</td>
-      <td>a</td>
-      <td>E. Warwick Slinn describes dramatic monologue ...</td>
+      <th>6</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>2573</th>
-      <td>6998</td>
-      <td>b</td>
-      <td>Hugh Blair voices an attack on the practices o...</td>
-    </tr>
-    <tr>
-      <th>2574</th>
-      <td>6998</td>
-      <td>c</td>
-      <td>'The first thing to remember about Donne,' wri...</td>
-    </tr>
-    <tr>
-      <th>2575</th>
-      <td>6998</td>
-      <td>d</td>
-      <td>Susan Wiseman calculated that the latest possi...</td>
-    </tr>
-    <tr>
-      <th>2576</th>
-      <td>6998</td>
-      <td>e</td>
-      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
+      <th>7</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
   </tbody>
 </table>
-<p>2577 rows × 3 columns</p>
 </div>
 </div>
 
@@ -13316,11 +13290,12 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># print(&#39;Counting sentences...&#39;, flush=True)</span>
-<span class="c1"># sentence_counts = [len(list(nlp(text).sents)) for text in tqdm(df[&#39;text&#39;])]</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span> <span class="o">=</span> <span class="n">benchmark_results</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">benchmark_flags</span><span class="p">[</span><span class="n">profile_names</span><span class="p">]</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="n">profile_names</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.85</span>
 </pre></div>
 
     </div>
@@ -13330,24 +13305,248 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
+<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[52]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>flag</th>
+      <th>pospca</th>
+      <th>heuristics</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>978</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>979</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>980</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>981</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>982</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>983 rows × 3 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">positives_selection</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="s1">&#39;flag&#39;</span><span class="p">]</span>
+<span class="n">negatives_selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">benchmark_flags</span><span class="p">[</span><span class="s1">&#39;flag&#39;</span><span class="p">])</span>
+
+<span class="n">all_positives</span> <span class="o">=</span> <span class="n">positives_selection</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">all_negatives</span> <span class="o">=</span> <span class="n">negatives_selection</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="n">true_negatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">benchmark_flags</span><span class="p">[</span><span class="n">negatives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">true_positives</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="n">positives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="n">false_positives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">benchmark_flags</span><span class="p">[</span><span class="n">negatives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="n">sensitivity</span> <span class="o">=</span> <span class="n">true_positives</span> <span class="o">/</span> <span class="n">all_positives</span>
+<span class="n">specificity</span> <span class="o">=</span> <span class="n">true_negatives</span> <span class="o">/</span> <span class="n">all_negatives</span>
+
+<span class="n">precision</span> <span class="o">=</span> <span class="n">true_positives</span> <span class="o">/</span> <span class="p">(</span><span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_positives</span><span class="p">)</span>
+
+<span class="n">balanced_accuracy</span> <span class="o">=</span> <span class="p">(</span><span class="n">sensitivity</span> <span class="o">+</span> <span class="n">specificity</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+<span class="n">train_benchmarks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">balanced_accuracy</span><span class="p">,</span> <span class="n">specificity</span><span class="p">,</span> <span class="n">sensitivity</span><span class="p">,</span> <span class="n">precision</span><span class="p">],</span>
+             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;balanced accuracy&#39;</span><span class="p">,</span> <span class="s1">&#39;specificity&#39;</span><span class="p">,</span> <span class="s1">&#39;sensitivity (recall)&#39;</span><span class="p">,</span> <span class="s1">&#39;precision&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">train_benchmarks</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_benchmarks.hdf5&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_benchmarks&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span><span class="p">[</span><span class="n">negatives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[20]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>pospca        10
+heuristics     3
+dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="mi">7</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[16]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.7</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># df[&#39;sentence_count&#39;] = sentence_counts</span>
-
-<span class="c1"># authors = set(df[&#39;author&#39;])</span>
-<span class="c1"># sentence_count = sum(sentence_counts)</span>
-<span class="c1"># min_sentence_count = min(sentence_counts)</span>
-<span class="c1"># max_sentence_count = max(sentence_counts)</span>
-<span class="c1"># avg_sentence_count = sentence_count / len(sentence_counts)</span>
-
-<span class="c1"># print(f&#39;Author count: {len(authors)}&#39;)</span>
-<span class="c1"># print(f&#39;Sentence count: {sentence_count}&#39;)</span>
-<span class="c1"># print(f&#39;Minimum sentence count: {min_sentence_count}&#39;)</span>
-<span class="c1"># print(f&#39;Maximum sentence count: {max_sentence_count}&#39;)</span>
-<span class="c1"># print(f&#39;Average sentence count: {avg_sentence_count}&#39;)</span>
-
-<span class="c1"># df</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;benchmark_results.hdf5&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;benchmark_results&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13360,23 +13559,127 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_df.hdf5&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_df&#39;</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;benchmark_results.hdf5&#39;</span><span class="p">))</span>
+
+<span class="n">benchmark_results</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[6]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>flag</th>
+      <th>pospca</th>
+      <th>heuristics</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>False</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>978</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.005036</td>
+    </tr>
+    <tr>
+      <th>979</th>
+      <td>True</td>
+      <td>0.002207</td>
+      <td>0.006970</td>
+    </tr>
+    <tr>
+      <th>980</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.338741</td>
+    </tr>
+    <tr>
+      <th>981</th>
+      <td>True</td>
+      <td>0.000000</td>
+      <td>0.108420</td>
+    </tr>
+    <tr>
+      <th>982</th>
+      <td>True</td>
+      <td>0.000010</td>
+      <td>0.552413</td>
+    </tr>
+  </tbody>
+</table>
+<p>983 rows × 3 columns</p>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="References">References<a class="anchor-link" href="#References">&#182;</a></h3><ol>
-<li><span id="fn1"> https://www.coventry.ac.uk/research/research-directories/current-projects/2015/british-academic-written-english-corpus-bawe/ </span></li>
-</ol>
+</div>
+
+</div>
 
 </div>
 </div>
+
 </div>
     </div>
   </div>

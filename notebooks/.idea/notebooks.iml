@@ -2,27 +2,17 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/venv" />
-      <excludeFolder url="file://$MODULE_DIR$/develop" />
       <excludeFolder url="file://$MODULE_DIR$/data" />
-      <excludeFolder url="file://$MODULE_DIR$/.pytest_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/.ipynb_checkpoints" />
-      <excludeFolder url="file://$MODULE_DIR$/notebooks/.ipynb_checkpoints" />
-      <excludeFolder url="file://$MODULE_DIR$/notebooks/test/nets/.pytest_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/.idea/inspectionProfiles" />
-      <excludeFolder url="file://$MODULE_DIR$/notebooks/test/feature_extractors/.pytest_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/notebooks/test/nets/attn/.pytest_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/notebooks/test/.pytest_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/build" />
-      <excludeFolder url="file://$MODULE_DIR$/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/notebooks.egg-info" />
-      <excludeFolder url="file://$MODULE_DIR$/runs" />
-      <excludeFolder url="file://$MODULE_DIR$/resources/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/deliver" />
       <excludeFolder url="file://$MODULE_DIR$/outputs" />
-      <excludeFolder url="file://$MODULE_DIR$/projtools" />
+      <excludeFolder url="file://$MODULE_DIR$/develop" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (avpd) (2)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="pytest" />
