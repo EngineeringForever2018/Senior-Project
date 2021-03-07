@@ -332,6 +332,7 @@ class SubmissionsView(APIView):
     def post(request, classroom_pk, assignment_pk):
         """Post a submission for this assignment."""
         verify_user_type(request, 'student')
+        request.data = request.data.copy()
 
         # TODO: (Bug) Check that assignment and student are valid.
         student = Student.objects.get(user=request.user)
