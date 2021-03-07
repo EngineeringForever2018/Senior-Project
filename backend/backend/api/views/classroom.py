@@ -332,15 +332,15 @@ class SubmissionsView(APIView):
     def post(request, classroom_pk, assignment_pk):
         """Post a submission for this assignment."""
         verify_user_type(request, 'student')
-        request.data = request.data.copy()
+        data = request.data.copy()
 
         # TODO: (Bug) Check that assignment and student are valid.
         student = Student.objects.get(user=request.user)
-        request.data['assignment'] = assignment_pk
-        request.data['student'] = student.id
-        request.data['date'] = datetime.now(tz=pytz.UTC)
+        data['assignment'] = assignment_pk
+        data['student'] = student.id
+        data['date'] = datetime.now(tz=pytz.UTC)
 
-        serializer = post_serialize(request, SubmissionSerializer)
+        serializer = post_serialize(FakeRequest(data), SubmissionSerializer)
         submission = serializer.save()
 
         response = Response({'date': submission.date, 'id': submission.id}, status=status.HTTP_201_CREATED)
@@ -361,6 +361,12 @@ class SubmissionsView(APIView):
         serializer = SubmissionSerializer(submissions, many=True)
 
         return Response(serializer.data)
+
+
+# TODO: Fix dirty solution
+class FakeRequest:
+    def __init__(self, data):
+        self.data = data
 
 
 class SubmissionView(APIView):
