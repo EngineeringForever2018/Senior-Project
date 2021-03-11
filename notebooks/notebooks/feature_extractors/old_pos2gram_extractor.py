@@ -9,7 +9,7 @@ from notebooks.feature_extractors.base_feature_extractor import BaseFeatureExtra
 from notebooks.utils import split_text
 
 
-class POS2GramExtractor(BaseFeatureExtractor):
+class OldPOS2GramExtractor(BaseFeatureExtractor):
     def __init__(self, paragraph_length):
         self.paragraph_length = paragraph_length
 

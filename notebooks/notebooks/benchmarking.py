@@ -12,7 +12,7 @@ def texts_from_author(dataset, author):
     def sentences_to_text(group):
         group = group.sort_values(by=['group_position', 'sentence_position'])
 
-        text = group['sentence'].tolist()
+        text = ''.join(group['sentence'].tolist())
 
         return text
 
@@ -25,7 +25,7 @@ def texts_from_authors(dataset, authors):
     return [texts_from_author(dataset, author) for author in authors]
 
 
-def benchmark_profiles(dataset, profiles, authors_per_sample=30, samples=10, show_loading=False, names=None):
+def old_benchmark_profiles(dataset, profiles, authors_per_sample=30, samples=10, show_loading=False, names=None):
     authors = list(zip(*dataset.index.tolist()))[0]
     authors = set(authors)
 
@@ -39,17 +39,21 @@ def benchmark_profiles(dataset, profiles, authors_per_sample=30, samples=10, sho
         selection = random.sample(authors, k=authors_per_sample)
         texts = texts_from_authors(dataset, selection)
 
+        assert len(texts) == authors_per_sample
+        assert isinstance(texts[0][0], str)
+
         profile_author, profile_texts = selection[0], texts[0]
         other_authors, other_texts = selection[1:], texts[1:]
         # Sum each list of texts together so that it is one big list
         other_texts = sum(other_texts, [])
+        assert isinstance(other_texts[0], str)
 
         if len(profile_texts) == 1:
             profile_suspects = []
 
             # Just use this single text for the profile
             for profile in profiles:
-                profile.sentence_feed(profile_texts[0])
+                profile.feed(profile_texts[0])
         else:
             # There should be more than one text, otherwise this author shouldn't be in the dataset
             profile_suspects = [profile_texts[-1]]
@@ -57,18 +61,18 @@ def benchmark_profiles(dataset, profiles, authors_per_sample=30, samples=10, sho
 
             # TODO: Duplicate code, for either empty or non empty profile_texts sum all and feed to profiles
             # Sum texts together into one string to feed to the profiles
-            profile_all_text = sum(profile_texts, [])
+            profile_all_text = ''.join(profile_texts)
 
             for profile in profiles:
-                profile.sentence_feed(profile_all_text)
+                profile.feed(profile_all_text)
 
         for suspect in profile_suspects:
-            scores = [profile.sentence_score(suspect) for profile in profiles]
+            scores = [profile.score(suspect) for profile in profiles]
 
             data.append([False] + scores)
 
         for suspect in other_texts:
-            scores = [profile.sentence_score(suspect) for profile in profiles]
+            scores = [profile.score(suspect) for profile in profiles]
 
             data.append([True] + scores)
 

@@ -69,19 +69,18 @@ def getBigram(index):
 
 
 # Pass string, return bigram vector X (name in function is wrong)
-def make_X(string):
-    posArr = tSentence(string)
+def make_X(posArr):
     Phi = np.zeros(Phi_size)
 
     k = 0
 
-    for i in range(posArr.size - 1):
+    for i in range(len(posArr) - 1):
         if i == 0:
-            l = posVector.index(str(posArr.data[i].pos))
-            k = posVector.index(str(posArr.data[i + 1].pos))
+            l = posVector.index(str(posArr[i]))
+            k = posVector.index(str(posArr[i + 1]))
             Phi[l * len(posVector) + k] += 1
         else:
-            l = posVector.index(str(posArr.data[i + 1].pos))
+            l = posVector.index(str(posArr[i + 1]))
             Phi[k * len(posVector) + l] += 1
             k = l
     return Phi

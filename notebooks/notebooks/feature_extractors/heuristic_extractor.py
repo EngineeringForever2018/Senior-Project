@@ -14,7 +14,7 @@ class HeuristicExtractor(BaseFeatureExtractor):
         paragraphs = split_text(text, sentences_per_split=self.paragraph_length)
 
         parsed_docs = [ParsedDoc(paragraph) for paragraph in paragraphs]
-        parsed_matrix_list = [[parsed_doc.getQuoteCount(), parsed_doc.getCommaCount()] for parsed_doc in parsed_docs]
+        parsed_matrix_list = [[parsed_doc.getPToWRatio(), parsed_doc.getCommaCount()] for parsed_doc in parsed_docs]
 
         return np.array(parsed_matrix_list)
 

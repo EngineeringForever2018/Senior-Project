@@ -13140,17 +13140,17 @@ div#notebook {
 <div class=" highlight hl-python"><pre><span></span><span class="c1"># pospca_extractor = POSPCAExtractor(25, 10)</span>
 <span class="c1"># pospca_profile = MahalanobisProfile(pospca_extractor)</span>
 
-<span class="n">heuristics_extractor</span> <span class="o">=</span> <span class="n">HeuristicExtractor</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">heuristics_extractor</span> <span class="o">=</span> <span class="n">HeuristicExtractor</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">heuristics_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">heuristics_extractor</span><span class="p">)</span>
 
-<span class="n">pos2gram_extractor</span> <span class="o">=</span> <span class="n">POS2GramExtractor</span><span class="p">(</span><span class="n">paragraph_length</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">pos2gram_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">pos2gram_extractor</span><span class="p">)</span>
+<span class="c1"># pos2gram_extractor = POS2GramExtractor(paragraph_length=1)</span>
+<span class="c1"># pos2gram_profile = MahalanobisProfile(pos2gram_extractor)</span>
 
-<span class="n">combined_extractor</span> <span class="o">=</span> <span class="n">ConcatExtractor</span><span class="p">(</span><span class="n">heuristics_extractor</span><span class="p">,</span> <span class="n">pos2gram_extractor</span><span class="p">)</span>
-<span class="n">combined_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">combined_extractor</span><span class="p">)</span>
+<span class="c1"># combined_extractor = ConcatExtractor(heuristics_extractor, pos2gram_extractor)</span>
+<span class="c1"># combined_profile = MahalanobisProfile(combined_extractor)</span>
 
-<span class="n">profiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">heuristics_profile</span><span class="p">,</span> <span class="n">pos2gram_profile</span><span class="p">,</span> <span class="n">combined_profile</span><span class="p">]</span>
-<span class="n">profile_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Heuristics&#39;</span><span class="p">,</span> <span class="s1">&#39;POS Bigrams&#39;</span><span class="p">,</span> <span class="s1">&#39;Combined Heuristics/Bigrams&#39;</span><span class="p">]</span>
+<span class="n">profiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">heuristics_profile</span><span class="p">]</span>
+<span class="n">profile_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Heuristics&#39;</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -13163,9 +13163,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">benchmark_profiles</span><span class="p">(</span><span class="n">grouped_train_df</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
-                                       <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">profile_names</span><span class="p">,</span>
-                                       <span class="n">authors_per_sample</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">benchmark_profiles</span><span class="p">(</span><span class="n">grouped_valid_df</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
+                                       <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">profile_names</span><span class="p">)</span>
 
 <span class="n">benchmark_results</span>
 </pre></div>
@@ -13184,7 +13183,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 2/2 [00:12&lt;00:00,  6.43s/it]
+<pre>100%|##########| 10/10 [08:03&lt;00:00, 48.31s/it]
 </pre>
 </div>
 </div>
@@ -13216,69 +13215,67 @@ div#notebook {
       <th></th>
       <th>flag</th>
       <th>Heuristics</th>
-      <th>POS Bigrams</th>
-      <th>Combined Heuristics/Bigrams</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>False</td>
-      <td>0.330821</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.960581</td>
     </tr>
     <tr>
       <th>1</th>
       <td>True</td>
-      <td>0.894906</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.865407</td>
     </tr>
     <tr>
       <th>2</th>
       <td>True</td>
-      <td>0.897627</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.822791</td>
     </tr>
     <tr>
       <th>3</th>
       <td>True</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.353465</td>
     </tr>
     <tr>
       <th>4</th>
       <td>True</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.090379</td>
     </tr>
     <tr>
-      <th>5</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
     </tr>
     <tr>
-      <th>6</th>
+      <th>657</th>
       <td>True</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.360285</td>
     </tr>
     <tr>
-      <th>7</th>
+      <th>658</th>
       <td>True</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
+      <td>0.235129</td>
+    </tr>
+    <tr>
+      <th>659</th>
+      <td>True</td>
+      <td>0.261533</td>
+    </tr>
+    <tr>
+      <th>660</th>
+      <td>True</td>
+      <td>0.269341</td>
+    </tr>
+    <tr>
+      <th>661</th>
+      <td>True</td>
+      <td>0.243151</td>
     </tr>
   </tbody>
 </table>
+<p>662 rows × 2 columns</p>
 </div>
 </div>
 
@@ -13290,7 +13287,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span> <span class="o">=</span> <span class="n">benchmark_results</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -13305,7 +13302,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span>
@@ -13321,7 +13318,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[52]:</div>
+    <div class="prompt output_prompt">Out[6]:</div>
 
 
 
@@ -13345,26 +13342,22 @@ div#notebook {
     <tr style="text-align: right;">
       <th></th>
       <th>flag</th>
-      <th>pospca</th>
-      <th>heuristics</th>
+      <th>Heuristics</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
       <td>False</td>
-      <td>True</td>
-      <td>True</td>
+      <td>False</td>
     </tr>
     <tr>
       <th>1</th>
       <td>True</td>
-      <td>True</td>
-      <td>True</td>
+      <td>False</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>True</td>
       <td>True</td>
       <td>True</td>
     </tr>
@@ -13372,11 +13365,9 @@ div#notebook {
       <th>3</th>
       <td>True</td>
       <td>True</td>
-      <td>True</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>True</td>
       <td>True</td>
       <td>True</td>
     </tr>
@@ -13384,41 +13375,35 @@ div#notebook {
       <th>...</th>
       <td>...</td>
       <td>...</td>
-      <td>...</td>
     </tr>
     <tr>
-      <th>978</th>
-      <td>True</td>
-      <td>True</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>979</th>
-      <td>True</td>
+      <th>657</th>
       <td>True</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>980</th>
-      <td>True</td>
-      <td>True</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>981</th>
-      <td>True</td>
+      <th>658</th>
       <td>True</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>982</th>
+      <th>659</th>
       <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>660</th>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>661</th>
       <td>True</td>
       <td>True</td>
     </tr>
   </tbody>
 </table>
-<p>983 rows × 3 columns</p>
+<p>662 rows × 2 columns</p>
 </div>
 </div>
 
@@ -13430,7 +13415,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-python"><pre><span></span><span class="n">positives_selection</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="s1">&#39;flag&#39;</span><span class="p">]</span>
@@ -13451,11 +13436,68 @@ div#notebook {
 
 <span class="n">balanced_accuracy</span> <span class="o">=</span> <span class="p">(</span><span class="n">sensitivity</span> <span class="o">+</span> <span class="n">specificity</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 
-<span class="n">train_benchmarks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">balanced_accuracy</span><span class="p">,</span> <span class="n">specificity</span><span class="p">,</span> <span class="n">sensitivity</span><span class="p">,</span> <span class="n">precision</span><span class="p">],</span>
-             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;balanced accuracy&#39;</span><span class="p">,</span> <span class="s1">&#39;specificity&#39;</span><span class="p">,</span> <span class="s1">&#39;sensitivity (recall)&#39;</span><span class="p">,</span> <span class="s1">&#39;precision&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+<span class="n">train_benchmarks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">balanced_accuracy</span><span class="p">,</span> <span class="n">specificity</span><span class="p">,</span> <span class="n">sensitivity</span><span class="p">,</span> <span class="n">precision</span><span class="p">],</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;balanced accuracy&#39;</span><span class="p">,</span> <span class="s1">&#39;specificity&#39;</span><span class="p">,</span> <span class="s1">&#39;sensitivity (recall)&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;precision&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+<span class="n">train_benchmarks</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[8]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>balanced accuracy</th>
+      <th>specificity</th>
+      <th>sensitivity (recall)</th>
+      <th>precision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Heuristics</th>
+      <td>0.784977</td>
+      <td>0.625</td>
+      <td>0.944954</td>
+      <td>0.991974</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
 </div>
 </div>
 

@@ -6,8 +6,8 @@ mostUsedWords = resource_stream('notebooks.resources', 'mostusedwords.txt').read
 
 class ParsedDoc:
     def __init__(self, body: str):
-        # self._words = re.findall(r'\w+', body)
-        # self._wordCount = len(self._words)
+        self._words = re.findall(r'\w+', body)
+        self._wordCount = len(self._words)
         self._periodCount = len(re.findall(r'.', body))
         self._commaCount = len(re.findall(r',', body))
         self._quoteCount = len(re.findall(r'"', body)) / 2
@@ -22,10 +22,10 @@ class ParsedDoc:
         #         self._frequency[word] = count + 1
         
         # self._averageWordLength = self._totalChars / self._wordCount
-        # if self._periodCount != 0:
-        #     self._pToWRatio = self._wordCount / self._periodCount
-        # else:
-        #     self._pToWRatio = 0.
+        if self._periodCount != 0:
+            self._pToWRatio = self._wordCount / self._periodCount
+        else:
+            self._pToWRatio = 0.
         #
     def getWords(self):
         return self._words

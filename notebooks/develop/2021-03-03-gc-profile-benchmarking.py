@@ -32,21 +32,20 @@ grouped_valid_df = pipeline(valid_df)
 # pospca_extractor = POSPCAExtractor(25, 10)
 # pospca_profile = MahalanobisProfile(pospca_extractor)
 
-heuristics_extractor = HeuristicExtractor(1)
+heuristics_extractor = HeuristicExtractor(4)
 heuristics_profile = MahalanobisProfile(heuristics_extractor)
 
-pos2gram_extractor = POS2GramExtractor(paragraph_length=1)
-pos2gram_profile = MahalanobisProfile(pos2gram_extractor)
+# pos2gram_extractor = POS2GramExtractor(paragraph_length=1)
+# pos2gram_profile = MahalanobisProfile(pos2gram_extractor)
 
-combined_extractor = ConcatExtractor(heuristics_extractor, pos2gram_extractor)
-combined_profile = MahalanobisProfile(combined_extractor)
+# combined_extractor = ConcatExtractor(heuristics_extractor, pos2gram_extractor)
+# combined_profile = MahalanobisProfile(combined_extractor)
 
-profiles = [heuristics_profile, pos2gram_profile, combined_profile]
-profile_names = ['Heuristics', 'POS Bigrams', 'Combined Heuristics/Bigrams']
+profiles = [heuristics_profile]
+profile_names = ['Heuristics']
 
-benchmark_results = benchmark_profiles(grouped_train_df, profiles,
-                                       show_loading=True, names=profile_names,
-                                       authors_per_sample=2, samples=2)
+benchmark_results = benchmark_profiles(grouped_valid_df, profiles,
+                                       show_loading=True, names=profile_names)
 
 benchmark_results
 
@@ -74,8 +73,12 @@ precision = true_positives / (true_positives + false_positives)
 
 balanced_accuracy = (sensitivity + specificity) / 2
 
-train_benchmarks = pd.DataFrame(data=[balanced_accuracy, specificity, sensitivity, precision],
-             index=['balanced accuracy', 'specificity', 'sensitivity (recall)', 'precision']).T
+train_benchmarks = pd.DataFrame(
+    data=[balanced_accuracy, specificity, sensitivity, precision],
+    index=['balanced accuracy', 'specificity', 'sensitivity (recall)',
+           'precision']).T
+
+train_benchmarks
 
 train_benchmarks.to_hdf(join(outputs_path, 'bawe_train_benchmarks.hdf5'), key='bawe_train_benchmarks')
 
