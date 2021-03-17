@@ -5,6 +5,5 @@ build
 dist
 notebooks.egg-info
 runs/
-**/.ipynb_checkpoints
 result_document.docx
 .~lock*
