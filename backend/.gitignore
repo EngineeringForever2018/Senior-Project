@@ -1,0 +1,6 @@
+.idea/
+db.sqlite3
+media/
+notebooks/
+environment.yml
+requirements.txt

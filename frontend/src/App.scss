@@ -1,0 +1,23 @@
+.HomePage {
+  .btn {
+    width: 20em;
+    height: 5em;
+    border: none;
+
+    display: block;
+
+    margin: 10em auto;
+    font-size: 20px;
+    line-height: 0;
+  }
+
+  .bad-essay-btn {
+    background-color: #ff1808;
+    color: white;
+  }
+
+  .good-essay-btn {
+    background-color: #17bd51;
+    color: white;
+  }
+}
