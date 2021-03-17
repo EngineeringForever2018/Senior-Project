@@ -7,3 +7,5 @@ notebooks.egg-info
 runs/
 result_document.docx
 .~lock*
+**/.ipynb_checkpoints
+**/__pycache__
