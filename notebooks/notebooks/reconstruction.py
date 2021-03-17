@@ -49,6 +49,9 @@ class WordReconstructable:
         sentence should be highlighted. annotated_paragraphs should be a dictionary, and
         the keys should match those from the paragraphs property.
         """
+        # The docx library seems to work with text runs, which was similar to the libary
+        # that Noah and I were looking at for the frontend. See the first example in
+        # https://python-docx.readthedocs.io/en/latest/
         pass
 
     @property

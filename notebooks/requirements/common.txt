@@ -12,3 +12,4 @@ setuptools
 pep517
 nltk
 sklearn
+docx
