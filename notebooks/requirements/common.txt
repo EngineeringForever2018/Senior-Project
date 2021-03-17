@@ -1,0 +1,14 @@
+torch
+tqdm
+torchtext
+tensorboard
+numpy
+spacy
+scipy
+pandas
+tables
+pdpipe
+setuptools
+pep517
+nltk
+sklearn
