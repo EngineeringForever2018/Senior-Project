@@ -8,7 +8,8 @@ setup(
               'notebooks.profiles',
               'notebooks.nets',
               'notebooks.feature_extractors',
-              'notebooks.datatools'],
+              'notebooks.datatools',
+              'notebooks.segmentation'],
     include_package_data=True,
     install_requires=[
         'torch',

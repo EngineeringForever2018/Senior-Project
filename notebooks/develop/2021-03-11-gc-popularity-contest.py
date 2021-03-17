@@ -13,7 +13,8 @@ from notebooks.utils import init_data_dir  # noqa
 from notebooks.benchmarking import benchmark_profiles  # noqa
 from notebooks import pipes
 from notebooks.profiles import MahalanobisProfile
-from notebooks.feature_extractors import HeuristicExtractor, OldPOS2GramExtractor, ConcatExtractor
+from notebooks.feature_extractors import HeuristicExtractor, OldPOS2GramTokenExtractor, ConcatExtractor
+from notebooks.segmentation import POSSentenceTokenizer
 
 init_data_dir(project_root)
 
@@ -29,23 +30,58 @@ grouped_train_df = pipeline(train_df)
 
 grouped_valid_df = pipeline(valid_df)
 
-# pospca_extractor = OldPOSPCAExtractor(25, 10)
+# grouped_train_df = grouped_train_df.sample(frac=0.05)
+
+sentence_tokenizer = POSSentenceTokenizer()
+
+tokenized_sentences = sentence_tokenizer.tokenize_list(grouped_train_df['sentence'].to_list(), 
+                                                       show_loading=True)
+
+grouped_train_df['sentence'] = tokenized_sentences
+
+grouped_train_df
+
+bigram_extractor = OldPOS2GramTokenExtractor()
+
+bigram_matrix = bigram_extractor(grouped_train_df['sentence'].to_list())
+
+# grouped_train_df['sentence'] = bigram_matrix
+
+# grouped_train_df
+
+bigram_means = np.mean(bigram_matrix, axis=0)
+
+sorted_indices = np.flip(np.argsort(bigram_means))
+
+np.reshape(np.arange(bigram_matrix.shape[1]), [18, 18])
+
+sorted_indices
+
+bigram_means[sorted_indices]
+
+bigram_means[sorted_indices][:50]
+
+sorted_indices[:50]
+
+np.save('../notebooks/resources/best_bigrams.npy', sorted_indices)
+
+# pospca_extractor = POSPCAExtractor(25, 10)
 # pospca_profile = MahalanobisProfile(pospca_extractor)
 
 heuristics_extractor = HeuristicExtractor(4)
 heuristics_profile = MahalanobisProfile(heuristics_extractor)
 
-pos2gram_extractor = OldPOS2GramExtractor(paragraph_length=1, best=20)
-pos2gram_profile = MahalanobisProfile(pos2gram_extractor)
+# pos2gram_extractor = POS2GramExtractor(paragraph_length=1)
+# pos2gram_profile = MahalanobisProfile(pos2gram_extractor)
 
-combined_extractor = ConcatExtractor(heuristics_extractor, pos2gram_extractor)
-combined_profile = MahalanobisProfile(combined_extractor)
+# combined_extractor = ConcatExtractor(heuristics_extractor, pos2gram_extractor)
+# combined_profile = MahalanobisProfile(combined_extractor)
 
-profiles = [heuristics_profile, pos2gram_profile, combined_profile]
-profile_names = ['Heuristics', 'POS Bigrams', 'Combined']
+profiles = [heuristics_profile]
+profile_names = ['Heuristics']
 
 benchmark_results = benchmark_profiles(grouped_valid_df, profiles,
-                                       show_loading=True, names=profile_names, samples=20, authors_per_sample=5)
+                                       show_loading=True, names=profile_names)
 
 benchmark_results
 

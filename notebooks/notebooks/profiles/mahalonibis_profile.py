@@ -34,34 +34,36 @@ class MahalanobisProfile:
     def score(self, text: Union[str, List[str]]):
         features = self.feature_extractor(text)
 
-        # feature = features[np.random.randint(0, len(features))]
-        feature = np.mean(features, axis=0)
+        feature, distance = self.score_helper(features)
 
-        try:
-            inv = np.linalg.inv(self._v)
-        except np.linalg.LinAlgError:
+        if distance == 'RAISE':
             return 0.
-        distance = np.matmul(np.matmul((self._u - feature), inv), (self._u - feature).T)
-        # distance = mahalanobis(self._u, feature, np.linalg.inv(self._v))
-        # distance = distance**2
 
         n = len(feature)
 
         return 1. - stats.chi2.cdf(distance, n)
 
-    def sentence_score(self, sentences):
-        features = self.feature_extractor.sentence_extract(sentences)
-
+    def score_helper(self, features):
         # feature = features[np.random.randint(0, len(features))]
         feature = np.mean(features, axis=0)
 
         try:
             inv = np.linalg.inv(self._v)
         except np.linalg.LinAlgError:
-            return 0.
+            return None, 'RAISE'
         distance = np.matmul(np.matmul((self._u - feature), inv), (self._u - feature).T)
         # distance = mahalanobis(self._u, feature, np.linalg.inv(self._v))
         # distance = distance**2
+
+        return feature, distance
+
+    def sentence_score(self, sentences):
+        features = self.feature_extractor.sentence_extract(sentences)
+
+        feature, distance = self.score_helper(features)
+
+        if distance == 'RAISE':
+            return 0.
 
         n = len(feature)
 

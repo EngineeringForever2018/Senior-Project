@@ -1,6 +1,4 @@
-.idea/
 db.sqlite3
 media/
 notebooks/
 venv/
-**/__pycache__/

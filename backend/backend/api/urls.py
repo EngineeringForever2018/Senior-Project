@@ -34,4 +34,9 @@ urlpatterns = [
     path(
         'instructor/classrooms/<int:classroom_pk>/assignments/<int:assignment_pk>/submissions/<int:submission_pk>/report',
         views.classroom.ReportView.as_view()),
+    path(
+        'instructor/classrooms/<int:classroom_pk>/assignments/<int:assignment_pk>/' +
+        'submissions/<int:submission_pk>/detailed-report',
+        views.classroom.DetailedReportView.as_view()
+    ),
 ]

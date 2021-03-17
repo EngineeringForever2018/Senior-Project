@@ -6,4 +6,5 @@ dist
 notebooks.egg-info
 runs/
 **/.ipynb_checkpoints
-**/__pycache__/
+result_document.docx
+.~lock*
