@@ -4,3 +4,4 @@ media/
 notebooks/
 environment.yml
 requirements.txt
+notebooks.egg-info/

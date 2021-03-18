@@ -1,3 +1,7 @@
 blogs/
 data/
 /develop/runs
+build/
+dist/
+notebooks.egg-info/
+result_document.docx
