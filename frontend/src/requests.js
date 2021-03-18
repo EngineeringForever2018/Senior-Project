@@ -23,6 +23,36 @@ export async function listClassroom(token) {
   return axios.get(`${serverUrl()}/instructor/classrooms`, requestConfig)
 }
 
+export async function getSubmission(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}`,
+    requestConfig)
+}
+
+export async function getSubmissionReport(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/report`,
+    requestConfig)
+}
+
+export async function getClassroomStudent(classroomID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/classrooms/${classroomID}/students/${id}`,
+    requestConfig)
+}
+
 export async function viewClassroom(Classid, token) {
   let requestConfig = {}
 

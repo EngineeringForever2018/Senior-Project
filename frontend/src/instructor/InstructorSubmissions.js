@@ -38,8 +38,7 @@ export function InstructorSubmissionsList() {
       listSubmissions(classroomID, id, token).then((response) => {
         setSubmissionList(
           response.data.map((assignment) => <li>
-            <button className="list-btn" onClick={() => {
-              setCurrentStudent(assignment['id'])}
+            <button className="list-btn" onClick={() => {history.push(`/instructor/classrooms/${classroomID}/assignments/${id}/submissions/${assignment['id']}/report`)}
             }>
               {assignment['id']}
             </button>

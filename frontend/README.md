@@ -3,13 +3,13 @@
 Install Docker and then build the container with:
 
 ```bash
-docker build -t avpd-frontend-test .
+docker build -t avpd-frontend .
 ```
 
 Once the container is built, you can run it anytime with:
 
 ```bash
-docker run -p 3000:3000 avpd-frontend-test
+docker run -p 3000:3000 avpd-frontend
 ```
 
 # Getting Started with Create React App
