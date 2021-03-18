@@ -1,12 +1,13 @@
 from datetime import datetime
 
 import pytz
-from django.http import Http404
+from django.http import Http404, FileResponse, HttpResponse
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import os
 
 from backend.api.models.classroom import Classroom, Assignment, Submission
 from backend.api.models.essay import Essay
@@ -467,3 +468,25 @@ class ReportView(APIView):
         response = Response(submission.contrast_report())
 
         return response
+
+class DetailedReportView(APIView):
+    @staticmethod
+    def get(request, classroom_pk, assignment_pk, submission_pk):
+        verify_user_type(request, 'instructor')
+
+        classroom = Classroom.objects.get(id=classroom_pk)
+        assignment = Assignment.objects.get(classroom=classroom, id=assignment_pk)
+        submission = Submission.objects.get(assignment=assignment, id=submission_pk)
+
+        # wf = open('dummy-detailed-report.docx', 'rb')
+        # response = Response({'file': wf}, content_type='Multipart/Form-data')
+        # response = FileResponse(wf, content_type='docx')
+        # response['Content-Length'] = len(wf.read())
+        # response['Content-Length'] = os.fstat(wf.fileno()).st_size
+        # response['Content-Disposition'] = f'attachment; filename="dummy-detailed-report.docx"'
+        # file_path = os.path.join(settings.MEDIA_ROOT, path)
+        # if os.path.exists(file_path):
+        with open('dummy-detailed-report.docx', 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/docx")
+            response['Content-Disposition'] = 'inline; filename=' + "dummy-detailed-report.docx"
+            return response
