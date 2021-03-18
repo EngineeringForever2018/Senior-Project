@@ -1,0 +1,53 @@
+.Assignments {
+
+  .background{
+    background-color: #F1F1F1;
+    margin: 0 auto;
+    width: 90%;
+    height: 45em;
+
+    .Text{
+      width: 90%;
+      margin: 0 auto;
+      padding: 0.5em 0 0 0.4em;
+    }
+
+    .assignment-title {
+      background-color: #B7B4B4;
+      margin: 0 auto;
+      width: 90%;
+      height: 40em;
+
+      .assignment-background {
+        background-color: #634C4C;
+        height: 3em;
+
+        .assignment-text {
+          font-size: 20px;
+          padding: 0.5em 0 0 0.4em;
+
+        }
+      }
+    }
+
+    .assignment-scroll{
+      height: 90%;
+      overflow-y: scroll;
+
+      .assignment-name {
+        list-style-type: none;
+        width: 80%;
+        margin: 0 auto;
+
+        .assignment-btn {
+          background-color: #8B8181;
+          font-size: 30px;
+          margin: 2em 0 0 0;
+          width: 80%;
+          height: 5em;
+          
+        }
+      }
+    }
+  }
+}
