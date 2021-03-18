@@ -6,10 +6,11 @@ from scipy.spatial.distance import mahalanobis
 
 
 class MahalanobisProfile:
-    def __init__(self, feature_extractor):
+    def __init__(self, feature_extractor, threshold=3.):
         self.feature_extractor = feature_extractor
         self._v = None
         self._u = None
+        self._threshold = threshold
 
     def reset(self):
         self._v = None
@@ -69,3 +70,13 @@ class MahalanobisProfile:
 
         return 1. - stats.chi2.cdf(distance, n)
 
+    def detailed_sentence_score(self, sentences):
+        features = self.feature_extractor.sentence_extract(sentences)
+
+        diff = self._u - features
+
+        distance = np.sqrt(np.sum(diff * diff, axis=1))
+        
+        flags = distance > self._threshold
+
+        return distance, flags
