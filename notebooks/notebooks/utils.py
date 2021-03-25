@@ -8,8 +8,8 @@ from torchtext.vocab import Vocab
 
 class POSVocab(Vocab):
     def __init__(self):
-        # Note, this seems to preserve order but come back here if models stop working after using a different vocab
-        # instance
+        # Note, this seems to preserve order but come back here if models stop working
+        # after using a different vocab instance
         pos_glossary = {
             "ADJ",
             "ADP",
@@ -28,7 +28,8 @@ class POSVocab(Vocab):
             "SCONJ",
             "SYM",
             "VERB"
-            # "X", We are not including "other" because that is handled by <UNK> with the torchtext vocab.
+            # "X", We are not including "other" because that is handled by <UNK> with
+            # the torchtext vocab.
             # "EOL", We'll let the models treat EOL and SPACE tokens as unknown.
             # "SPACE",
         }
@@ -56,7 +57,7 @@ def split_text(text: str, sentences_per_split, nlp=None):
 
 
 def default_nlp():
-    return spacy.load('en_core_web_sm')
+    return spacy.load("en_core_web_sm")
 
 
 def split_into_sentences(text: str, nlp=None):
@@ -69,9 +70,9 @@ def split_into_sentences(text: str, nlp=None):
 
 
 def init_data_dir(project_path):
-    data_dir = join(project_path, 'data')
-    raw_dir = join(data_dir, 'raw')
-    preprocess_dir = join(data_dir, 'preprocess')
+    data_dir = join(project_path, "data")
+    raw_dir = join(data_dir, "raw")
+    preprocess_dir = join(data_dir, "preprocess")
 
     # Data directory must come first!
     dirs = [data_dir, raw_dir, preprocess_dir]

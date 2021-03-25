@@ -1,7 +1,7 @@
 from docx import Document
 from notebooks.reconstruction import WordReconstructable
 
-with open('word_document_test.docx', 'rb') as wf:
+with open("word_document_test.docx", "rb") as wf:
     document = Document(wf)
 
 word_reconstructable = WordReconstructable(document)
@@ -12,17 +12,17 @@ word_reconstructable = WordReconstructable(document)
 # change WordReconstructable to accomodate.
 annotated_paragraphs = [
     [
-        ('\tThis is a sentence. ', False),
-        ('This paragraph started with a tab. ', True),
-        ('All sentences with more than five words should be highlighted. ', True),
-        ('This has four words.', False)
+        ("\tThis is a sentence. ", False),
+        ("This paragraph started with a tab. ", True),
+        ("All sentences with more than five words should be highlighted. ", True),
+        ("This has four words.", False),
     ],
     [
-        ('This is another sentence. ', False),
-        ('This paragraph did not start with a tab. ', True),
-        ('How many words are in this question? ', True),
-        ('There are five.', False)
-    ]
+        ("This is another sentence. ", False),
+        ("This paragraph did not start with a tab. ", True),
+        ("How many words are in this question? ", True),
+        ("There are five.", False),
+    ],
 ]
 
 print(word_reconstructable.paragraphs)
@@ -31,4 +31,4 @@ annotated_paragraphs = dict(zip(word_reconstructable.keys, annotated_paragraphs)
 
 word_reconstructable.highlight(annotated_paragraphs)
 
-word_reconstructable.document.save('result_document.docx')
+word_reconstructable.document.save("result_document.docx")

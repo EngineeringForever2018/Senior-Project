@@ -13,16 +13,18 @@ class POSSentenceTokenizer:
         else:
             sentence_iter = sentences
 
-        token_matrix = [[token.pos_ for token in self.nlp(sentence)] for sentence in sentence_iter]
+        token_matrix = [
+            [token.pos_ for token in self.nlp(sentence)] for sentence in sentence_iter
+        ]
 
         return token_matrix
 
     def tokenize(self, text: str, show_loading=False):
         if show_loading:
-            print('NLP...', flush=True)
+            print("NLP...", flush=True)
         doc = self.nlp(text)
         if show_loading:
-            print('NLP done.', flush=True)
+            print("NLP done.", flush=True)
 
         if show_loading:
             sent_iter = tqdm(doc.sents)
@@ -35,4 +37,3 @@ class POSSentenceTokenizer:
 
     def __call__(self, *args, **kwargs):
         return self.tokenize(*args, **kwargs)
-
