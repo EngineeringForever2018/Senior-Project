@@ -106,5 +106,4 @@ class TestMultipleFeeds:
         profile.feed(author_texts[0])
         distances = profile.distances(suspect_texts)
 
-        # WTF: Passing
         assert tutils.npclose(distances, expected_distances)
