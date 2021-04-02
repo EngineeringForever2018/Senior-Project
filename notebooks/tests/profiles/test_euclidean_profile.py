@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from notebooks.profiles import EuclideanProfile
 from notebooks.structures import PaddedArray
@@ -13,7 +14,14 @@ class TestEuclideanProfile:
                 np.array([[1.0, 2.0, 1.0], [0.0, 0.0, 0.0]]),
                 np.array([[4.2, -5.5, 2.1], [3.3, 3.4, 3.2], [-1.2, -2.2, -3.2]]),
             ]
-        )
+        ),
+        pd.DataFrame(
+            [[2.5, -3.3], [2.3, 2.3], [1.1, 2.1], [-2.0, -5.5], [8.3, 9.2]],
+            columns=["random", "column"],
+            index=pd.MultiIndex.from_tuples(
+                [(5, 0), (5, 1), (5, 2), (8, 0), (8, 1)], names=["name0", "name69"]
+            ),
+        ),
     ]
 
     suspect_text_sets = [
@@ -22,10 +30,23 @@ class TestEuclideanProfile:
                 np.array([[2.2, 3.3, 4.4], [0.4, 9.0, 0.2], [5.3, 3.2, 19.8]]),
                 np.array([[-2.4, -1.2, -3.3], [-1.3, -12.2, -3.2]]),
             ]
-        )
+        ),
+        pd.DataFrame(
+            [[2.9, -3.3], [1.1, 2.1], [-2.0, -5.5], [8.3, 9.2]],
+            columns=["random", "column"],
+            index=pd.MultiIndex.from_tuples(
+                [(9, 0), (3, 0), (3, 1), (3, 2)], names=["name0", "name69"]
+            ),
+        ),
     ]
 
-    expected_distance_sets = [np.array([9.4597, 8.0542])]
+    expected_distance_sets = [
+        np.array([9.4597, 8.0542]),
+        pd.Series(
+            [0.9737, 4.2848],
+            index=pd.MultiIndex.from_tuples([(3,), (9,)], names=["name0"]),
+        ),
+    ]
 
     @pytest.mark.parametrize(
         "author_text, suspect_texts, expected_distances",

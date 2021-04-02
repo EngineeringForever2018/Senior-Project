@@ -6,7 +6,9 @@ from tests import tutils
 
 # TODO: Error handling whenever distances are asked for without feeding.
 # TODO: Batch profile generation (Maybe)
-class TestProfile:
+# TODO: Refactor profiles and feature extractors to only accept DataFrames and only
+#       return DataFrames. (Maybe use inherited version of DataFrame).
+class TestBaseProfile:
     profiles = [EuclideanProfile(), EuclideanProfile(), EuclideanProfile()]
 
     author_texts = [

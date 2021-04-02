@@ -1,6 +1,6 @@
 import numpy as np
+import pandas as pd
 from notebooks.profiles import BaseProfile
-from notebooks.structures import PaddedArray, padded_mean
 
 
 class EuclideanProfile(BaseProfile):
@@ -13,7 +13,7 @@ class EuclideanProfile(BaseProfile):
         self._mean = None
         self._count = 0
 
-    def _feed(self, author_texts: PaddedArray):
+    def _feed(self, author_texts: pd.DataFrame):
         """
         Feed :param author_texts into the profile, which will be compared to the suspect
         data later.
@@ -36,27 +36,21 @@ class EuclideanProfile(BaseProfile):
     def _ready(self):
         return self._mean is not None
 
-    def _distances(self, suspect_texts):
+    def _distances(self, suspect_texts: pd.DataFrame):
         """
         Get the distance from the profile to each set of observations from :param
         suspect_texts. :param suspect_texts is expected to be a (num_essays,
         num_segments, feature_dim) numpy array.
         """
-        suspect_means = padded_mean(suspect_texts)
+        suspect_means = suspect_texts.groupby(level=-2).mean()
 
         suspect_diffs = self._mean - suspect_means
 
-        return np.linalg.norm(suspect_diffs, axis=1)
+        return np.sqrt((suspect_diffs * suspect_diffs).sum(axis=1))
 
-    def _author_mean(self, author_texts: PaddedArray):
-        text_means = padded_mean(author_texts)
-
-        count = np.sum(author_texts.lengths)
-        weights = author_texts.lengths / count
-
-        # We must do weighted average since the different texts can have different
-        # lengths.
-        mean = np.sum(text_means * weights[..., None], axis=0)
+    def _author_mean(self, author_texts: pd.DataFrame):
+        mean = author_texts.mean()
+        count = len(author_texts)
 
         return mean, count
 
