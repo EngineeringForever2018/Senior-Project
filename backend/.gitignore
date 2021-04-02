@@ -1,0 +1,7 @@
+db.sqlite3
+media/
+notebooks/
+venv/
+.idea/
+**/__pycache
+notebooks.egg-info/

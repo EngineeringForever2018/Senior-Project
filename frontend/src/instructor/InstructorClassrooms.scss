@@ -1,0 +1,73 @@
+.Instructor-Assignment {
+  .background {
+    background-color: #B7B4B4;
+    margin: 0 auto;
+    width: 65em;
+    height: 40em;
+  
+    .title {
+      background-color: #734C4C; 
+      height: 3em;
+  
+      .text {
+        font-size: 20px;
+        padding: 0.5em 0 0 0.4em;
+
+      }
+    }
+  
+
+    .scroll{
+      height: 90%;
+      overflow-y: scroll;
+  
+      .titles {
+        list-style-type: none;
+        width: 60%;
+        margin: 0 auto;
+  
+          .list-btn {
+            background-color: #8B8181;
+            font-size: 30px;
+            margin: 2em 0 0 0;
+            width: 20em;
+            height: 5em;
+
+          }
+        }
+      }
+
+      .options{
+        background-color: #634C4C;
+        height: 2em;
+        font-size: 20px;
+        padding: 0.5em 0.5em 0 0.8em;
+        text-align-last: right;
+      }
+  }
+}
+
+.Instructor-Assignment-Create{
+  .form-background {
+    background-color: #B7B4B4;
+    margin: 0 auto;
+    width: 65em;
+    height: 40em;
+
+    .form-title {
+      background-color: #634C4C; 
+      height: 3em;
+  
+      .form-text {
+        font-size: 20px;
+        padding: 0.5em 0 0 0.4em;
+
+      }
+    }
+
+    .form-input{
+      margin-left: 5%;
+      margin-right: 20%;
+    }
+  }
+}

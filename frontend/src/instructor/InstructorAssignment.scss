@@ -1,0 +1,58 @@
+.Instructor-Assignment-Info {
+  .background {
+    background-color: #B7B4B4;
+    margin: 0 auto;
+    width: 65em;
+    height: 40em;
+  
+    .title {
+      background-color: #734C4C; 
+      height: 3em;
+  
+      .text {
+        font-size: 20px;
+        padding: 0.5em 0 0 0.4em;
+
+      }
+    }
+  
+
+    .body-text{
+      height: 90%;
+      overflow-y: scroll;
+    }
+
+    .options-test{
+      background-color: #634C4C;
+      height: 2em;
+      font-size: 20px;
+      padding: 0.5em 0.5em 0 0.8em;
+      text-align-last: right;
+    }
+  }
+}
+
+.Instructor-Assignment-Update{
+  .form-background {
+    background-color: #B7B4B4;
+    margin: 0 auto;
+    width: 65em;
+    height: 40em;
+
+    .form-title {
+      background-color: #634C4C; 
+      height: 3em;
+  
+      .form-text {
+        font-size: 20px;
+        padding: 0.5em 0 0 0.4em;
+
+      }
+    }
+
+    .form-input{
+      margin-left: 5%;
+      margin-right: 20%;
+    }
+  }
+}
