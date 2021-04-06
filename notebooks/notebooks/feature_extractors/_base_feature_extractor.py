@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 import pandas as pd
 from numpy import ndarray
 from abc import ABC, abstractmethod
@@ -12,13 +13,17 @@ class BaseFeatureExtractor(ABC):
     segment.
     """
 
-    def __call__(self, segments) -> ndarray:
+    def __call__(self, segments, show_loading=False) -> ndarray:
         """
         Turn :param segments into a feature matrix of size (n_segments, feature_dim)
         """
         if isinstance(segments, pd.DataFrame):
+            if show_loading:
+                segment_list = tqdm(segments["text"])
+            else:
+                segment_list = segments["text"]
             return pd.DataFrame(
-                [self._segment_extract(segment) for segment in segments["text"]],
+                [self._segment_extract(segment) for segment in segment_list],
                 index=segments.index,
             )
 

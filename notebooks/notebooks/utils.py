@@ -1,6 +1,7 @@
 import os
 from collections import Counter
 from os.path import join
+import pandas as pd
 
 import spacy
 from torchtext.vocab import Vocab
@@ -91,3 +92,7 @@ def pos_tag(sentence: list, pos_vocab=None):
     pos_vocab = pos_vocab or POSVocab()
 
     return [pos_vocab[token] for token in sentence]
+
+
+def extract_author_texts(author, df):
+    return df.loc[(author, 0)], df.drop(index=(author, 0))
