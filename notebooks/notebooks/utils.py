@@ -1,7 +1,6 @@
 import os
 from collections import Counter
 from os.path import join
-import pandas as pd
 
 import spacy
 from torchtext.vocab import Vocab

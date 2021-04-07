@@ -13,8 +13,9 @@ from notebooks.utils import init_data_dir, extract_author_texts  # noqa
 
 from notebooks import pipes
 from notebooks.profiles import EuclideanProfile
+from notebooks import benchmarking as bench
 from notebooks.feature_extractors import HeuristicsExtractor
-from notebooks.thresholders import SimpleAccuracyThresholder
+from notebooks.thresholders import SimpleAccuracyThresholder, SimpleThresholder
 
 init_data_dir(project_root)
 
@@ -31,7 +32,8 @@ feature_extractors = [(HeuristicsExtractor(), "heuristics_extractor")]
 
 profiles = [(EuclideanProfile(), "euclidean_distance_profile")]
 
-thresholders = [(SimpleAccuracyThresholder(), "accuracy_thresholder")]
+thresholders = [(SimpleAccuracyThresholder(), "accuracy_thresholder"),
+                (SimpleThresholder(bench.balanced_accuracies), "balanced_accuracy_thresholder")]
 
 preprocessed_dfs = []
 
@@ -71,8 +73,8 @@ def train_threshold(profile, df, thresholder):
 
         true_flags = distances.index.get_level_values(0) != author
 
-        distance_sets.append(distances[0].to_numpy())
-        true_flag_sets.append(true_flags.to_numpy())
+        distance_sets.append(distances.to_numpy())
+        true_flag_sets.append(true_flags)
 
     distances = np.concatenate(distance_sets)
     true_flags = np.concatenate(true_flag_sets)
@@ -93,14 +95,16 @@ def test_profile(profile, threshold, df):
         profile.feed(author_texts)
         distances = profile.distances(rest_df)
 
-        flags = distances[0] > threshold
+        flags = distances > threshold
         true_flags = distances.index.get_level_values(0) != author
 
         flag_sets.append(flags.to_numpy())
-        true_flag_sets.append(true_flags.to_numpy())
+        true_flag_sets.append(true_flags)
 
     flags = np.concatenate(flag_sets)
     true_flags = np.concatenate(true_flag_sets)
+
+    return [bench.balanced_accuracy(flags, true_flags)]
 
 
 score_data = []
@@ -115,6 +119,10 @@ for profile, profile_name in profiles:
             scores = test_profile(profile, threshold, preprocessed_valid_df)
             score_data.append(scores)
             model_names.append(f"{profile_name}-{thresholder_name}-{extractor_name}")
+
+results_df = pd.DataFrame(score_data, index=model_names, columns=["balanced_accuracy"])
+
+results_df
 
 preprocessed_dfs[0][0].index.get_level_values(0)
 

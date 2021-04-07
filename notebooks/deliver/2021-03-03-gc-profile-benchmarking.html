@@ -13099,8 +13099,9 @@ div#notebook {
 
 <span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">pipes</span>
 <span class="kn">from</span> <span class="nn">notebooks.profiles</span> <span class="kn">import</span> <span class="n">EuclideanProfile</span>
+<span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">benchmarking</span> <span class="k">as</span> <span class="n">bench</span>
 <span class="kn">from</span> <span class="nn">notebooks.feature_extractors</span> <span class="kn">import</span> <span class="n">HeuristicsExtractor</span>
-<span class="kn">from</span> <span class="nn">notebooks.thresholders</span> <span class="kn">import</span> <span class="n">SimpleAccuracyThresholder</span>
+<span class="kn">from</span> <span class="nn">notebooks.thresholders</span> <span class="kn">import</span> <span class="n">SimpleAccuracyThresholder</span><span class="p">,</span> <span class="n">SimpleThresholder</span>
 
 <span class="n">init_data_dir</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
 
@@ -13128,7 +13129,8 @@ div#notebook {
 
 <span class="n">profiles</span> <span class="o">=</span> <span class="p">[(</span><span class="n">EuclideanProfile</span><span class="p">(),</span> <span class="s2">&quot;euclidean_distance_profile&quot;</span><span class="p">)]</span>
 
-<span class="n">thresholders</span> <span class="o">=</span> <span class="p">[(</span><span class="n">SimpleAccuracyThresholder</span><span class="p">(),</span> <span class="s2">&quot;accuracy_thresholder&quot;</span><span class="p">)]</span>
+<span class="n">thresholders</span> <span class="o">=</span> <span class="p">[(</span><span class="n">SimpleAccuracyThresholder</span><span class="p">(),</span> <span class="s2">&quot;accuracy_thresholder&quot;</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">SimpleThresholder</span><span class="p">(</span><span class="n">bench</span><span class="o">.</span><span class="n">balanced_accuracies</span><span class="p">),</span> <span class="s2">&quot;balanced_accuracy_thresholder&quot;</span><span class="p">)]</span>
 </pre></div>
 
     </div>
@@ -13172,7 +13174,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">train_threshold</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">thresholder</span><span class="p">):</span>
@@ -13190,8 +13192,8 @@ div#notebook {
 
         <span class="n">true_flags</span> <span class="o">=</span> <span class="n">distances</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">author</span>
 
-        <span class="n">distance_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-        <span class="n">true_flag_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_flags</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+        <span class="n">distance_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">distances</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+        <span class="n">true_flag_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_flags</span><span class="p">)</span>
 
     <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">distance_sets</span><span class="p">)</span>
     <span class="n">true_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">true_flag_sets</span><span class="p">)</span>
@@ -13212,14 +13214,16 @@ div#notebook {
         <span class="n">profile</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">author_texts</span><span class="p">)</span>
         <span class="n">distances</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">distances</span><span class="p">(</span><span class="n">rest_df</span><span class="p">)</span>
 
-        <span class="n">flags</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">distances</span> <span class="o">&gt;</span> <span class="n">threshold</span>
         <span class="n">true_flags</span> <span class="o">=</span> <span class="n">distances</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="n">author</span>
 
         <span class="n">flag_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-        <span class="n">true_flag_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_flags</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+        <span class="n">true_flag_sets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_flags</span><span class="p">)</span>
 
     <span class="n">flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">flag_sets</span><span class="p">)</span>
     <span class="n">true_flags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">true_flag_sets</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">bench</span><span class="o">.</span><span class="n">balanced_accuracy</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="n">true_flags</span><span class="p">)]</span>
 
 
 <span class="n">score_data</span> <span class="o">=</span> <span class="p">[]</span>
@@ -13234,6 +13238,8 @@ div#notebook {
             <span class="n">scores</span> <span class="o">=</span> <span class="n">test_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">preprocessed_valid_df</span><span class="p">)</span>
             <span class="n">score_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
             <span class="n">model_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">profile_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">thresholder_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">extractor_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">score_data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">model_names</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;balanced_accuracy&quot;</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13249,25 +13255,151 @@ div#notebook {
     <div class="prompt"></div>
 
 
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.9/site-packages/IPython/core/interactiveshell.py</span>, in <span class="ansi-green-fg">run_code</span>:
-Line <span class="ansi-blue-fg">3437</span>:  exec(code_obj, <span class="ansi-cyan-fg">self</span>.user_global_ns, <span class="ansi-cyan-fg">self</span>.user_ns)
-
-In  <span class="ansi-blue-fg">[6]</span>:
-Line <span class="ansi-blue-fg">1</span>:     preprocessed_dfs[<span class="ansi-blue-fg">0</span>][<span class="ansi-blue-fg">0</span>][<span class="ansi-yellow-fg">&#34;</span><span class="ansi-yellow-fg">author</span><span class="ansi-yellow-fg">&#34;</span>]
-
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.9/site-packages/pandas/core/frame.py</span>, in <span class="ansi-green-fg">__getitem__</span>:
-Line <span class="ansi-blue-fg">3024</span>:  indexer = <span class="ansi-cyan-fg">self</span>.columns.get_loc(key)
-
-File <span class="ansi-blue-fg">/home/gchristensen/anaconda3/envs/avpd/lib/python3.9/site-packages/pandas/core/indexes/base.py</span>, in <span class="ansi-green-fg">get_loc</span>:
-Line <span class="ansi-blue-fg">3082</span>:  <span class="ansi-blue-fg">raise</span> <span class="ansi-cyan-fg">KeyError</span>(key) <span class="ansi-blue-fg">from</span> <span class="ansi-cyan-fg ansi-underline">err</span>
-
-<span class="ansi-red-fg">KeyError</span>: &#39;author&#39;
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span></pre>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Training...
+</pre>
 </div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>100%|##########| 527/527 [02:51&lt;00:00,  3.08it/s]
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Testing...
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>100%|##########| 521/521 [02:52&lt;00:00,  3.03it/s]
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Training...
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>100%|##########| 527/527 [02:52&lt;00:00,  3.05it/s]
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Testing...
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>100%|##########| 521/521 [02:52&lt;00:00,  3.03it/s]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">results_df</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[9]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>balanced_accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>euclidean_distance_profile-accuracy_thresholder-heuristics_extractor</th>
+      <td>[0.5]</td>
+    </tr>
+    <tr>
+      <th>euclidean_distance_profile-balanced_accuracy_thresholder-heuristics_extractor</th>
+      <td>[0.46530385923406775]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
 </div>
 
 </div>

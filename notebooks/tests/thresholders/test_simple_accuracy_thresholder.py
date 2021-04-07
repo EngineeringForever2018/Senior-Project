@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 
 
+# TODO: Add explicit tests for SimpleThresholder
 # TODO: Error condition: No distances
 # TODO: Error condition: Different lengths between distances and label
 # TODO: Error condition: Negative distances
