@@ -1,7 +1,4 @@
-torch
 tqdm
-torchtext
-tensorboard
 numpy
 spacy
 scipy

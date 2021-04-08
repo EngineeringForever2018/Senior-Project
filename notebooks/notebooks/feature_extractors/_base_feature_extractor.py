@@ -1,34 +1,14 @@
-import numpy as np
-from tqdm import tqdm
-import pandas as pd
-from numpy import ndarray
 from abc import ABC, abstractmethod
-from typing import List
+import pandas as pd
 
 
 class BaseFeatureExtractor(ABC):
-    """
-    The base feature extractor class for concrete feature extractors to implement,
-    concrete classes should only have to worry about extracting features from a single
-    segment.
-    """
+    def __call__(self, *args, **kwargs) -> pd.DataFrame:
+        return self.extract(*args, **kwargs) 
 
-    def __call__(self, segments, show_loading=False) -> ndarray:
-        """
-        Turn :param segments into a feature matrix of size (n_segments, feature_dim)
-        """
-        if isinstance(segments, pd.DataFrame):
-            if show_loading:
-                segment_list = tqdm(segments["text"])
-            else:
-                segment_list = segments["text"]
-            return pd.DataFrame(
-                [self._segment_extract(segment) for segment in segment_list],
-                index=segments.index,
-            )
-
-        return np.array([self._segment_extract(segment) for segment in segments])
+    def extract(self, segments: pd.DataFrame, show_loading=False) -> pd.DataFrame:
+        return self._extract(segments, show_loading)
 
     @abstractmethod
-    def _segment_extract(self, segment: str) -> List[float]:
+    def _extract(self, segments: pd.DataFrame, show_loading: bool) -> pd.DataFrame:
         pass

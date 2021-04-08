@@ -7,6 +7,7 @@ import numpy as np
 # TODO: Error condition: No distances
 # TODO: Error condition: Different lengths between distances and label
 # TODO: Error condition: Negative distances
+# TODO: ^ Actually its not, this needs to be made to work with negative distances
 class TestSimpleAccuracyThresholder:
     distance_sets = [
         np.array([1.0, 2.0, 3.0, 4.0]),

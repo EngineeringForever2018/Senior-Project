@@ -13098,9 +13098,9 @@ div#notebook {
 <span class="kn">from</span> <span class="nn">notebooks.utils</span> <span class="kn">import</span> <span class="n">init_data_dir</span><span class="p">,</span> <span class="n">extract_author_texts</span>  <span class="c1"># noqa</span>
 
 <span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">pipes</span>
-<span class="kn">from</span> <span class="nn">notebooks.profiles</span> <span class="kn">import</span> <span class="n">EuclideanProfile</span>
+<span class="kn">from</span> <span class="nn">notebooks.profiles</span> <span class="kn">import</span> <span class="n">EuclideanProfile</span><span class="p">,</span> <span class="n">NaiveBayesProfile</span>
 <span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">benchmarking</span> <span class="k">as</span> <span class="n">bench</span>
-<span class="kn">from</span> <span class="nn">notebooks.feature_extractors</span> <span class="kn">import</span> <span class="n">HeuristicsExtractor</span>
+<span class="kn">from</span> <span class="nn">notebooks.feature_extractors</span> <span class="kn">import</span> <span class="n">HeuristicsExtractor</span><span class="p">,</span> <span class="n">FunctionWordCounter</span><span class="p">,</span> <span class="n">POS2GramCounter</span>
 <span class="kn">from</span> <span class="nn">notebooks.thresholders</span> <span class="kn">import</span> <span class="n">SimpleAccuracyThresholder</span><span class="p">,</span> <span class="n">SimpleThresholder</span>
 
 <span class="n">init_data_dir</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
@@ -13125,12 +13125,13 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">feature_extractors</span> <span class="o">=</span> <span class="p">[(</span><span class="n">HeuristicsExtractor</span><span class="p">(),</span> <span class="s2">&quot;heuristics_extractor&quot;</span><span class="p">)]</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># feature_extractors = [(HeuristicsExtractor(), &quot;heuristics_extractor&quot;)]</span>
+<span class="n">feature_extractors</span> <span class="o">=</span> <span class="p">[(</span><span class="n">POS2GramCounter</span><span class="p">(),</span> <span class="s2">&quot;pos2gram_counter&quot;</span><span class="p">)]</span>
 
 <span class="n">profiles</span> <span class="o">=</span> <span class="p">[(</span><span class="n">EuclideanProfile</span><span class="p">(),</span> <span class="s2">&quot;euclidean_distance_profile&quot;</span><span class="p">)]</span>
+<span class="c1"># profiles = [(NaiveBayesProfile(), &quot;naive_bayes_profile&quot;)]</span>
 
-<span class="n">thresholders</span> <span class="o">=</span> <span class="p">[(</span><span class="n">SimpleAccuracyThresholder</span><span class="p">(),</span> <span class="s2">&quot;accuracy_thresholder&quot;</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">SimpleThresholder</span><span class="p">(</span><span class="n">bench</span><span class="o">.</span><span class="n">balanced_accuracies</span><span class="p">),</span> <span class="s2">&quot;balanced_accuracy_thresholder&quot;</span><span class="p">)]</span>
+<span class="n">thresholders</span> <span class="o">=</span> <span class="p">[(</span><span class="n">SimpleThresholder</span><span class="p">(</span><span class="n">bench</span><span class="o">.</span><span class="n">balanced_accuracies</span><span class="p">),</span> <span class="s2">&quot;balanced_accuracy_thresholder&quot;</span><span class="p">)]</span>
 </pre></div>
 
     </div>
@@ -13174,7 +13175,87 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># heuristics_train = preprocessed_dfs[0][0]</span>
+<span class="c1"># heuristics_test = preprocessed_dfs[0][1]</span>
+
+<span class="c1"># scaled_heuristics_train = (heuristics_train - heuristics_train.mean()) / heuristics_train.std()</span>
+<span class="c1"># scaled_heuristics_test = (heuristics_test - heuristics_test.mean()) / heuristics_test.std()</span>
+<span class="c1"># preprocessed_dfs.append((scaled_heuristics_train, scaled_heuristics_test, &quot;scaled_heuristics&quot;))</span>
+
+<span class="c1"># function_words_train = preprocessed_dfs[0][0]</span>
+<span class="c1"># function_words_test = preprocessed_dfs[0][1]</span>
+<span class="c1"># pca_train = function_words_train</span>
+
+<span class="c1"># pca_standardized = (pca_train - pca_train.mean()) / pca_train.std()</span>
+
+<span class="c1"># pca_cov = pca_standardized.cov()</span>
+
+<span class="c1"># pca_eigvals, pca_eigvecs = np.linalg.eig(pca_cov)</span>
+<span class="c1"># sort_indices = np.flip(np.argsort(pca_eigvals))</span>
+<span class="c1"># pca_eigvals, pca_eigvecs = pca_eigvals[sort_indices], pca_eigvecs[sort_indices]</span>
+
+<span class="c1"># transformation_matrix0 = pca_eigvecs[:, :5]</span>
+<span class="c1"># transformation_matrix1 = pca_eigvecs[:, :10]</span>
+<span class="c1"># transformation_matrix2 = pca_eigvecs[:, :15]</span>
+<span class="c1"># transformation_matrix3 = pca_eigvecs[:, :20]</span>
+
+<span class="c1"># pca_function_words_train0 = function_words_train.dot(transformation_matrix0)</span>
+<span class="c1"># pca_function_words_test0 = function_words_test.dot(transformation_matrix0)</span>
+<span class="c1"># pca_function_words_train1 = function_words_train.dot(transformation_matrix1)</span>
+<span class="c1"># pca_function_words_test1 = function_words_test.dot(transformation_matrix1)</span>
+<span class="c1"># pca_function_words_train2 = function_words_train.dot(transformation_matrix2)</span>
+<span class="c1"># pca_function_words_test2 = function_words_test.dot(transformation_matrix2)</span>
+<span class="c1"># pca_function_words_train3 = function_words_train.dot(transformation_matrix3)</span>
+<span class="c1"># pca_function_words_test3 = function_words_test.dot(transformation_matrix3)</span>
+
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train0, pca_function_words_test0, &quot;pca_function_words0&quot;))</span>
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train1, pca_function_words_test1, &quot;pca_function_words1&quot;))</span>
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train2, pca_function_words_test2, &quot;pca_function_words2&quot;))</span>
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train3, pca_function_words_test3, &quot;pca_function_words3&quot;))</span>
+
+<span class="c1"># function_words_train = preprocessed_dfs[0][0]</span>
+<span class="c1"># function_words_test = preprocessed_dfs[0][1]</span>
+<span class="c1"># pca_train = function_words_train</span>
+
+<span class="c1"># pca_standardized = (pca_train - pca_train.mean()) / pca_train.std()</span>
+
+<span class="c1"># pca_cov = pca_standardized.cov()</span>
+
+<span class="c1"># pca_eigvals, pca_eigvecs = np.linalg.eig(pca_cov)</span>
+<span class="c1"># sort_indices = np.flip(np.argsort(pca_eigvals))</span>
+<span class="c1"># pca_eigvals, pca_eigvecs = pca_eigvals[sort_indices], pca_eigvecs[sort_indices]</span>
+
+<span class="c1"># transformation_matrix0 = pca_eigvecs[:, :5]</span>
+<span class="c1"># transformation_matrix1 = pca_eigvecs[:, :10]</span>
+<span class="c1"># transformation_matrix2 = pca_eigvecs[:, :15]</span>
+<span class="c1"># transformation_matrix3 = pca_eigvecs[:, :20]</span>
+
+<span class="c1"># pca_function_words_train0 = function_words_train.dot(transformation_matrix0)</span>
+<span class="c1"># pca_function_words_test0 = function_words_test.dot(transformation_matrix0)</span>
+<span class="c1"># pca_function_words_train1 = function_words_train.dot(transformation_matrix1)</span>
+<span class="c1"># pca_function_words_test1 = function_words_test.dot(transformation_matrix1)</span>
+<span class="c1"># pca_function_words_train2 = function_words_train.dot(transformation_matrix2)</span>
+<span class="c1"># pca_function_words_test2 = function_words_test.dot(transformation_matrix2)</span>
+<span class="c1"># pca_function_words_train3 = function_words_train.dot(transformation_matrix3)</span>
+<span class="c1"># pca_function_words_test3 = function_words_test.dot(transformation_matrix3)</span>
+
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train0, pca_function_words_test0, &quot;pca_function_words0&quot;))</span>
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train1, pca_function_words_test1, &quot;pca_function_words1&quot;))</span>
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train2, pca_function_words_test2, &quot;pca_function_words2&quot;))</span>
+<span class="c1"># preprocessed_dfs.append((pca_function_words_train3, pca_function_words_test3, &quot;pca_function_words3&quot;))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">train_threshold</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">thresholder</span><span class="p">):</span>
@@ -13227,19 +13308,20 @@ div#notebook {
 
 
 <span class="n">score_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">thresholds</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">model_names</span> <span class="o">=</span> <span class="p">[]</span>
 
 <span class="k">for</span> <span class="n">profile</span><span class="p">,</span> <span class="n">profile_name</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">thresholder</span><span class="p">,</span> <span class="n">thresholder_name</span> <span class="ow">in</span> <span class="n">thresholders</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">preprocessed_train_df</span><span class="p">,</span> <span class="n">preprocessed_valid_df</span><span class="p">,</span> <span class="n">extractor_name</span> <span class="ow">in</span> <span class="n">preprocessed_dfs</span><span class="p">:</span>
             <span class="n">threshold</span> <span class="o">=</span> <span class="n">train_threshold</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">preprocessed_train_df</span><span class="p">,</span> <span class="n">thresholder</span><span class="p">)</span>
+            <span class="n">thresholds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
             <span class="n">profile</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-            <span class="n">scores</span> <span class="o">=</span> <span class="n">test_profile</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">preprocessed_valid_df</span><span class="p">)</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">test_profile</span><span class="p">(</span><span class="n">pr</span>
+                                  <span class="n">ofile</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">preprocessed_valid_df</span><span class="p">)</span>
             <span class="n">score_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
             <span class="n">model_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">profile_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">thresholder_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">extractor_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">score_data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">model_names</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;balanced_accuracy&quot;</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -13267,7 +13349,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 527/527 [02:51&lt;00:00,  3.08it/s]
+<pre>100%|##########| 527/527 [07:08&lt;00:00,  1.23it/s]
 </pre>
 </div>
 </div>
@@ -13289,55 +13371,75 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 521/521 [02:52&lt;00:00,  3.03it/s]
+<pre>100%|##########| 521/521 [07:03&lt;00:00,  1.23it/s]
 </pre>
 </div>
 </div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">score_data</span><span class="p">,</span> <span class="n">model_names</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
 
 <div class="output_area">
 
-    <div class="prompt"></div>
+    <div class="prompt output_prompt">Out[6]:</div>
 
 
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Training...
-</pre>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>([[array([0.49067909])]],
+ [&#39;euclidean_distance_profile-balanced_accuracy_thresholder-pos2gram_counter&#39;])</pre>
+</div>
+
+</div>
+
 </div>
 </div>
 
-<div class="output_area">
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># test_profile(EuclideanProfile(), thresholds[0], preprocessed_dfs[0][0])</span>
+</pre></div>
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 527/527 [02:52&lt;00:00,  3.05it/s]
-</pre>
+    </div>
 </div>
 </div>
 
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Testing...
-</pre>
 </div>
-</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># sentence_count = len(function_words_train)</span>
 
-<div class="output_area">
+<span class="c1"># where_true = ((function_words_train.sum() / (sentence_count / 100)) &gt; 1)</span>
 
-    <div class="prompt"></div>
+<span class="c1"># chosen_word_indices = where_true[where_true].index.tolist()</span>
+</pre></div>
 
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 521/521 [02:52&lt;00:00,  3.03it/s]
-</pre>
-</div>
-</div>
-
+    </div>
 </div>
 </div>
 
@@ -13347,120 +13449,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">results_df</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[9]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>balanced_accuracy</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>euclidean_distance_profile-accuracy_thresholder-heuristics_extractor</th>
-      <td>[0.5]</td>
-    </tr>
-    <tr>
-      <th>euclidean_distance_profile-balanced_accuracy_thresholder-heuristics_extractor</th>
-      <td>[0.46530385923406775]</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">preprocessed_dfs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[7]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>Int64Index([   1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-            ...
-            6998, 6998, 6998, 6998, 6998, 6998, 6998, 6998, 6998, 6998],
-           dtype=&#39;int64&#39;, name=&#39;author&#39;, length=147807)</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># pospca_extractor = OldPOSPCAExtractor(25, 10)</span>
-<span class="c1"># pospca_profile = MahalanobisProfile(pospca_extractor)</span>
-
-<span class="n">heuristics_extractor</span> <span class="o">=</span> <span class="n">HeuristicExtractor</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="n">heuristics_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">heuristics_extractor</span><span class="p">)</span>
-
-<span class="n">pos2gram_extractor</span> <span class="o">=</span> <span class="n">OldPOS2GramExtractor</span><span class="p">(</span><span class="n">paragraph_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">best</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="n">pos2gram_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">pos2gram_extractor</span><span class="p">)</span>
-
-<span class="n">combined_extractor</span> <span class="o">=</span> <span class="n">ConcatExtractor</span><span class="p">(</span><span class="n">heuristics_extractor</span><span class="p">,</span> <span class="n">pos2gram_extractor</span><span class="p">)</span>
-<span class="n">combined_profile</span> <span class="o">=</span> <span class="n">MahalanobisProfile</span><span class="p">(</span><span class="n">combined_extractor</span><span class="p">)</span>
-
-<span class="n">profiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">heuristics_profile</span><span class="p">,</span> <span class="n">pos2gram_profile</span><span class="p">,</span> <span class="n">combined_profile</span><span class="p">]</span>
-<span class="n">profile_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Heuristics&#39;</span><span class="p">,</span> <span class="s1">&#39;POS Bigrams&#39;</span><span class="p">,</span> <span class="s1">&#39;Combined&#39;</span><span class="p">]</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># with open(&quot;../notebooks/resources/original_function_words.txt&quot;) as f:</span>
+<span class="c1">#     words = f.readlines()</span>
 </pre></div>
 
     </div>
@@ -13470,163 +13460,10 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">benchmark_profiles</span><span class="p">(</span><span class="n">grouped_valid_df</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
-                                       <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">profile_names</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">authors_per_sample</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="n">benchmark_results</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 20/20 [13:51&lt;00:00, 41.56s/it]
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[4]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>flag</th>
-      <th>Heuristics</th>
-      <th>POS Bigrams</th>
-      <th>Combined</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>True</td>
-      <td>0.134598</td>
-      <td>0.999421</td>
-      <td>0.998544</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>True</td>
-      <td>0.497050</td>
-      <td>0.966469</td>
-      <td>0.959002</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>True</td>
-      <td>0.192381</td>
-      <td>0.868973</td>
-      <td>0.706363</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>True</td>
-      <td>0.484490</td>
-      <td>0.831687</td>
-      <td>0.509005</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>True</td>
-      <td>0.622277</td>
-      <td>0.223367</td>
-      <td>0.004089</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>206</th>
-      <td>True</td>
-      <td>0.597925</td>
-      <td>1.000000</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>207</th>
-      <td>True</td>
-      <td>0.653880</td>
-      <td>1.000000</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>208</th>
-      <td>True</td>
-      <td>0.987519</td>
-      <td>1.000000</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>209</th>
-      <td>True</td>
-      <td>0.699435</td>
-      <td>1.000000</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>210</th>
-      <td>True</td>
-      <td>0.901942</td>
-      <td>1.000000</td>
-      <td>1.000000</td>
-    </tr>
-  </tbody>
-</table>
-<p>211 rows × 4 columns</p>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span> <span class="o">=</span> <span class="n">benchmark_results</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-<span class="n">benchmark_flags</span><span class="p">[</span><span class="n">profile_names</span><span class="p">]</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="n">profile_names</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.85</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># chosen_words = [words[chosen_index] for chosen_index in chosen_word_indices]</span>
 </pre></div>
 
     </div>
@@ -13636,461 +13473,39 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># with open(&quot;../notebooks/resources/filtered_function_words.txt&quot;, &quot;w&quot;) as f:</span>
+<span class="c1">#     f.writelines(chosen_words)</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[6]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>flag</th>
-      <th>Heuristics</th>
-      <th>POS Bigrams</th>
-      <th>Combined</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>True</td>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>True</td>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>True</td>
-      <td>True</td>
-      <td>False</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>True</td>
-      <td>True</td>
-      <td>True</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>True</td>
-      <td>True</td>
-      <td>True</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>206</th>
-      <td>True</td>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>207</th>
-      <td>True</td>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>208</th>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>209</th>
-      <td>True</td>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>210</th>
-      <td>True</td>
-      <td>False</td>
-      <td>False</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-<p>211 rows × 4 columns</p>
 </div>
-</div>
-
-</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The threshold may be overfitting to individual author texts, not the dataset</p>
 
 </div>
 </div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">positives_selection</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="s1">&#39;flag&#39;</span><span class="p">]</span>
-<span class="n">negatives_selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">benchmark_flags</span><span class="p">[</span><span class="s1">&#39;flag&#39;</span><span class="p">])</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># score_data = np.concatenate([results[None, :] for results in score_data])</span>
 
-<span class="n">all_positives</span> <span class="o">=</span> <span class="n">positives_selection</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">all_negatives</span> <span class="o">=</span> <span class="n">negatives_selection</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="c1"># results_df = pd.DataFrame(np.array(score_data), index=model_names, columns=[&quot;balanced_accuracy&quot;])</span>
 
-<span class="n">true_negatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">benchmark_flags</span><span class="p">[</span><span class="n">negatives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">true_positives</span> <span class="o">=</span> <span class="n">benchmark_flags</span><span class="p">[</span><span class="n">positives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-<span class="n">false_positives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">benchmark_flags</span><span class="p">[</span><span class="n">negatives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-<span class="n">sensitivity</span> <span class="o">=</span> <span class="n">true_positives</span> <span class="o">/</span> <span class="n">all_positives</span>
-<span class="n">specificity</span> <span class="o">=</span> <span class="n">true_negatives</span> <span class="o">/</span> <span class="n">all_negatives</span>
-
-<span class="n">precision</span> <span class="o">=</span> <span class="n">true_positives</span> <span class="o">/</span> <span class="p">(</span><span class="n">true_positives</span> <span class="o">+</span> <span class="n">false_positives</span><span class="p">)</span>
-
-<span class="n">balanced_accuracy</span> <span class="o">=</span> <span class="p">(</span><span class="n">sensitivity</span> <span class="o">+</span> <span class="n">specificity</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-
-<span class="n">train_benchmarks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">balanced_accuracy</span><span class="p">,</span> <span class="n">specificity</span><span class="p">,</span> <span class="n">sensitivity</span><span class="p">,</span> <span class="n">precision</span><span class="p">],</span>
-    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;balanced accuracy&#39;</span><span class="p">,</span> <span class="s1">&#39;specificity&#39;</span><span class="p">,</span> <span class="s1">&#39;sensitivity (recall)&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;precision&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-
-<span class="n">train_benchmarks</span>
+<span class="c1"># results_df</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[7]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>balanced accuracy</th>
-      <th>specificity</th>
-      <th>sensitivity (recall)</th>
-      <th>precision</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Heuristics</th>
-      <td>0.676396</td>
-      <td>0.500000</td>
-      <td>0.852792</td>
-      <td>0.960000</td>
-    </tr>
-    <tr>
-      <th>POS Bigrams</th>
-      <td>0.545323</td>
-      <td>0.857143</td>
-      <td>0.233503</td>
-      <td>0.793103</td>
-    </tr>
-    <tr>
-      <th>Combined</th>
-      <td>0.516679</td>
-      <td>0.571429</td>
-      <td>0.461929</td>
-      <td>0.919192</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">train_benchmarks</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_benchmarks.hdf5&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_benchmarks&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_flags</span><span class="p">[</span><span class="n">negatives_selection</span><span class="p">][</span><span class="n">profile_names</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[20]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>pospca        10
-heuristics     3
-dtype: int64</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="mi">7</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[16]:</div>
-
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>0.7</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;benchmark_results.hdf5&#39;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;benchmark_results&#39;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">benchmark_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;benchmark_results.hdf5&#39;</span><span class="p">))</span>
-
-<span class="n">benchmark_results</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[6]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>flag</th>
-      <th>pospca</th>
-      <th>heuristics</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>False</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>978</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.005036</td>
-    </tr>
-    <tr>
-      <th>979</th>
-      <td>True</td>
-      <td>0.002207</td>
-      <td>0.006970</td>
-    </tr>
-    <tr>
-      <th>980</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.338741</td>
-    </tr>
-    <tr>
-      <th>981</th>
-      <td>True</td>
-      <td>0.000000</td>
-      <td>0.108420</td>
-    </tr>
-    <tr>
-      <th>982</th>
-      <td>True</td>
-      <td>0.000010</td>
-      <td>0.552413</td>
-    </tr>
-  </tbody>
-</table>
-<p>983 rows × 3 columns</p>
-</div>
-</div>
-
-</div>
-
 </div>
 </div>
 

@@ -4,6 +4,7 @@ from os.path import join
 
 import spacy
 from torchtext.vocab import Vocab
+import pandas as pd
 
 
 class POSVocab(Vocab):
@@ -94,4 +95,16 @@ def pos_tag(sentence: list, pos_vocab=None):
 
 
 def extract_author_texts(author, df):
-    return df.loc[(author, 0)], df.drop(index=(author, 0))
+    excluded_text, new_df = df.loc[(author, 0)], df.drop(index=(author, 0))
+
+    try:
+        author_texts = new_df.loc[(author,)]
+    except KeyError:
+        return excluded_text, new_df
+
+    new_df = new_df.drop(index=(author,))
+    old_idx = excluded_text.index.to_frame()
+    old_idx.insert(0, "text_id", [0] * len(old_idx))
+    old_idx.insert(0, "author", [author] * len(old_idx))
+    excluded_text.index = pd.MultiIndex.from_frame(old_idx)
+    return author_texts, pd.concat([new_df, excluded_text])

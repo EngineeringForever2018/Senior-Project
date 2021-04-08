@@ -1,6 +1,15 @@
-from notebooks.feature_extractors import FeatureConcatenator, CommaCounter, WordCounter
+from notebooks.feature_extractors import (
+    FeatureConcatenator,
+    CommaCounter,
+    WordCounter,
+    Normalizer,
+    CharCounter,
+    FunctionWordCounter,
+)
 
 
-class HeuristicsExtractor(FeatureConcatenator):
+class HeuristicsExtractor(Normalizer):
     def __init__(self):
-        super().__init__(CommaCounter(), WordCounter())
+        feature_extractor = FeatureConcatenator(CommaCounter(), CharCounter())
+        count_extractor = WordCounter()
+        super().__init__(feature_extractor, count_extractor)

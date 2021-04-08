@@ -12,9 +12,9 @@ sys.path.append(os.path.abspath(project_root))
 from notebooks.utils import init_data_dir, extract_author_texts  # noqa
 
 from notebooks import pipes
-from notebooks.profiles import EuclideanProfile
+from notebooks.profiles import EuclideanProfile, NaiveBayesProfile
 from notebooks import benchmarking as bench
-from notebooks.feature_extractors import HeuristicsExtractor
+from notebooks.feature_extractors import HeuristicsExtractor, FunctionWordCounter, POS2GramCounter
 from notebooks.thresholders import SimpleAccuracyThresholder, SimpleThresholder
 
 init_data_dir(project_root)
@@ -28,12 +28,13 @@ valid_df = pd.read_hdf(join(preprocess_path, 'bawe_valid_sentences.hdf5'))
 train_df = train_df.rename(columns={"sentence": "text"})
 valid_df = valid_df.rename(columns={"sentence": "text"})
 
-feature_extractors = [(HeuristicsExtractor(), "heuristics_extractor")]
+# feature_extractors = [(HeuristicsExtractor(), "heuristics_extractor")]
+feature_extractors = [(POS2GramCounter(), "pos2gram_counter")]
 
 profiles = [(EuclideanProfile(), "euclidean_distance_profile")]
+# profiles = [(NaiveBayesProfile(), "naive_bayes_profile")]
 
-thresholders = [(SimpleAccuracyThresholder(), "accuracy_thresholder"),
-                (SimpleThresholder(bench.balanced_accuracies), "balanced_accuracy_thresholder")]
+thresholders = [(SimpleThresholder(bench.balanced_accuracies), "balanced_accuracy_thresholder")]
 
 preprocessed_dfs = []
 
@@ -57,6 +58,75 @@ for feature_extractor, display_name in feature_extractors:
         preprocessed_valid_df = pd.read_hdf(valid_path)
 
     preprocessed_dfs.append((preprocessed_train_df, preprocessed_valid_df, display_name))
+
+# heuristics_train = preprocessed_dfs[0][0]
+# heuristics_test = preprocessed_dfs[0][1]
+
+# scaled_heuristics_train = (heuristics_train - heuristics_train.mean()) / heuristics_train.std()
+# scaled_heuristics_test = (heuristics_test - heuristics_test.mean()) / heuristics_test.std()
+# preprocessed_dfs.append((scaled_heuristics_train, scaled_heuristics_test, "scaled_heuristics"))
+
+# function_words_train = preprocessed_dfs[0][0]
+# function_words_test = preprocessed_dfs[0][1]
+# pca_train = function_words_train
+
+# pca_standardized = (pca_train - pca_train.mean()) / pca_train.std()
+
+# pca_cov = pca_standardized.cov()
+
+# pca_eigvals, pca_eigvecs = np.linalg.eig(pca_cov)
+# sort_indices = np.flip(np.argsort(pca_eigvals))
+# pca_eigvals, pca_eigvecs = pca_eigvals[sort_indices], pca_eigvecs[sort_indices]
+
+# transformation_matrix0 = pca_eigvecs[:, :5]
+# transformation_matrix1 = pca_eigvecs[:, :10]
+# transformation_matrix2 = pca_eigvecs[:, :15]
+# transformation_matrix3 = pca_eigvecs[:, :20]
+
+# pca_function_words_train0 = function_words_train.dot(transformation_matrix0)
+# pca_function_words_test0 = function_words_test.dot(transformation_matrix0)
+# pca_function_words_train1 = function_words_train.dot(transformation_matrix1)
+# pca_function_words_test1 = function_words_test.dot(transformation_matrix1)
+# pca_function_words_train2 = function_words_train.dot(transformation_matrix2)
+# pca_function_words_test2 = function_words_test.dot(transformation_matrix2)
+# pca_function_words_train3 = function_words_train.dot(transformation_matrix3)
+# pca_function_words_test3 = function_words_test.dot(transformation_matrix3)
+
+# preprocessed_dfs.append((pca_function_words_train0, pca_function_words_test0, "pca_function_words0"))
+# preprocessed_dfs.append((pca_function_words_train1, pca_function_words_test1, "pca_function_words1"))
+# preprocessed_dfs.append((pca_function_words_train2, pca_function_words_test2, "pca_function_words2"))
+# preprocessed_dfs.append((pca_function_words_train3, pca_function_words_test3, "pca_function_words3"))
+
+# function_words_train = preprocessed_dfs[0][0]
+# function_words_test = preprocessed_dfs[0][1]
+# pca_train = function_words_train
+
+# pca_standardized = (pca_train - pca_train.mean()) / pca_train.std()
+
+# pca_cov = pca_standardized.cov()
+
+# pca_eigvals, pca_eigvecs = np.linalg.eig(pca_cov)
+# sort_indices = np.flip(np.argsort(pca_eigvals))
+# pca_eigvals, pca_eigvecs = pca_eigvals[sort_indices], pca_eigvecs[sort_indices]
+
+# transformation_matrix0 = pca_eigvecs[:, :5]
+# transformation_matrix1 = pca_eigvecs[:, :10]
+# transformation_matrix2 = pca_eigvecs[:, :15]
+# transformation_matrix3 = pca_eigvecs[:, :20]
+
+# pca_function_words_train0 = function_words_train.dot(transformation_matrix0)
+# pca_function_words_test0 = function_words_test.dot(transformation_matrix0)
+# pca_function_words_train1 = function_words_train.dot(transformation_matrix1)
+# pca_function_words_test1 = function_words_test.dot(transformation_matrix1)
+# pca_function_words_train2 = function_words_train.dot(transformation_matrix2)
+# pca_function_words_test2 = function_words_test.dot(transformation_matrix2)
+# pca_function_words_train3 = function_words_train.dot(transformation_matrix3)
+# pca_function_words_test3 = function_words_test.dot(transformation_matrix3)
+
+# preprocessed_dfs.append((pca_function_words_train0, pca_function_words_test0, "pca_function_words0"))
+# preprocessed_dfs.append((pca_function_words_train1, pca_function_words_test1, "pca_function_words1"))
+# preprocessed_dfs.append((pca_function_words_train2, pca_function_words_test2, "pca_function_words2"))
+# preprocessed_dfs.append((pca_function_words_train3, pca_function_words_test3, "pca_function_words3"))
 
 def train_threshold(profile, df, thresholder):
     author_set = set(df.index.get_level_values(0))
@@ -108,83 +178,41 @@ def test_profile(profile, threshold, df):
 
 
 score_data = []
+thresholds = []
 model_names = []
 
 for profile, profile_name in profiles:
     for thresholder, thresholder_name in thresholders:
         for preprocessed_train_df, preprocessed_valid_df, extractor_name in preprocessed_dfs:
             threshold = train_threshold(profile, preprocessed_train_df, thresholder)
+            thresholds.append(threshold)
             profile.reset()
 
-            scores = test_profile(profile, threshold, preprocessed_valid_df)
+            scores = test_profile(pr
+                                  ofile, threshold, preprocessed_valid_df)
             score_data.append(scores)
             model_names.append(f"{profile_name}-{thresholder_name}-{extractor_name}")
 
-results_df = pd.DataFrame(score_data, index=model_names, columns=["balanced_accuracy"])
+score_data, model_names
 
-results_df
+# test_profile(EuclideanProfile(), thresholds[0], preprocessed_dfs[0][0])
 
-preprocessed_dfs[0][0].index.get_level_values(0)
+# sentence_count = len(function_words_train)
 
-# pospca_extractor = OldPOSPCAExtractor(25, 10)
-# pospca_profile = MahalanobisProfile(pospca_extractor)
+# where_true = ((function_words_train.sum() / (sentence_count / 100)) > 1)
 
-heuristics_extractor = HeuristicExtractor(4)
-heuristics_profile = MahalanobisProfile(heuristics_extractor)
+# chosen_word_indices = where_true[where_true].index.tolist()
 
-pos2gram_extractor = OldPOS2GramExtractor(paragraph_length=1, best=20)
-pos2gram_profile = MahalanobisProfile(pos2gram_extractor)
+# with open("../notebooks/resources/original_function_words.txt") as f:
+#     words = f.readlines()
 
-combined_extractor = ConcatExtractor(heuristics_extractor, pos2gram_extractor)
-combined_profile = MahalanobisProfile(combined_extractor)
+# chosen_words = [words[chosen_index] for chosen_index in chosen_word_indices]
 
-profiles = [heuristics_profile, pos2gram_profile, combined_profile]
-profile_names = ['Heuristics', 'POS Bigrams', 'Combined']
+# with open("../notebooks/resources/filtered_function_words.txt", "w") as f:
+#     f.writelines(chosen_words)
 
-benchmark_results = benchmark_profiles(grouped_valid_df, profiles,
-                                       show_loading=True, names=profile_names, samples=20, authors_per_sample=5)
+# score_data = np.concatenate([results[None, :] for results in score_data])
 
-benchmark_results
+# results_df = pd.DataFrame(np.array(score_data), index=model_names, columns=["balanced_accuracy"])
 
-benchmark_flags = benchmark_results.copy()
-
-benchmark_flags[profile_names] = benchmark_flags[profile_names] < 0.85
-
-benchmark_flags
-
-positives_selection = benchmark_flags['flag']
-negatives_selection = np.logical_not(benchmark_flags['flag'])
-
-all_positives = positives_selection.sum()
-all_negatives = negatives_selection.sum()
-
-true_negatives = np.logical_not(benchmark_flags[negatives_selection][profile_names]).sum()
-true_positives = benchmark_flags[positives_selection][profile_names].sum()
-
-false_positives = np.logical_not(benchmark_flags[negatives_selection][profile_names]).sum()
-
-sensitivity = true_positives / all_positives
-specificity = true_negatives / all_negatives
-
-precision = true_positives / (true_positives + false_positives)
-
-balanced_accuracy = (sensitivity + specificity) / 2
-
-train_benchmarks = pd.DataFrame(
-    data=[balanced_accuracy, specificity, sensitivity, precision],
-    index=['balanced accuracy', 'specificity', 'sensitivity (recall)',
-           'precision']).T
-
-train_benchmarks
-
-train_benchmarks.to_hdf(join(outputs_path, 'bawe_train_benchmarks.hdf5'), key='bawe_train_benchmarks')
-
-benchmark_flags[negatives_selection][profile_names].sum()
-
-7 / (10)
-
-benchmark_results.to_hdf(join(preprocess_path, 'benchmark_results.hdf5'), key='benchmark_results')
-
-benchmark_results = pd.read_hdf(join(preprocess_path, 'benchmark_results.hdf5'))
-
-benchmark_results
+# results_df

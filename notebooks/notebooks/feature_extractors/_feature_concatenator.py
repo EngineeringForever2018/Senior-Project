@@ -1,8 +1,8 @@
-from notebooks.feature_extractors import BaseFeatureExtractor
+from notebooks.feature_extractors import BaseSegmentExtractor
 from typing import List
 
 
-class FeatureConcatenator(BaseFeatureExtractor):
+class FeatureConcatenator(BaseSegmentExtractor):
     def __init__(self, *feature_extractors):
         self._feature_extractors = feature_extractors
 
