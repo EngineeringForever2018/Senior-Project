@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/grchristensen/projtools.git
+	branch = main
+	commit = 0d779640aedf4118aafe083ab69e1171e207f7dc
+	parent = c467ec6b1853a1f9f9ac397390e1ac311440fa91
+	method = merge
+	cmdver = 0.4.3
