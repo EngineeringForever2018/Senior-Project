@@ -29,7 +29,7 @@ train_df = train_df.rename(columns={"sentence": "text"})
 valid_df = valid_df.rename(columns={"sentence": "text"})
 
 # feature_extractors = [(HeuristicsExtractor(), "heuristics_extractor")]
-feature_extractors = [(POS2GramCounter(), "pos2gram_counter")]
+feature_extractors = [(POS2GramCounter(), "pos2gram_counter"), (FunctionWordCounter(), "function_word_counter")]
 
 profiles = [(EuclideanProfile(), "euclidean_distance_profile")]
 # profiles = [(NaiveBayesProfile(), "naive_bayes_profile")]
@@ -58,6 +58,87 @@ for feature_extractor, display_name in feature_extractors:
         preprocessed_valid_df = pd.read_hdf(valid_path)
 
     preprocessed_dfs.append((preprocessed_train_df, preprocessed_valid_df, display_name))
+
+function_train, function_valid, _ = preprocessed_dfs[1]
+
+overall_var = function_train.var()
+
+average_author_var = function_train.groupby(level="author").var().mean()
+
+useful_features = ((overall_var - average_author_var) / overall_var) > 0
+
+actual_words = useful_features[useful_features].index.tolist()
+
+better_function_train, better_function_valid = function_train[actual_words], function_valid[actual_words]
+
+def train_threshold(profile, df, thresholder):
+    author_set = set(df.index.get_level_values(0))
+
+    print("Training...", flush=True)
+    distance_sets = []
+    true_flag_sets = []
+    for author in tqdm(author_set):
+        profile.reset()
+
+        author_texts, rest_df = extract_author_texts(author, df)
+        profile.feed(author_texts)
+        distances = profile.distances(rest_df)
+
+        true_flags = distances.index.get_level_values(0) != author
+
+        distance_sets.append(distances.to_numpy())
+        true_flag_sets.append(true_flags)
+
+    distances = np.concatenate(distance_sets)
+    true_flags = np.concatenate(true_flag_sets)
+
+    return thresholder(distances, true_flags)
+
+
+def test_profile(profile, threshold, df):
+    author_set = set(df.index.get_level_values(0))
+
+    print("Testing...", flush=True)
+    flag_sets = []
+    true_flag_sets = []
+    for author in tqdm(author_set):
+        profile.reset()
+
+        author_texts, rest_df = extract_author_texts(author, df)
+        profile.feed(author_texts)
+        distances = profile.distances(rest_df)
+
+        flags = distances > threshold
+        true_flags = distances.index.get_level_values(0) != author
+
+        flag_sets.append(flags.to_numpy())
+        true_flag_sets.append(true_flags)
+
+    flags = np.concatenate(flag_sets)
+    true_flags = np.concatenate(true_flag_sets)
+
+    return [bench.balanced_accuracy(flags, true_flags)]
+
+threshold = train_threshold(EuclideanProfile(), better_function_train, SimpleThresholder(bench.balanced_accuracies))
+
+scores = test_profile(EuclideanProfile(), threshold, better_function_valid)
+
+scores
+
+better_function_train = function_train[actual_words]
+
+chosen_author_texts = better_function_train.loc[(6212,)]
+
+author_means = function_train[actual_words].groupby(level="author").mean()
+other_author_means = author_means.drop(index=6212)
+
+other_author_means
+
+chosen_author_means = chosen_author_texts.groupby(level="text_id").mean()
+chosen_author_means
+np.linalg.norm(chosen_author_means.iloc[0] - chosen_author_means.iloc[1])
+
+np.mean(np.linalg.norm(chosen_author_means.iloc[0] - other_author_means, axis=1))
 
 # heuristics_train = preprocessed_dfs[0][0]
 # heuristics_test = preprocessed_dfs[0][1]
