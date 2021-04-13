@@ -5,13 +5,44 @@ import {getUserInfo, viewClassroom, listStudents, removeStudentFromClass} from "
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
 
+//matirial-ui imports
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import Container from '@material-ui/core/Container';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile';
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
+
 export function InstructorNameList() {
+  const classes = useStyles();
   const {getAccessTokenSilently} = useAuth0()
   const history = useHistory()
   const {id} = useParams()
 
-  const [currentStudent, setCurrentStudent] = useState()
+  const [currentStudent, setCurrentStudent] = useState(0)
   const [studentList, setStudentList] = useState()
+  const [openCurrent, setOpenCurrent] = useState(true);
+
   const [userInfo, setUserInfo] = useState({
     first_name:'',
     last_name:''
@@ -25,11 +56,15 @@ export function InstructorNameList() {
       listStudents(id, token).then((response) => {
         setStudentList(
           response.data.map((assignment) => <li>
-            <button className="list-btn" onClick={() => {
+
+            <ListItem button onClick={() => {
               setCurrentStudent(assignment['id'])}
-            }>
-              {assignment['id']}
-            </button>
+            } className={classes.nested} >
+              <ListItemIcon>
+                <InsertDriveFile />
+              </ListItemIcon>
+              <ListItemText primary={assignment['id']} />
+            </ListItem>
           </li>)
         )
       })
@@ -49,36 +84,39 @@ export function InstructorNameList() {
     })
   }, [])
 
+  const handleClickOpen = () => {
+    setOpenCurrent(!openCurrent);
+  };
+
   return (
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
-        <div className="Instructor-NameList">
-          <div className="background">
-            <div className="title">
-              <p className="text">Classroom Students List: {classInfo.title}</p>
-            </div>
 
-            <div className="scroll">
-              <ul className="titles">
-                {studentList}
-              </ul>
-            </div>
+      <Container maxWidth="md">
+        <p className="text">Classroom Students List: {classInfo.title}</p>
+        <p className="text"> currentStudent: {currentStudent}</p>
+        <Box mx="auto" bgcolor="background.paper" p={1}>
+          <ListItem button onClick={handleClickOpen}>
+            <ListItemText primary="Classrooms" />
+            {openCurrent ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
 
-            <div className="options">
+          <List component="div" disablePadding>
+            <Collapse in={openCurrent} timeout="auto" unmountOnExit>
+              {studentList}
+            </Collapse>
+          </List>
+        </Box>
+        <Button variant="contained" color="primary" onClick={() => {
+          getAccessTokenSilently().then((token) => {
+            removeStudentFromClass(id, currentStudent, token).then(() => history.go(0), (error) => console.log(error.response))
+          }, (error) => console.log(error))
+          }}>Delete Student</Button>
 
-              <button onClick={() => {
-                getAccessTokenSilently().then((token) => {
-                  removeStudentFromClass(id, currentStudent, token).then(() => history.go(0), (error) => console.log(error.response))
-                }, (error) => console.log(error))
-              }}>Delete Student</button>
-
-              <button onClick={() => {
-                history.push(`/instructor/classrooms/${id}`, {classroomID: id})
-              }}>Return</button>
-
-            </div>
-          </div>
-        </div>
+          <Button variant="contained" color="primary" onClick={() => {
+            history.push(`/instructor/classrooms/${id}`, {classroomID: id})
+          }}>Return</Button>
+      </Container>
     </div>
   )
 }

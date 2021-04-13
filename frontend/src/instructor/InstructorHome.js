@@ -5,6 +5,31 @@ import {useHistory} from "react-router-dom";
 import {NavBar} from "../nav/NavBar";
 import {getUserInfo, listClassroom, createClassroom} from "../requests";
 
+//matirial-ui imports
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import TextField from '@material-ui/core/TextField';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile';
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
+
 export function InstructorHome(props) {
   return (
     <div>
@@ -14,10 +39,12 @@ export function InstructorHome(props) {
 }
 
 function Classrooms() {
+  const classes = useStyles();
   const {getAccessTokenSilently} = useAuth0();
   const history = useHistory()
 
   const [classroomTitles, setClassroomTitles] = useState();
+  const [openCurrent, setOpenCurrent] = useState(true);
   const [userInfo, setUserInfo] = useState({
     first_name:'',
     last_name:''
@@ -28,11 +55,14 @@ function Classrooms() {
       listClassroom(token).then((response) => {
         setClassroomTitles(
           response.data.map((data) => <li>
-            <button className="list-btn" onClick={() => {
-              history.push(`/instructor/classrooms/${data['id']}`)
-            }}>
-              {data['title']}
-            </button>
+            <ListItem button onClick={() => {
+              history.push(`/instructor/classrooms/${data['id']}`)}
+            } className={classes.nested} >
+              <ListItemIcon>
+                <InsertDriveFile />
+              </ListItemIcon>
+              <ListItemText primary={data['title']} />
+            </ListItem>
           </li>)
         )
       })
@@ -46,32 +76,40 @@ function Classrooms() {
     })
   }, [])
 
+  const handleClickOpen = () => {
+    setOpenCurrent(!openCurrent);
+  };
+
   return (
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
 
-      <div className="Instructor-Classrooms">
-        <div className="background">
-          <div className="title">
-            <p className="text">Instructor Home</p>
-          </div>
-          <div className="scroll">
-            <ul className="list-titles">
+      <Container maxWidth="md">
+        <p>Instructor Home</p>
+
+        <Box mx="auto" bgcolor="background.paper" p={1}>
+          <ListItem button onClick={handleClickOpen}>
+            <ListItemText primary="Classrooms" />
+            {openCurrent ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+
+          <List component="div" disablePadding>
+            <Collapse in={openCurrent} timeout="auto" unmountOnExit>
               {classroomTitles}
-            </ul>
-          </div>
-          <div className="options">
-            <button onClick={() => {  history.push('/create-classroom')}}>
-              Create Classroom
-            </button>
-          </div>
-        </div>
-      </div>
+            </Collapse>
+          </List>
+        </Box>
+
+        <Button variant="contained" color="primary" href='/create-classroom'>
+          Create Classroom
+        </Button>
+      </Container>
     </div>
   )
 }
 
 export function CreateClassroomForm() {
+  const classes = useStyles();
   const {getAccessTokenSilently} = useAuth0();
   const history = useHistory()
 
@@ -111,20 +149,23 @@ export function CreateClassroomForm() {
   <div>
     <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
 
-    <div className="Instructor-Classroom-Create">
-      <div className="form-background">
-        <div className="form-title">
-          <p className="form-text">Create Classroom</p>
-        </div>
+    <Container maxWidth="md">
+      <p className="form-text">Create Classroom</p>
+      <Box mx="auto" bgcolor="background.paper" p={1}>
+      <form className={classes.root} noValidate autoComplete="off">
+        <TextField id="filled-basic" label="Classroom Name" variant="filled" onChange={handleChange}/>
+        <div/>
 
-        <form onSubmit={handleSubmit}>
-          <label>
-            Title: <input type="text" value={title} onChange={handleChange}/>
-          </label>
-          <input type="submit" value="Submit"/>
-        </form>
-      </div>
-    </div>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
+
+        <Button variant="contained" color="primary" onClick={() => {
+          history.push(`/`)
+        }}>Return</Button>
+      </form>
+      </Box>
+    </Container>
   </div>
   )
 }

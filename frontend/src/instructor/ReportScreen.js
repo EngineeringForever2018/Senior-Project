@@ -1,12 +1,59 @@
 // import {useLocation} from 'react-router-dom';
-import React from "react";
+import React, {useEffect, useState} from "react";
 import './ReportScreen.scss'
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
-import {getClassroomStudent, getSubmission, getSubmissionReport} from "../requests";
+import {getClassroomStudent, getSubmission, getSubmissionReport, acceptSubmission} from "../requests";
 import {NavBar} from "../nav/NavBar";
 
+//display pdf
+import { Viewer } from '@react-pdf-viewer/core';
+import { Document, Page, pdfjs } from 'pdfjs-dist'
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry'
+
+//matirial-ui imports
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
+
+function CircularProgressWithLabel(props) {
+  return (
+    <Box position="relative" display="inline-flex">
+      <CircularProgress size = {200} variant="determinate" {...props} />
+      <Box
+        top={0}
+        left={0}
+        bottom={0}
+        right={0}
+        position="absolute"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Typography variant="caption" component="div" color="textSecondary">{`${Math.round(
+          props.value,
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
 function ReportScreen() {
+  const classes = useStyles();
+
   const {getAccessTokenSilently} = useAuth0()
 
   const location = useLocation()
@@ -14,13 +61,53 @@ function ReportScreen() {
 
   const {classroomID, assignmentID, id} = useParams()
 
+  const [file, setFile] = React.useState("");
+  const [reportMessage, setReportMessage] = useState();
+
   let report = undefined
   let studentInfo = undefined
+
+  const DisplayFile = ({ image }) => {
+    if(image.type == "image/jpeg" ) {
+      return(
+        <div className = "StudentAssignments">
+          <img src={URL.createObjectURL(image)} className = "essayImage"/>
+        </div>
+      );
+    }
+    if(image.type == "application/pdf" ) {    
+      return(
+        <div className = "StudentAssignments"> 
+          <div className = "essayPDF">
+            {<Viewer fileUrl={URL.createObjectURL(image)}/>}
+          </div>
+        </div>
+      )
+    }
+    return(
+      <div>
+        not able to view file type
+      </div>
+    )
+  };
 
   if (location.state !== undefined) {
     report = location.state.report
     studentInfo = location.state.studentInfo
   }
+
+  function handleUpload(event) {
+    setFile(event.target.files[0]);
+    event.preventDefault()
+  }
+
+  const acceptReport = () => {
+    getAccessTokenSilently().then((token) => {
+      acceptSubmission(classroomID, assignmentID, id, token).then((response) => {
+        setReportMessage(`report ${report} submitted`)
+      })
+    })
+  };
 
   if (report === undefined) {
     getAccessTokenSilently().then((token) => {
@@ -35,7 +122,30 @@ function ReportScreen() {
     })
 
     return (
-      <div/>
+      <div>
+        <NavBar firstName={'Mary'} lastName={'Bary'}/>
+        
+        <Container maxWidth="md">
+          <p> report undifined</p>
+          <p> example report</p>
+          <Box mx="auto" bgcolor="background.paper" p={1}>
+            {file && <DisplayFile image={file} />}
+            <CircularProgressWithLabel value={80} />
+
+            <Button variant="contained" color="primary" onClick={() => {
+              history.push(`/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions`)
+            }}>return</Button>
+
+            <Button variant="contained" color="primary" onClick={() => {
+              acceptReport()
+            }}>Accept Report</Button>
+
+          </Box>
+
+          {reportMessage}
+        </Container>
+        <input type="file" onChange={handleUpload} />
+      </div>
     )
   } else {
     const authorshipProbability = report['authorship_probability']
@@ -43,7 +153,6 @@ function ReportScreen() {
     const studentLastName = studentInfo['last_name']
 
     const flag = report['flag']
-
 
     if (flag) {
       return (

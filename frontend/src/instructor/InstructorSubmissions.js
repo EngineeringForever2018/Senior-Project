@@ -1,17 +1,43 @@
 import './InstructorSubmissions.scss'
 import React, {useEffect, useState} from "react";
 import {NavBar} from "../nav/NavBar";
-import {getUserInfo, viewAssignment, listSubmissions} from "../requests";
+import {getUserInfo, viewAssignment, listSubmissions, acceptSubmission} from "../requests";
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
 
+//matirial-ui imports
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile';
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+}));
+
 export function InstructorSubmissionsList() {
+  const classes = useStyles();
   const {getAccessTokenSilently} = useAuth0()
   const history = useHistory()
   const {id, classroomID} = useParams()
   
-  const [currentStudent, setCurrentStudent] = useState()
   const [submissionList, setSubmissionList] = useState()
+  const [openCurrent, setOpenCurrent] = useState(true);
+
   const [userInfo, setUserInfo] = useState({
     first_name:'',
     last_name:''
@@ -19,6 +45,9 @@ export function InstructorSubmissionsList() {
   const [assignmentInfo, setAssignmentinfo] = useState({
     title:''
   })
+
+  const [report, setReport] = useState(0);
+  const [reportMessage, setReportMessage] = useState();
 
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
@@ -38,10 +67,14 @@ export function InstructorSubmissionsList() {
       listSubmissions(classroomID, id, token).then((response) => {
         setSubmissionList(
           response.data.map((assignment) => <li>
-            <button className="list-btn" onClick={() => {history.push(`/instructor/classrooms/${classroomID}/assignments/${id}/submissions/${assignment['id']}/report`)}
-            }>
-              {assignment['id']}
-            </button>
+            <ListItem button onClick={() => {
+              setReport(assignment['id'])
+            }} className={classes.nested} >
+              <ListItemIcon>
+                <InsertDriveFile />
+              </ListItemIcon>
+              <ListItemText primary={assignment['id']} />
+            </ListItem>
           </li>)
         )
       })
@@ -49,26 +82,56 @@ export function InstructorSubmissionsList() {
 
   }, [])
 
+  const handleClickOpen = () => {
+    setOpenCurrent(!openCurrent);
+  };
+
+  const acceptReport = () => {
+    getAccessTokenSilently().then((token) => {
+      acceptSubmission(classroomID, id, report ,token).then((response) => {
+        setReportMessage(`report ${report} submitted`)
+      })
+    })
+  };
+
   return (
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
-        <div className="Instructor-SubmissionsList">
-          <div className="background">
-            <div className="title">
-              <p className="text">List of assignment submissions: {assignmentInfo.title} ; current Student: {currentStudent}</p>
-            </div>
 
-            <div className="scroll">
-              <ul className="titles">
-                {submissionList}
-              </ul>
-            </div>
+      <Container maxWidth="md">
+        <p className="text">{assignmentInfo.title}</p>
+        <div/>
+        <p className="text"> current report: {report} </p>
+        <Box mx="auto" bgcolor="background.paper" p={1}>
+          <ListItem button onClick={handleClickOpen}>
+            <ListItemText primary={`List of assignment submissions`}/>
+            {openCurrent ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
 
-            <div className="options">
+          <List component="div" disablePadding>
+            <Collapse in={openCurrent} timeout="auto" unmountOnExit>
+              {submissionList}
+            </Collapse>
+          </List>
 
-            </div>
-          </div>
-        </div>
+        </Box>
+
+        <Button variant="contained" color="primary" onClick={() => {
+          history.push(`/instructor/classrooms/${classroomID}/assignments/${id}`)
+        }}>Return</Button>
+
+        <Button variant="contained" color="primary" onClick={() => {
+          history.push(`/instructor/classrooms/${classroomID}/assignments/${id}/submissions/${report}/report`)
+        }}>Show Report</Button>
+
+        <Button variant="contained" color="primary" onClick={() => {
+          acceptReport()
+        }}>Accept Report</Button>
+
+        <div />
+        {reportMessage}
+
+      </Container>
     </div>
   )
 }
