@@ -1,13 +1,1 @@
-torchtext
-tqdm
-numpy
-spacy
-scipy
-pandas
-tables
-pdpipe
-setuptools
-pep517
-nltk
-sklearn
-docx
+-e .

@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.files import File
 from django.db import models
+from notebooks import StyleProfile
 
 
 class User(AbstractUser):
@@ -8,7 +10,10 @@ class User(AbstractUser):
     def create(cls, user_type='student', *args, **kwargs):
         if user_type == 'student':
             user = cls.objects.create(is_student=True, is_instructor=False, *args, **kwargs)
-            Student.objects.create(user=user)
+            f = open(f"{user.id}-profile.nb", "wb+")
+            f.write(StyleProfile().binary.read())
+            profile=File(f)
+            Student.objects.create(user=user, profile=profile)
 
             return user
         else:
@@ -39,6 +44,8 @@ class Instructor(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    profile = models.FileField()
 
     def __str__(self):
         return self.user.username

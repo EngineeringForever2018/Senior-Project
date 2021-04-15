@@ -2,7 +2,7 @@
 <html>
 <head><meta charset="utf-8" />
 
-<title>bawe_data_information</title>
+<title>2021-04-14-gc-hd-pos2gram_testing</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -13084,29 +13084,19 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pdpipe</span> <span class="k">as</span> <span class="nn">pdp</span>
-<span class="kn">import</span> <span class="nn">spacy</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
 <span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">project_root</span><span class="p">))</span>
-<span class="kn">from</span> <span class="nn">notebooks.utils</span> <span class="kn">import</span> <span class="n">init_data_dir</span>  <span class="c1"># noqa</span>
-
-<span class="kn">from</span> <span class="nn">notebooks</span> <span class="kn">import</span> <span class="n">pipes</span>  <span class="c1"># noqa</span>
-
-<span class="n">init_data_dir</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
 
 <span class="n">preprocess_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/preprocess&#39;</span><span class="p">))</span>
-
-<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;en_core_web_sm&#39;</span><span class="p">)</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;bawe_df.hdf5&#39;</span><span class="p">)))</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -13117,7 +13107,8 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Information-for-the-British-Academic-Written-English-Corpus">Information for the British Academic Written English Corpus<a class="anchor-link" href="#Information-for-the-British-Academic-Written-English-Corpus">&#182;</a></h1><p>This notebook is for gathering information about the BAWE dataset. The dataset should already be parsed and stored in <code>data/preprocess/bawe_df.hdf5</code>.</p>
+<p>Thoughts: thresholds need to be custom to each profile. This would be a good opportunity to try to make a profile that gets more confident the more data about the author it has. The profile could model distributions of the differences between its sentences to its mean and other people's sentences to its mean. Then it can use these two distributions to determine which is more likely for incoming sentences.</p>
+<p>Question: Can euclidean distances from the mean or cosine similarites be treated as normal random variables?</p>
 
 </div>
 </div>
@@ -13127,7 +13118,13 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># Using function words for these experiments</span>
+<span class="n">function_words_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s2">&quot;bawe_train_preprocessed_function_word_counter.hdf5&quot;</span><span class="p">))</span>
+<span class="n">pos_bigrams_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s2">&quot;bawe_train_preprocessed_pos2gram_counter.hdf5&quot;</span><span class="p">))</span>
+<span class="c1"># function_words_train = pd.concat([function_words_train, pos_bigrams_train], axis=1)</span>
+<span class="n">function_words_train</span> <span class="o">=</span> <span class="n">pos_bigrams_train</span>
+
+<span class="n">function_words_train</span>
 </pre></div>
 
     </div>
@@ -13163,81 +13160,331 @@ div#notebook {
   <thead>
     <tr style="text-align: right;">
       <th></th>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>314</th>
+      <th>315</th>
+      <th>316</th>
+      <th>317</th>
+      <th>318</th>
+      <th>319</th>
+      <th>320</th>
+      <th>321</th>
+      <th>322</th>
+      <th>323</th>
+    </tr>
+    <tr>
       <th>author</th>
-      <th>genre</th>
-      <th>text</th>
+      <th>text_id</th>
+      <th>sentence_position</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr>
+      <th rowspan="5" valign="top">1</th>
+      <th rowspan="5" valign="top">0</th>
       <th>0</th>
-      <td>1</td>
-      <td>a</td>
-      <td>Racism is still a problem within our society t...</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>1</td>
-      <td>b</td>
-      <td>Official statistics are those produced by eith...</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>1</td>
-      <td>c</td>
-      <td>Since the fourteenth century the practice of m...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>1</td>
-      <td>d</td>
-      <td>Much more reproductive choice is now available...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>2</td>
-      <td>a</td>
-      <td>Victorian notions of women's madness were larg...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
+      <th>...</th>
+      <th>...</th>
       <th>...</th>
       <td>...</td>
       <td>...</td>
       <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
     </tr>
     <tr>
-      <th>2572</th>
-      <td>6998</td>
-      <td>a</td>
-      <td>E. Warwick Slinn describes dramatic monologue ...</td>
+      <th rowspan="5" valign="top">6998</th>
+      <th rowspan="5" valign="top">2</th>
+      <th>175</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>2573</th>
-      <td>6998</td>
-      <td>b</td>
-      <td>Hugh Blair voices an attack on the practices o...</td>
+      <th>176</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>2574</th>
-      <td>6998</td>
-      <td>c</td>
-      <td>'The first thing to remember about Donne,' wri...</td>
+      <th>177</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>2575</th>
-      <td>6998</td>
-      <td>d</td>
-      <td>Susan Wiseman calculated that the latest possi...</td>
+      <th>178</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
-      <th>2576</th>
-      <td>6998</td>
-      <td>e</td>
-      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
+      <th>179</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
   </tbody>
 </table>
-<p>2577 rows × 3 columns</p>
+<p>238088 rows × 324 columns</p>
 </div>
 </div>
 
@@ -13252,276 +13499,25 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">resample_splits</span> <span class="o">=</span> <span class="kc">True</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">select_good_features</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="n">overall_var</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
 
-<span class="n">train_df_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_df.hdf5&#39;</span><span class="p">)</span>
-<span class="n">valid_df_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_df.hdf5&#39;</span><span class="p">)</span>
+    <span class="n">author_vars</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;author&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
 
-<span class="n">train_df_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">train_df_path</span><span class="p">)</span>
-<span class="n">valid_df_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">valid_df_path</span><span class="p">)</span>
+    <span class="n">mean_explained_var</span> <span class="o">=</span> <span class="p">(</span><span class="n">overall_var</span> <span class="o">-</span> <span class="n">author_vars</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">train_df_exists</span> <span class="ow">and</span> <span class="n">valid_df_exists</span><span class="p">)</span> <span class="ow">or</span> <span class="n">resample_splits</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Resampling...&#39;</span><span class="p">)</span>
+    <span class="c1"># Features that reduce the variance within classes should hopefully be good</span>
+    <span class="c1"># features.</span>
+    <span class="n">selections</span> <span class="o">=</span> <span class="n">mean_explained_var</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-    <span class="n">train_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;genre&#39;</span><span class="p">])</span>
-    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="c1"># The index of selctions should be the columns of the dataframe given the</span>
+    <span class="c1"># last few operations.</span>
+    <span class="n">chosen_columns</span> <span class="o">=</span> <span class="n">selections</span><span class="p">[</span><span class="n">selections</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-    <span class="n">train_df</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">valid_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">train_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">train_df_path</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_df&#39;</span><span class="p">)</span>
-    <span class="n">valid_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">valid_df_path</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_valid_df&#39;</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">train_df_path</span><span class="p">)</span>
-    <span class="n">valid_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">valid_df_path</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train Set:&#39;</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Validation Set:&#39;</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">chosen_columns</span><span class="p">]</span>
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Resampling...
-Train Set:
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>author</th>
-      <th>genre</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>a</td>
-      <td>Racism is still a problem within our society t...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>b</td>
-      <td>Official statistics are those produced by eith...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>c</td>
-      <td>Since the fourteenth century the practice of m...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>1</td>
-      <td>d</td>
-      <td>Much more reproductive choice is now available...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>2</td>
-      <td>a</td>
-      <td>Victorian notions of women's madness were larg...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>2057</th>
-      <td>6215</td>
-      <td>e</td>
-      <td>&lt;heading&gt;INTRODUCTION&lt;/heading&gt;Both Macrochloa...</td>
-    </tr>
-    <tr>
-      <th>2058</th>
-      <td>6215</td>
-      <td>f</td>
-      <td>&lt;list&gt;&lt;/list&gt;&lt;abstract&gt;&lt;heading&gt;Abstract&lt;/head...</td>
-    </tr>
-    <tr>
-      <th>2059</th>
-      <td>6998</td>
-      <td>c</td>
-      <td>'The first thing to remember about Donne,' wri...</td>
-    </tr>
-    <tr>
-      <th>2060</th>
-      <td>6998</td>
-      <td>d</td>
-      <td>Susan Wiseman calculated that the latest possi...</td>
-    </tr>
-    <tr>
-      <th>2061</th>
-      <td>6998</td>
-      <td>e</td>
-      <td>Ibsen's Hedda Gabler and Lorca's Yerma display...</td>
-    </tr>
-  </tbody>
-</table>
-<p>2062 rows × 3 columns</p>
-</div>
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Validation Set:
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>author</th>
-      <th>genre</th>
-      <th>text</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>3</td>
-      <td>d</td>
-      <td>At the eve of the Versailles conference, promo...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>3</td>
-      <td>k</td>
-      <td>&lt;heading&gt;Introduction&lt;/heading&gt;When we talk ab...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>7</td>
-      <td>a</td>
-      <td>&lt;abstract&gt;&lt;heading&gt;Summary&lt;/heading&gt;The experi...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>9</td>
-      <td>b</td>
-      <td>&lt;heading&gt;Introduction&lt;/heading&gt;The study of gr...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>10</td>
-      <td>d</td>
-      <td>The assumption that a gap existed between the ...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>510</th>
-      <td>6212</td>
-      <td>d</td>
-      <td>&lt;heading&gt;Introduction&lt;/heading&gt;The reaction be...</td>
-    </tr>
-    <tr>
-      <th>511</th>
-      <td>6215</td>
-      <td>c</td>
-      <td>&lt;heading&gt;INTRODUCTION&lt;/heading&gt;Seed quality in...</td>
-    </tr>
-    <tr>
-      <th>512</th>
-      <td>6215</td>
-      <td>d</td>
-      <td>&lt;heading&gt;Question 1 Forest Growth Rates&lt;/headi...</td>
-    </tr>
-    <tr>
-      <th>513</th>
-      <td>6998</td>
-      <td>a</td>
-      <td>E. Warwick Slinn describes dramatic monologue ...</td>
-    </tr>
-    <tr>
-      <th>514</th>
-      <td>6998</td>
-      <td>b</td>
-      <td>Hugh Blair voices an attack on the practices o...</td>
-    </tr>
-  </tbody>
-</table>
-<p>515 rows × 3 columns</p>
-</div>
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -13531,16 +13527,9 @@ Train Set:
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pdp</span><span class="o">.</span><span class="n">PdPipeline</span><span class="p">([</span><span class="n">pipes</span><span class="o">.</span><span class="n">IDText</span><span class="p">(),</span>
-                           <span class="n">pipes</span><span class="o">.</span><span class="n">SplitText</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="n">show_loading</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">filtered_train</span> <span class="o">=</span> <span class="n">select_good_features</span><span class="p">(</span><span class="n">function_words_train</span><span class="p">)</span>
 
-<span class="n">train_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
-<span class="n">valid_df</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Train set:&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Validation set:&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">display</span><span class="p">(</span><span class="n">valid_df</span><span class="p">)</span>
+<span class="n">filtered_train</span>
 </pre></div>
 
     </div>
@@ -13553,518 +13542,11 @@ Train Set:
 
 <div class="output_area">
 
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|##########| 2062/2062 [09:32&lt;00:00,  2.59it/s]
-  0%|          | 0/515 [00:00&lt;?, ?it/s]
-  0%|          | 1/515 [00:00&lt;02:53,  2.96it/s]
-  0%|          | 2/515 [00:01&lt;05:12,  1.64it/s]
-  1%|          | 3/515 [00:01&lt;03:24,  2.50it/s]
-  1%|          | 4/515 [00:01&lt;02:34,  3.32it/s]
-  1%|          | 5/515 [00:01&lt;02:43,  3.12it/s]
-  1%|1         | 6/515 [00:01&lt;02:18,  3.68it/s]
-  1%|1         | 7/515 [00:02&lt;01:49,  4.63it/s]
-  2%|1         | 8/515 [00:02&lt;02:01,  4.18it/s]
-  2%|1         | 9/515 [00:02&lt;01:52,  4.48it/s]
-  2%|1         | 10/515 [00:02&lt;02:20,  3.58it/s]
-  2%|2         | 11/515 [00:03&lt;02:12,  3.80it/s]
-  2%|2         | 12/515 [00:03&lt;02:15,  3.71it/s]
-  3%|2         | 13/515 [00:03&lt;01:58,  4.22it/s]
-  3%|2         | 14/515 [00:03&lt;02:03,  4.04it/s]
-  3%|2         | 15/515 [00:04&lt;01:51,  4.50it/s]
-  3%|3         | 16/515 [00:04&lt;01:54,  4.37it/s]
-  3%|3         | 17/515 [00:04&lt;02:04,  4.00it/s]
-  3%|3         | 18/515 [00:04&lt;02:02,  4.04it/s]
-  4%|3         | 19/515 [00:05&lt;02:01,  4.08it/s]
-  4%|3         | 20/515 [00:05&lt;02:09,  3.81it/s]
-  4%|4         | 21/515 [00:05&lt;02:13,  3.71it/s]
-  4%|4         | 22/515 [00:05&lt;01:53,  4.33it/s]
-  4%|4         | 23/515 [00:05&lt;01:43,  4.75it/s]
-  5%|4         | 24/515 [00:06&lt;01:50,  4.43it/s]
-  5%|4         | 25/515 [00:06&lt;01:46,  4.59it/s]
-  5%|5         | 26/515 [00:06&lt;01:54,  4.29it/s]
-  5%|5         | 27/515 [00:07&lt;02:02,  3.98it/s]
-  5%|5         | 28/515 [00:07&lt;01:59,  4.09it/s]
-  6%|5         | 29/515 [00:07&lt;02:05,  3.87it/s]
-  6%|5         | 30/515 [00:07&lt;01:46,  4.57it/s]
-  6%|6         | 31/515 [00:07&lt;01:39,  4.85it/s]
-  6%|6         | 32/515 [00:07&lt;01:31,  5.25it/s]
-  6%|6         | 33/515 [00:08&lt;01:32,  5.23it/s]
-  7%|6         | 34/515 [00:09&lt;05:13,  1.53it/s]
-  7%|6         | 35/515 [00:10&lt;04:24,  1.82it/s]
-  7%|6         | 36/515 [00:10&lt;03:46,  2.11it/s]
-  7%|7         | 37/515 [00:10&lt;03:09,  2.52it/s]
-  7%|7         | 38/515 [00:10&lt;02:39,  2.99it/s]
-  8%|7         | 40/515 [00:11&lt;01:54,  4.14it/s]
-  8%|7         | 41/515 [00:11&lt;01:45,  4.51it/s]
-  8%|8         | 42/515 [00:11&lt;01:35,  4.94it/s]
-  8%|8         | 43/515 [00:11&lt;01:32,  5.09it/s]
-  9%|8         | 44/515 [00:11&lt;01:30,  5.19it/s]
-  9%|8         | 45/515 [00:12&lt;01:39,  4.74it/s]
-  9%|8         | 46/515 [00:12&lt;02:03,  3.80it/s]
-  9%|9         | 47/515 [00:12&lt;02:31,  3.09it/s]
-  9%|9         | 48/515 [00:13&lt;03:01,  2.57it/s]
- 10%|9         | 49/515 [00:13&lt;02:38,  2.93it/s]
- 10%|9         | 50/515 [00:13&lt;02:14,  3.45it/s]
- 10%|9         | 51/515 [00:14&lt;02:06,  3.66it/s]
- 10%|#         | 52/515 [00:14&lt;03:24,  2.26it/s]
- 10%|#         | 53/515 [00:15&lt;02:50,  2.71it/s]
- 10%|#         | 54/515 [00:15&lt;02:39,  2.89it/s]
- 11%|#         | 55/515 [00:15&lt;02:35,  2.95it/s]
- 11%|#         | 56/515 [00:16&lt;02:19,  3.29it/s]
- 11%|#1        | 57/515 [00:16&lt;02:06,  3.61it/s]
- 11%|#1        | 58/515 [00:16&lt;02:21,  3.23it/s]
- 11%|#1        | 59/515 [00:17&lt;02:34,  2.96it/s]
- 12%|#1        | 60/515 [00:17&lt;02:33,  2.96it/s]
- 12%|#1        | 61/515 [00:17&lt;02:30,  3.01it/s]
- 12%|#2        | 62/515 [00:17&lt;02:17,  3.28it/s]
- 12%|#2        | 63/515 [00:18&lt;01:57,  3.86it/s]
- 12%|#2        | 64/515 [00:18&lt;01:49,  4.12it/s]
- 13%|#2        | 65/515 [00:18&lt;02:03,  3.65it/s]
- 13%|#2        | 66/515 [00:18&lt;02:10,  3.44it/s]
- 13%|#3        | 67/515 [00:19&lt;02:18,  3.23it/s]
- 13%|#3        | 68/515 [00:19&lt;02:34,  2.89it/s]
- 13%|#3        | 69/515 [00:20&lt;02:28,  3.01it/s]
- 14%|#3        | 70/515 [00:20&lt;02:02,  3.65it/s]
- 14%|#3        | 71/515 [00:20&lt;01:39,  4.46it/s]
- 14%|#3        | 72/515 [00:20&lt;01:33,  4.73it/s]
- 14%|#4        | 73/515 [00:20&lt;01:50,  4.01it/s]
- 14%|#4        | 74/515 [00:21&lt;02:09,  3.41it/s]
- 15%|#4        | 75/515 [00:21&lt;02:13,  3.29it/s]
- 15%|#4        | 76/515 [00:21&lt;01:54,  3.82it/s]
- 15%|#4        | 77/515 [00:22&lt;03:17,  2.22it/s]
- 15%|#5        | 78/515 [00:22&lt;02:48,  2.60it/s]
- 15%|#5        | 79/515 [00:23&lt;02:26,  2.98it/s]
- 16%|#5        | 80/515 [00:23&lt;02:31,  2.88it/s]
- 16%|#5        | 81/515 [00:23&lt;02:22,  3.05it/s]
- 16%|#6        | 83/515 [00:23&lt;01:44,  4.13it/s]
- 16%|#6        | 84/515 [00:24&lt;01:32,  4.68it/s]
- 17%|#6        | 85/515 [00:24&lt;01:24,  5.12it/s]
- 17%|#6        | 87/515 [00:24&lt;01:45,  4.06it/s]
- 17%|#7        | 88/515 [00:25&lt;01:43,  4.13it/s]
- 17%|#7        | 89/515 [00:25&lt;01:55,  3.69it/s]
- 17%|#7        | 90/515 [00:26&lt;02:30,  2.82it/s]
- 18%|#7        | 91/515 [00:26&lt;02:02,  3.47it/s]
- 18%|#7        | 92/515 [00:26&lt;02:04,  3.40it/s]
- 18%|#8        | 93/515 [00:27&lt;02:37,  2.68it/s]
- 18%|#8        | 94/515 [00:27&lt;02:12,  3.17it/s]
- 19%|#8        | 96/515 [00:27&lt;01:56,  3.59it/s]
- 19%|#8        | 97/515 [00:28&lt;02:11,  3.17it/s]
- 19%|#9        | 98/515 [00:28&lt;02:15,  3.07it/s]
- 19%|#9        | 99/515 [00:28&lt;02:15,  3.06it/s]
- 19%|#9        | 100/515 [00:28&lt;01:57,  3.55it/s]
- 20%|#9        | 101/515 [00:29&lt;01:45,  3.94it/s]
- 20%|#9        | 102/515 [00:29&lt;01:35,  4.32it/s]
- 20%|##        | 103/515 [00:29&lt;01:33,  4.42it/s]
- 20%|##        | 104/515 [00:29&lt;01:32,  4.44it/s]
- 20%|##        | 105/515 [00:29&lt;01:31,  4.46it/s]
- 21%|##        | 106/515 [00:30&lt;01:50,  3.69it/s]
- 21%|##        | 107/515 [00:30&lt;02:00,  3.38it/s]
- 21%|##        | 108/515 [00:31&lt;02:13,  3.06it/s]
- 21%|##1       | 109/515 [00:31&lt;02:16,  2.97it/s]
- 21%|##1       | 110/515 [00:31&lt;01:52,  3.59it/s]
- 22%|##1       | 111/515 [00:31&lt;01:36,  4.19it/s]
- 22%|##1       | 112/515 [00:32&lt;01:37,  4.11it/s]
- 22%|##1       | 113/515 [00:32&lt;01:38,  4.06it/s]
- 22%|##2       | 114/515 [00:32&lt;01:48,  3.68it/s]
- 22%|##2       | 115/515 [00:32&lt;02:03,  3.24it/s]
- 23%|##2       | 116/515 [00:33&lt;03:06,  2.14it/s]
- 23%|##2       | 117/515 [00:33&lt;02:28,  2.69it/s]
- 23%|##2       | 118/515 [00:34&lt;02:16,  2.91it/s]
- 23%|##3       | 119/515 [00:34&lt;02:33,  2.59it/s]
- 23%|##3       | 120/515 [00:35&lt;02:28,  2.65it/s]
- 23%|##3       | 121/515 [00:35&lt;02:40,  2.46it/s]
- 24%|##3       | 123/515 [00:35&lt;01:40,  3.91it/s]
- 24%|##4       | 124/515 [00:36&lt;02:03,  3.16it/s]
- 24%|##4       | 125/515 [00:36&lt;02:10,  2.98it/s]
- 24%|##4       | 126/515 [00:37&lt;02:16,  2.86it/s]
- 25%|##4       | 127/515 [00:37&lt;02:25,  2.66it/s]
- 25%|##4       | 128/515 [00:37&lt;02:28,  2.61it/s]
- 25%|##5       | 129/515 [00:38&lt;02:54,  2.22it/s]
- 25%|##5       | 130/515 [00:38&lt;02:40,  2.40it/s]
- 25%|##5       | 131/515 [00:39&lt;02:17,  2.80it/s]
- 26%|##5       | 132/515 [00:39&lt;01:50,  3.47it/s]
- 26%|##5       | 133/515 [00:39&lt;02:37,  2.43it/s]
- 26%|##6       | 134/515 [00:39&lt;02:04,  3.06it/s]
- 26%|##6       | 135/515 [00:40&lt;02:06,  2.99it/s]
- 26%|##6       | 136/515 [00:40&lt;01:52,  3.37it/s]
- 27%|##6       | 137/515 [00:40&lt;01:43,  3.65it/s]
- 27%|##6       | 138/515 [00:41&lt;01:53,  3.32it/s]
- 27%|##6       | 139/515 [00:41&lt;01:49,  3.44it/s]
- 27%|##7       | 140/515 [00:41&lt;01:51,  3.36it/s]
- 27%|##7       | 141/515 [00:41&lt;01:30,  4.12it/s]
- 28%|##7       | 142/515 [00:42&lt;01:38,  3.79it/s]
- 28%|##7       | 143/515 [00:42&lt;01:40,  3.69it/s]
- 28%|##7       | 144/515 [00:43&lt;02:25,  2.54it/s]
- 28%|##8       | 145/515 [00:43&lt;02:31,  2.45it/s]
- 28%|##8       | 146/515 [00:43&lt;02:33,  2.41it/s]
- 29%|##8       | 147/515 [00:44&lt;02:27,  2.50it/s]
- 29%|##8       | 148/515 [00:44&lt;02:28,  2.47it/s]
- 29%|##8       | 149/515 [00:44&lt;02:06,  2.90it/s]
- 29%|##9       | 150/515 [00:45&lt;01:55,  3.17it/s]
- 29%|##9       | 151/515 [00:45&lt;01:33,  3.88it/s]
- 30%|##9       | 152/515 [00:45&lt;01:48,  3.33it/s]
- 30%|##9       | 153/515 [00:46&lt;01:47,  3.36it/s]
- 30%|##9       | 154/515 [00:46&lt;01:52,  3.20it/s]
- 30%|###       | 155/515 [00:46&lt;01:45,  3.40it/s]
- 30%|###       | 156/515 [00:46&lt;01:38,  3.64it/s]
- 30%|###       | 157/515 [00:47&lt;01:29,  4.00it/s]
- 31%|###       | 158/515 [00:47&lt;01:31,  3.92it/s]
- 31%|###       | 159/515 [00:47&lt;01:23,  4.27it/s]
- 31%|###1      | 160/515 [00:47&lt;01:34,  3.77it/s]
- 31%|###1      | 161/515 [00:48&lt;01:59,  2.97it/s]
- 31%|###1      | 162/515 [00:48&lt;01:41,  3.49it/s]
- 32%|###1      | 163/515 [00:48&lt;01:26,  4.05it/s]
- 32%|###1      | 164/515 [00:49&lt;01:53,  3.11it/s]
- 32%|###2      | 165/515 [00:49&lt;02:35,  2.25it/s]
- 32%|###2      | 166/515 [00:50&lt;02:13,  2.61it/s]
- 32%|###2      | 167/515 [00:50&lt;01:56,  2.99it/s]
- 33%|###2      | 168/515 [00:50&lt;01:36,  3.59it/s]
- 33%|###2      | 169/515 [00:50&lt;01:23,  4.15it/s]
- 33%|###3      | 170/515 [00:50&lt;01:34,  3.65it/s]
- 33%|###3      | 171/515 [00:51&lt;02:06,  2.71it/s]
- 33%|###3      | 172/515 [00:51&lt;01:49,  3.13it/s]
- 34%|###3      | 173/515 [00:52&lt;01:46,  3.21it/s]
- 34%|###3      | 174/515 [00:52&lt;01:33,  3.66it/s]
- 34%|###3      | 175/515 [00:52&lt;02:09,  2.63it/s]
- 34%|###4      | 176/515 [00:53&lt;02:08,  2.64it/s]
- 34%|###4      | 177/515 [00:53&lt;01:48,  3.11it/s]
- 35%|###4      | 178/515 [00:53&lt;01:33,  3.62it/s]
- 35%|###4      | 179/515 [00:53&lt;01:34,  3.55it/s]
- 35%|###4      | 180/515 [00:54&lt;01:27,  3.81it/s]
- 35%|###5      | 181/515 [00:54&lt;01:25,  3.93it/s]
- 35%|###5      | 182/515 [00:54&lt;01:34,  3.54it/s]
- 36%|###5      | 183/515 [00:54&lt;01:30,  3.67it/s]
- 36%|###5      | 184/515 [00:55&lt;01:29,  3.70it/s]
- 36%|###5      | 185/515 [00:55&lt;01:21,  4.05it/s]
- 36%|###6      | 186/515 [00:55&lt;01:16,  4.32it/s]
- 36%|###6      | 187/515 [00:55&lt;01:07,  4.88it/s]
- 37%|###6      | 188/515 [00:56&lt;01:16,  4.29it/s]
- 37%|###6      | 189/515 [00:56&lt;01:19,  4.08it/s]
- 37%|###6      | 190/515 [00:56&lt;01:15,  4.28it/s]
- 37%|###7      | 191/515 [00:56&lt;01:05,  4.97it/s]
- 37%|###7      | 192/515 [00:57&lt;01:21,  3.96it/s]
- 38%|###7      | 194/515 [00:57&lt;01:34,  3.41it/s]
- 38%|###7      | 195/515 [00:58&lt;01:37,  3.28it/s]
- 38%|###8      | 196/515 [00:58&lt;01:36,  3.30it/s]
- 38%|###8      | 197/515 [00:58&lt;01:28,  3.59it/s]
- 38%|###8      | 198/515 [00:58&lt;01:23,  3.78it/s]
- 39%|###8      | 199/515 [00:59&lt;01:21,  3.89it/s]
- 39%|###8      | 200/515 [00:59&lt;01:30,  3.49it/s]
- 39%|###9      | 201/515 [00:59&lt;01:35,  3.30it/s]
- 39%|###9      | 202/515 [00:59&lt;01:21,  3.83it/s]
- 39%|###9      | 203/515 [01:00&lt;01:26,  3.62it/s]
- 40%|###9      | 204/515 [01:00&lt;01:29,  3.46it/s]
- 40%|###9      | 205/515 [01:00&lt;01:40,  3.08it/s]
- 40%|####      | 206/515 [01:01&lt;01:31,  3.36it/s]
- 40%|####      | 207/515 [01:01&lt;01:34,  3.26it/s]
- 40%|####      | 208/515 [01:01&lt;01:35,  3.22it/s]
- 41%|####      | 209/515 [01:02&lt;01:26,  3.54it/s]
- 41%|####      | 210/515 [01:02&lt;01:17,  3.94it/s]
- 41%|####      | 211/515 [01:02&lt;01:08,  4.43it/s]
- 41%|####1     | 212/515 [01:02&lt;01:05,  4.62it/s]
- 41%|####1     | 213/515 [01:02&lt;01:11,  4.24it/s]
- 42%|####1     | 214/515 [01:03&lt;01:04,  4.64it/s]
- 42%|####1     | 215/515 [01:03&lt;00:55,  5.44it/s]
- 42%|####1     | 216/515 [01:03&lt;00:48,  6.17it/s]
- 42%|####2     | 217/515 [01:03&lt;01:26,  3.45it/s]
- 42%|####2     | 218/515 [01:04&lt;01:31,  3.23it/s]
- 43%|####2     | 219/515 [01:05&lt;02:27,  2.01it/s]
- 43%|####2     | 220/515 [01:05&lt;01:53,  2.59it/s]
- 43%|####3     | 222/515 [01:05&lt;01:50,  2.66it/s]
- 43%|####3     | 223/515 [01:06&lt;01:54,  2.56it/s]
- 43%|####3     | 224/515 [01:06&lt;01:32,  3.14it/s]
- 44%|####3     | 225/515 [01:06&lt;01:40,  2.90it/s]
- 44%|####3     | 226/515 [01:07&lt;01:27,  3.29it/s]
- 44%|####4     | 228/515 [01:07&lt;01:05,  4.40it/s]
- 45%|####4     | 230/515 [01:07&lt;00:58,  4.91it/s]
- 45%|####4     | 231/515 [01:08&lt;01:03,  4.46it/s]
- 45%|####5     | 232/515 [01:08&lt;01:06,  4.24it/s]
- 45%|####5     | 233/515 [01:08&lt;01:08,  4.10it/s]
- 45%|####5     | 234/515 [01:09&lt;01:33,  3.02it/s]
- 46%|####5     | 235/515 [01:09&lt;01:18,  3.59it/s]
- 46%|####5     | 236/515 [01:09&lt;01:06,  4.19it/s]
- 46%|####6     | 237/515 [01:09&lt;01:12,  3.86it/s]
- 46%|####6     | 238/515 [01:10&lt;01:17,  3.57it/s]
- 46%|####6     | 239/515 [01:10&lt;01:08,  4.05it/s]
- 47%|####6     | 240/515 [01:11&lt;01:52,  2.45it/s]
- 47%|####6     | 241/515 [01:11&lt;02:32,  1.79it/s]
- 47%|####6     | 242/515 [01:12&lt;02:20,  1.95it/s]
- 47%|####7     | 243/515 [01:12&lt;02:09,  2.09it/s]
- 47%|####7     | 244/515 [01:13&lt;01:54,  2.36it/s]
- 48%|####7     | 245/515 [01:13&lt;01:52,  2.40it/s]
- 48%|####7     | 246/515 [01:14&lt;02:13,  2.02it/s]
- 48%|####7     | 247/515 [01:14&lt;02:23,  1.86it/s]
- 48%|####8     | 248/515 [01:15&lt;02:41,  1.66it/s]
- 48%|####8     | 249/515 [01:16&lt;02:35,  1.72it/s]
- 49%|####8     | 250/515 [01:16&lt;02:16,  1.94it/s]
- 49%|####8     | 251/515 [01:16&lt;01:55,  2.28it/s]
- 49%|####8     | 252/515 [01:17&lt;01:48,  2.41it/s]
- 49%|####9     | 253/515 [01:17&lt;01:48,  2.42it/s]
- 49%|####9     | 254/515 [01:17&lt;01:41,  2.58it/s]
- 50%|####9     | 255/515 [01:18&lt;01:45,  2.45it/s]
- 50%|####9     | 256/515 [01:18&lt;01:22,  3.14it/s]
- 50%|####9     | 257/515 [01:18&lt;01:06,  3.88it/s]
- 50%|#####     | 258/515 [01:18&lt;01:23,  3.08it/s]
- 50%|#####     | 259/515 [01:19&lt;01:30,  2.84it/s]
- 50%|#####     | 260/515 [01:19&lt;01:42,  2.48it/s]
- 51%|#####     | 261/515 [01:20&lt;01:48,  2.35it/s]
- 51%|#####     | 262/515 [01:20&lt;01:39,  2.55it/s]
- 51%|#####1    | 263/515 [01:20&lt;01:29,  2.81it/s]
- 51%|#####1    | 264/515 [01:21&lt;01:16,  3.27it/s]
- 51%|#####1    | 265/515 [01:21&lt;01:12,  3.46it/s]
- 52%|#####1    | 266/515 [01:21&lt;01:01,  4.07it/s]
- 52%|#####1    | 267/515 [01:22&lt;01:25,  2.91it/s]
- 52%|#####2    | 268/515 [01:22&lt;01:09,  3.56it/s]
- 52%|#####2    | 269/515 [01:22&lt;01:09,  3.54it/s]
- 52%|#####2    | 270/515 [01:22&lt;01:07,  3.65it/s]
- 53%|#####2    | 271/515 [01:22&lt;00:55,  4.38it/s]
- 53%|#####2    | 272/515 [01:23&lt;01:33,  2.60it/s]
- 53%|#####3    | 273/515 [01:23&lt;01:24,  2.85it/s]
- 53%|#####3    | 274/515 [01:24&lt;01:53,  2.13it/s]
- 53%|#####3    | 275/515 [01:25&lt;02:16,  1.75it/s]
- 54%|#####3    | 276/515 [01:26&lt;02:18,  1.72it/s]
- 54%|#####3    | 277/515 [01:26&lt;02:06,  1.88it/s]
- 54%|#####3    | 278/515 [01:26&lt;01:42,  2.32it/s]
- 54%|#####4    | 279/515 [01:26&lt;01:24,  2.80it/s]
- 54%|#####4    | 280/515 [01:27&lt;01:34,  2.50it/s]
- 55%|#####4    | 281/515 [01:27&lt;01:29,  2.63it/s]
- 55%|#####4    | 282/515 [01:27&lt;01:10,  3.31it/s]
- 55%|#####4    | 283/515 [01:28&lt;01:09,  3.35it/s]
- 55%|#####5    | 284/515 [01:28&lt;01:11,  3.24it/s]
- 55%|#####5    | 285/515 [01:28&lt;01:16,  3.02it/s]
- 56%|#####5    | 286/515 [01:29&lt;01:14,  3.08it/s]
- 56%|#####5    | 287/515 [01:29&lt;01:09,  3.26it/s]
- 56%|#####5    | 288/515 [01:29&lt;01:07,  3.38it/s]
- 56%|#####6    | 289/515 [01:30&lt;01:17,  2.91it/s]
- 56%|#####6    | 290/515 [01:30&lt;01:10,  3.20it/s]
- 57%|#####6    | 291/515 [01:30&lt;01:05,  3.43it/s]
- 57%|#####6    | 293/515 [01:30&lt;00:54,  4.10it/s]
- 57%|#####7    | 294/515 [01:31&lt;01:01,  3.60it/s]
- 57%|#####7    | 295/515 [01:32&lt;01:32,  2.37it/s]
- 57%|#####7    | 296/515 [01:32&lt;01:41,  2.16it/s]
- 58%|#####7    | 297/515 [01:34&lt;02:54,  1.25it/s]
- 58%|#####7    | 298/515 [01:34&lt;02:18,  1.56it/s]
- 58%|#####8    | 299/515 [01:34&lt;01:56,  1.85it/s]
- 58%|#####8    | 300/515 [01:35&lt;01:29,  2.39it/s]
- 58%|#####8    | 301/515 [01:35&lt;01:13,  2.93it/s]
- 59%|#####8    | 303/515 [01:35&lt;00:45,  4.69it/s]
- 59%|#####9    | 304/515 [01:35&lt;00:41,  5.10it/s]
- 59%|#####9    | 305/515 [01:35&lt;00:37,  5.61it/s]
- 59%|#####9    | 306/515 [01:36&lt;00:51,  4.02it/s]
- 60%|#####9    | 307/515 [01:36&lt;00:45,  4.55it/s]
- 60%|#####9    | 308/515 [01:36&lt;00:42,  4.88it/s]
- 60%|######    | 309/515 [01:36&lt;00:44,  4.61it/s]
- 60%|######    | 310/515 [01:37&lt;00:56,  3.65it/s]
- 60%|######    | 311/515 [01:37&lt;00:53,  3.79it/s]
- 61%|######    | 312/515 [01:37&lt;00:47,  4.29it/s]
- 61%|######    | 313/515 [01:37&lt;00:43,  4.65it/s]
- 61%|######1   | 315/515 [01:37&lt;00:40,  4.99it/s]
- 61%|######1   | 316/515 [01:38&lt;01:09,  2.87it/s]
- 62%|######1   | 317/515 [01:39&lt;01:32,  2.15it/s]
- 62%|######1   | 318/515 [01:40&lt;01:36,  2.04it/s]
- 62%|######1   | 319/515 [01:40&lt;01:16,  2.56it/s]
- 62%|######2   | 320/515 [01:41&lt;02:04,  1.56it/s]
- 62%|######2   | 321/515 [01:41&lt;01:40,  1.93it/s]
- 63%|######2   | 322/515 [01:41&lt;01:19,  2.44it/s]
- 63%|######2   | 323/515 [01:42&lt;01:02,  3.09it/s]
- 63%|######2   | 324/515 [01:42&lt;01:01,  3.09it/s]
- 63%|######3   | 325/515 [01:42&lt;01:07,  2.82it/s]
- 63%|######3   | 326/515 [01:42&lt;00:54,  3.47it/s]
- 63%|######3   | 327/515 [01:43&lt;01:21,  2.32it/s]
- 64%|######3   | 328/515 [01:43&lt;01:12,  2.56it/s]
- 64%|######3   | 329/515 [01:44&lt;00:59,  3.11it/s]
- 64%|######4   | 331/515 [01:44&lt;00:44,  4.11it/s]
- 65%|######4   | 333/515 [01:44&lt;00:32,  5.56it/s]
- 65%|######4   | 334/515 [01:44&lt;00:40,  4.42it/s]
- 65%|######5   | 336/515 [01:45&lt;00:32,  5.49it/s]
- 65%|######5   | 337/515 [01:45&lt;00:30,  5.90it/s]
- 66%|######5   | 338/515 [01:45&lt;00:29,  6.05it/s]
- 66%|######5   | 339/515 [01:45&lt;00:29,  6.04it/s]
- 66%|######6   | 340/515 [01:45&lt;00:34,  5.05it/s]
- 66%|######6   | 341/515 [01:46&lt;00:30,  5.74it/s]
- 66%|######6   | 342/515 [01:46&lt;00:31,  5.53it/s]
- 67%|######6   | 343/515 [01:46&lt;00:32,  5.37it/s]
- 67%|######6   | 344/515 [01:46&lt;00:29,  5.78it/s]
- 67%|######6   | 345/515 [01:47&lt;00:47,  3.58it/s]
- 67%|######7   | 346/515 [01:47&lt;00:54,  3.13it/s]
- 67%|######7   | 347/515 [01:47&lt;00:49,  3.42it/s]
- 68%|######7   | 348/515 [01:47&lt;00:44,  3.72it/s]
- 68%|######7   | 350/515 [01:48&lt;00:33,  4.93it/s]
- 68%|######8   | 352/515 [01:48&lt;00:29,  5.56it/s]
- 69%|######8   | 353/515 [01:48&lt;00:27,  5.81it/s]
- 69%|######8   | 354/515 [01:49&lt;00:45,  3.51it/s]
- 69%|######8   | 355/515 [01:49&lt;01:00,  2.67it/s]
- 69%|######9   | 356/515 [01:50&lt;00:50,  3.18it/s]
- 69%|######9   | 357/515 [01:50&lt;00:46,  3.38it/s]
- 70%|######9   | 359/515 [01:50&lt;00:31,  4.93it/s]
- 70%|######9   | 360/515 [01:50&lt;00:27,  5.59it/s]
- 70%|#######   | 361/515 [01:50&lt;00:25,  5.93it/s]
- 70%|#######   | 362/515 [01:50&lt;00:24,  6.28it/s]
- 70%|#######   | 363/515 [01:51&lt;00:26,  5.81it/s]
- 71%|#######   | 364/515 [01:51&lt;00:31,  4.85it/s]
- 71%|#######   | 365/515 [01:51&lt;00:28,  5.20it/s]
- 71%|#######1  | 366/515 [01:51&lt;00:27,  5.46it/s]
- 71%|#######1  | 367/515 [01:51&lt;00:28,  5.23it/s]
- 71%|#######1  | 368/515 [01:52&lt;00:27,  5.33it/s]
- 72%|#######1  | 369/515 [01:52&lt;00:26,  5.59it/s]
- 72%|#######1  | 370/515 [01:52&lt;00:27,  5.21it/s]
- 72%|#######2  | 372/515 [01:52&lt;00:24,  5.85it/s]
- 72%|#######2  | 373/515 [01:53&lt;00:29,  4.80it/s]
- 73%|#######2  | 375/515 [01:53&lt;00:21,  6.60it/s]
- 73%|#######3  | 376/515 [01:53&lt;00:21,  6.49it/s]
- 73%|#######3  | 377/515 [01:53&lt;00:19,  7.07it/s]
- 73%|#######3  | 378/515 [01:53&lt;00:30,  4.46it/s]
- 74%|#######3  | 379/515 [01:54&lt;00:31,  4.35it/s]
- 74%|#######3  | 380/515 [01:54&lt;00:26,  5.06it/s]
- 74%|#######3  | 381/515 [01:54&lt;00:23,  5.58it/s]
- 74%|#######4  | 382/515 [01:54&lt;00:27,  4.80it/s]
- 74%|#######4  | 383/515 [01:54&lt;00:27,  4.85it/s]
- 75%|#######4  | 384/515 [01:55&lt;00:25,  5.09it/s]
- 75%|#######4  | 385/515 [01:55&lt;00:26,  4.86it/s]
- 75%|#######4  | 386/515 [01:55&lt;00:27,  4.72it/s]
- 75%|#######5  | 387/515 [01:55&lt;00:28,  4.52it/s]
- 75%|#######5  | 388/515 [01:56&lt;00:32,  3.95it/s]
- 76%|#######5  | 389/515 [01:56&lt;00:27,  4.61it/s]
- 76%|#######5  | 390/515 [01:56&lt;00:23,  5.26it/s]
- 76%|#######5  | 391/515 [01:56&lt;00:21,  5.64it/s]
- 76%|#######6  | 392/515 [01:56&lt;00:19,  6.17it/s]
- 76%|#######6  | 393/515 [01:56&lt;00:22,  5.54it/s]
- 77%|#######6  | 394/515 [01:57&lt;00:24,  4.90it/s]
- 77%|#######6  | 395/515 [01:57&lt;00:27,  4.40it/s]
- 77%|#######6  | 396/515 [01:57&lt;00:23,  5.06it/s]
- 77%|#######7  | 397/515 [01:57&lt;00:24,  4.89it/s]
- 77%|#######7  | 398/515 [01:57&lt;00:23,  4.97it/s]
- 77%|#######7  | 399/515 [01:58&lt;00:30,  3.79it/s]
- 78%|#######7  | 400/515 [01:58&lt;00:32,  3.56it/s]
- 78%|#######7  | 401/515 [01:58&lt;00:29,  3.87it/s]
- 78%|#######8  | 402/515 [01:59&lt;00:27,  4.12it/s]
- 78%|#######8  | 403/515 [01:59&lt;00:27,  4.05it/s]
- 78%|#######8  | 404/515 [01:59&lt;00:25,  4.37it/s]
- 79%|#######8  | 405/515 [01:59&lt;00:24,  4.40it/s]
- 79%|#######8  | 406/515 [02:00&lt;00:25,  4.32it/s]
- 79%|#######9  | 407/515 [02:00&lt;00:27,  3.94it/s]
- 79%|#######9  | 409/515 [02:00&lt;00:22,  4.68it/s]
- 80%|#######9  | 411/515 [02:00&lt;00:17,  5.83it/s]
- 80%|########  | 413/515 [02:01&lt;00:14,  7.26it/s]
- 81%|########  | 415/515 [02:01&lt;00:12,  8.02it/s]
- 81%|########  | 416/515 [02:01&lt;00:12,  7.66it/s]
- 81%|########1 | 418/515 [02:01&lt;00:15,  6.37it/s]
- 81%|########1 | 419/515 [02:02&lt;00:16,  5.70it/s]
- 82%|########1 | 420/515 [02:02&lt;00:16,  5.86it/s]
- 82%|########1 | 422/515 [02:02&lt;00:14,  6.32it/s]
- 82%|########2 | 424/515 [02:02&lt;00:14,  6.12it/s]
- 83%|########2 | 425/515 [02:03&lt;00:17,  5.17it/s]
- 83%|########2 | 426/515 [02:03&lt;00:18,  4.77it/s]
- 83%|########2 | 427/515 [02:03&lt;00:20,  4.26it/s]
- 83%|########3 | 428/515 [02:03&lt;00:18,  4.77it/s]
- 83%|########3 | 429/515 [02:04&lt;00:18,  4.69it/s]
- 83%|########3 | 430/515 [02:04&lt;00:16,  5.28it/s]
- 84%|########3 | 431/515 [02:04&lt;00:18,  4.52it/s]
- 84%|########3 | 432/515 [02:04&lt;00:16,  4.92it/s]
- 84%|########4 | 433/515 [02:04&lt;00:16,  4.90it/s]
- 84%|########4 | 434/515 [02:05&lt;00:17,  4.76it/s]
- 84%|########4 | 435/515 [02:05&lt;00:17,  4.61it/s]
- 85%|########4 | 436/515 [02:05&lt;00:17,  4.47it/s]
- 85%|########4 | 437/515 [02:05&lt;00:16,  4.87it/s]
- 85%|########5 | 438/515 [02:05&lt;00:15,  4.85it/s]
- 85%|########5 | 439/515 [02:06&lt;00:15,  5.06it/s]
- 85%|########5 | 440/515 [02:06&lt;00:15,  4.78it/s]
- 86%|########5 | 441/515 [02:06&lt;00:13,  5.54it/s]
- 86%|########5 | 442/515 [02:06&lt;00:15,  4.82it/s]
- 86%|########6 | 443/515 [02:06&lt;00:13,  5.46it/s]
- 86%|########6 | 444/515 [02:07&lt;00:13,  5.36it/s]
- 86%|########6 | 445/515 [02:07&lt;00:12,  5.75it/s]
- 87%|########6 | 446/515 [02:07&lt;00:17,  4.04it/s]
- 87%|########6 | 447/515 [02:07&lt;00:18,  3.74it/s]
- 87%|########6 | 448/515 [02:08&lt;00:19,  3.40it/s]
- 87%|########7 | 449/515 [02:08&lt;00:20,  3.20it/s]
- 87%|########7 | 450/515 [02:09&lt;00:21,  3.03it/s]
- 88%|########7 | 451/515 [02:09&lt;00:18,  3.39it/s]
- 88%|########7 | 452/515 [02:09&lt;00:15,  3.97it/s]
- 88%|########7 | 453/515 [02:09&lt;00:15,  4.07it/s]
- 88%|########8 | 454/515 [02:09&lt;00:13,  4.41it/s]
- 88%|########8 | 455/515 [02:09&lt;00:12,  4.64it/s]
- 89%|########8 | 456/515 [02:10&lt;00:12,  4.73it/s]
- 89%|########8 | 457/515 [02:10&lt;00:11,  5.18it/s]
- 89%|########8 | 458/515 [02:10&lt;00:12,  4.49it/s]
- 89%|########9 | 459/515 [02:10&lt;00:10,  5.14it/s]
- 89%|########9 | 460/515 [02:11&lt;00:11,  4.71it/s]
- 90%|########9 | 461/515 [02:11&lt;00:10,  5.34it/s]
- 90%|########9 | 462/515 [02:12&lt;00:24,  2.17it/s]
- 90%|########9 | 463/515 [02:12&lt;00:18,  2.81it/s]
- 90%|######### | 464/515 [02:12&lt;00:17,  2.97it/s]
- 90%|######### | 465/515 [02:12&lt;00:13,  3.76it/s]
- 90%|######### | 466/515 [02:12&lt;00:11,  4.10it/s]
- 91%|######### | 467/515 [02:13&lt;00:13,  3.68it/s]
- 91%|######### | 468/515 [02:13&lt;00:12,  3.91it/s]
- 91%|#########1| 469/515 [02:13&lt;00:10,  4.41it/s]
- 91%|#########1| 470/515 [02:13&lt;00:11,  4.04it/s]
- 92%|#########1| 472/515 [02:14&lt;00:07,  5.98it/s]
- 92%|#########2| 474/515 [02:14&lt;00:07,  5.77it/s]
- 92%|#########2| 475/515 [02:14&lt;00:07,  5.59it/s]
- 92%|#########2| 476/515 [02:15&lt;00:12,  3.11it/s]
- 93%|#########2| 477/515 [02:16&lt;00:15,  2.51it/s]
- 93%|#########2| 478/515 [02:16&lt;00:14,  2.50it/s]
- 93%|#########3| 479/515 [02:16&lt;00:13,  2.59it/s]
- 93%|#########3| 480/515 [02:17&lt;00:11,  2.94it/s]
- 93%|#########3| 481/515 [02:17&lt;00:12,  2.81it/s]
- 94%|#########3| 482/515 [02:17&lt;00:10,  3.12it/s]
- 94%|#########3| 483/515 [02:18&lt;00:10,  2.93it/s]
- 94%|#########3| 484/515 [02:18&lt;00:10,  2.91it/s]
- 94%|#########4| 485/515 [02:18&lt;00:10,  2.75it/s]
- 94%|#########4| 486/515 [02:19&lt;00:10,  2.88it/s]
- 95%|#########4| 487/515 [02:19&lt;00:08,  3.15it/s]
- 95%|#########4| 488/515 [02:19&lt;00:07,  3.47it/s]
- 95%|#########4| 489/515 [02:19&lt;00:06,  4.26it/s]
- 95%|#########5| 490/515 [02:20&lt;00:06,  3.63it/s]
- 95%|#########5| 491/515 [02:20&lt;00:06,  3.88it/s]
- 96%|#########5| 492/515 [02:20&lt;00:05,  3.99it/s]
- 96%|#########5| 493/515 [02:20&lt;00:05,  3.87it/s]
- 96%|#########5| 494/515 [02:21&lt;00:05,  4.06it/s]
- 96%|#########6| 495/515 [02:21&lt;00:04,  4.01it/s]
- 96%|#########6| 496/515 [02:21&lt;00:05,  3.55it/s]
- 97%|#########6| 497/515 [02:21&lt;00:04,  3.85it/s]
- 97%|#########6| 498/515 [02:22&lt;00:04,  3.90it/s]
- 97%|#########6| 499/515 [02:22&lt;00:03,  4.18it/s]
- 97%|#########7| 500/515 [02:22&lt;00:03,  4.62it/s]
- 97%|#########7| 501/515 [02:22&lt;00:03,  4.04it/s]
- 97%|#########7| 502/515 [02:22&lt;00:03,  4.19it/s]
- 98%|#########7| 503/515 [02:23&lt;00:02,  4.08it/s]
- 98%|#########7| 504/515 [02:24&lt;00:06,  1.80it/s]
- 98%|#########8| 505/515 [02:24&lt;00:04,  2.08it/s]
- 98%|#########8| 507/515 [02:25&lt;00:02,  3.24it/s]
- 99%|#########8| 508/515 [02:25&lt;00:02,  3.47it/s]
- 99%|#########8| 509/515 [02:25&lt;00:01,  4.15it/s]
- 99%|#########9| 510/515 [02:25&lt;00:01,  4.58it/s]
- 99%|#########9| 511/515 [02:25&lt;00:00,  5.30it/s]
- 99%|#########9| 512/515 [02:25&lt;00:00,  5.00it/s]
-100%|#########9| 513/515 [02:26&lt;00:00,  5.46it/s]
-100%|#########9| 514/515 [02:26&lt;00:00,  3.88it/s]
-100%|##########| 515/515 [02:26&lt;00:00,  4.13it/s]</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Train set:
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
+    <div class="prompt output_prompt">Out[4]:</div>
 
 
 
-<div class="output_html rendered_html output_subarea ">
+<div class="output_html rendered_html output_subarea output_execute_result">
 <div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -14085,12 +13567,52 @@ Train Set:
       <th></th>
       <th></th>
       <th></th>
-      <th>sentence</th>
+      <th>0</th>
+      <th>6</th>
+      <th>7</th>
+      <th>11</th>
+      <th>14</th>
+      <th>17</th>
+      <th>18</th>
+      <th>23</th>
+      <th>28</th>
+      <th>29</th>
+      <th>...</th>
+      <th>309</th>
+      <th>311</th>
+      <th>312</th>
+      <th>315</th>
+      <th>316</th>
+      <th>317</th>
+      <th>318</th>
+      <th>319</th>
+      <th>322</th>
+      <th>323</th>
     </tr>
     <tr>
       <th>author</th>
       <th>text_id</th>
       <th>sentence_position</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
       <th></th>
     </tr>
   </thead>
@@ -14099,161 +13621,275 @@ Train Set:
       <th rowspan="5" valign="top">1</th>
       <th rowspan="5" valign="top">0</th>
       <th>0</th>
-      <td>Racism is still a problem within our society t...</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>Ethnic minorities are concentrated into certai...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>This can be seen in a survey, carried out in 1...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>In this essay I will look at what racism is, a...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>In this section I will cover three areas that ...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>...</th>
       <th>...</th>
       <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
       <td>...</td>
     </tr>
     <tr>
       <th rowspan="5" valign="top">6998</th>
       <th rowspan="5" valign="top">2</th>
       <th>175</th>
-      <td>Yerma never wants the life of a man, yet she i...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>176</th>
-      <td>She resents her ability to exercise new freedo...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>177</th>
-      <td>However, Hedda resents her inactivity and depe...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>178</th>
-      <td>She rejects motherhood and matrimony in favour...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
     <tr>
       <th>179</th>
-      <td>While Hedda aspires to acquire the authority o...</td>
-    </tr>
-  </tbody>
-</table>
-<p>238088 rows × 1 columns</p>
-</div>
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Validation set:
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th></th>
-      <th></th>
-      <th>sentence</th>
-    </tr>
-    <tr>
-      <th>author</th>
-      <th>text_id</th>
-      <th>sentence_position</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th rowspan="5" valign="top">3</th>
-      <th rowspan="5" valign="top">0</th>
-      <th>0</th>
-      <td>At the eve of the Versailles conference, promo...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Moving with caution, Piłsudski, Head of State ...</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>From the outset, it appeared that Poland's ind...</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>It was only the realisation of Soviet hostilit...</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>At nearly the same time that peace was conclud...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <th>...</th>
-      <th>...</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
       <td>...</td>
-    </tr>
-    <tr>
-      <th rowspan="5" valign="top">6998</th>
-      <th rowspan="5" valign="top">1</th>
-      <th>70</th>
-      <td>(67-69)&lt;/quote&gt;</td>
-    </tr>
-    <tr>
-      <th>71</th>
-      <td>By allowing the child the last word, Wordswort...</td>
-    </tr>
-    <tr>
-      <th>72</th>
-      <td>Wordsworth challenges the reader's perceptions...</td>
-    </tr>
-    <tr>
-      <th>73</th>
-      <td>The poet asks if the child's cheerful percepti...</td>
-    </tr>
-    <tr>
-      <th>74</th>
-      <td>Wordsworth questions if an adult is better pre...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
     </tr>
   </tbody>
 </table>
-<p>58833 rows × 1 columns</p>
+<p>238088 rows × 128 columns</p>
 </div>
 </div>
 
@@ -14268,13 +13904,35 @@ Train Set:
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="n">train_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_train_sentences.hdf5&#39;</span><span class="p">),</span>
-                <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_train_sentences&#39;</span><span class="p">)</span>
-<span class="n">valid_df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">preprocess_path</span><span class="p">,</span> <span class="s1">&#39;bawe_valid_sentences.hdf5&#39;</span><span class="p">),</span>
-                <span class="n">key</span><span class="o">=</span><span class="s1">&#39;bawe_valid_sentences&#39;</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">authors</span> <span class="o">=</span> <span class="n">filtered_train</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;author&quot;</span><span class="p">)</span>
+<span class="n">author_set</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">authors</span><span class="p">))</span>
+
+<span class="n">experiment_authors</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">author_set</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">experiment_authors</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[5]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[6123, 34, 3079, 6002, 6132]</pre>
+</div>
+
+</div>
+
 </div>
 </div>
 
@@ -14284,7 +13942,11 @@ Train Set:
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-python"><pre><span></span><span class="mi">237192</span> <span class="o">/</span> <span class="mi">20</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">chosen_author</span> <span class="o">=</span> <span class="n">experiment_authors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">chosen_author_sentences</span> <span class="o">=</span> <span class="n">filtered_train</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">chosen_author</span><span class="p">]</span>
+
+<span class="n">chosen_author_sentences</span>
 </pre></div>
 
     </div>
@@ -14301,13 +13963,1544 @@ Train Set:
 
 
 
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>6</th>
+      <th>7</th>
+      <th>11</th>
+      <th>14</th>
+      <th>17</th>
+      <th>18</th>
+      <th>23</th>
+      <th>28</th>
+      <th>29</th>
+      <th>...</th>
+      <th>309</th>
+      <th>311</th>
+      <th>312</th>
+      <th>315</th>
+      <th>316</th>
+      <th>317</th>
+      <th>318</th>
+      <th>319</th>
+      <th>322</th>
+      <th>323</th>
+    </tr>
+    <tr>
+      <th>text_id</th>
+      <th>sentence_position</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">2</th>
+      <th>86</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>87</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>345 rows × 128 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Question: If I take the mean of each sentence distance and include it in the mean instead of excluding it, does this affect the mean/var distance?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">included_sentences_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">chosen_author_sentences</span> <span class="o">-</span> <span class="n">chosen_author_sentences</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">included_sentences_distances_mean</span> <span class="o">=</span> <span class="n">included_sentences_distances</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">included_sentences_distances_var</span> <span class="o">=</span> <span class="n">included_sentences_distances</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">get_excluded_sentence_distances</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sentence_distance</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="n">selection</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">selection</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sentence_distance</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="p">))])</span>
+
+
+<span class="n">excluded_sentence_distances</span> <span class="o">=</span> <span class="n">get_excluded_sentence_distances</span><span class="p">(</span><span class="n">chosen_author_sentences</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+
+<span class="n">excluded_sentence_distances_mean</span> <span class="o">=</span> <span class="n">excluded_sentence_distances</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">excluded_sentence_distances_var</span> <span class="o">=</span> <span class="n">excluded_sentence_distances</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+
+<span class="n">included_sentences_distances_mean</span><span class="p">,</span> <span class="n">excluded_sentence_distances_mean</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[7]:</div>
+
+
+
 
 <div class="output_text output_subarea output_execute_result">
-<pre>11859.6</pre>
+<pre>(3.967883958830325, 4.676969135651933)</pre>
 </div>
 
 </div>
 
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Answer: Yes :(, the mean is consistently much lower because the sentence is included. This is unfortunate because the other method was much more efficient to compute.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># plt.hist(excluded_sentence_distances)</span>
+
+<span class="c1"># plt.show()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Answer to previous question: Euclidean distances are not normal (no doy why would they be? euclidean distances from same distribution mean should on average be close to 0 and can't be lower than that).</p>
+<p>Question: What if I just pick a threshold that accounts for 95% of the author's sentences.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># chosen_text = chosen_author_sentences.loc[0]</span>
+
+<span class="c1"># chosen_sentence_distances = get_excluded_sentence_distances(chosen_text.to_numpy())</span>
+
+<span class="c1"># index_threshold = math.floor(len(chosen_sentence_distances) * 0.6)</span>
+<span class="c1"># threshold = np.sort(chosen_sentence_distances)[index_threshold]</span>
+
+<span class="c1"># threshold, index_threshold</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">chosen_author_sentences</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[10]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>6</th>
+      <th>7</th>
+      <th>11</th>
+      <th>14</th>
+      <th>17</th>
+      <th>18</th>
+      <th>23</th>
+      <th>28</th>
+      <th>29</th>
+      <th>...</th>
+      <th>309</th>
+      <th>311</th>
+      <th>312</th>
+      <th>315</th>
+      <th>316</th>
+      <th>317</th>
+      <th>318</th>
+      <th>319</th>
+      <th>322</th>
+      <th>323</th>
+    </tr>
+    <tr>
+      <th>text_id</th>
+      <th>sentence_position</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">2</th>
+      <th>86</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>87</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>345 rows × 128 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">chosen_text</span> <span class="o">=</span> <span class="n">chosen_author_sentences</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+
+<span class="n">chosen_text</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[11]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>6</th>
+      <th>7</th>
+      <th>11</th>
+      <th>14</th>
+      <th>17</th>
+      <th>18</th>
+      <th>23</th>
+      <th>28</th>
+      <th>29</th>
+      <th>...</th>
+      <th>309</th>
+      <th>311</th>
+      <th>312</th>
+      <th>315</th>
+      <th>316</th>
+      <th>317</th>
+      <th>318</th>
+      <th>319</th>
+      <th>322</th>
+      <th>323</th>
+    </tr>
+    <tr>
+      <th>text_id</th>
+      <th>sentence_position</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">1</th>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">2</th>
+      <th>86</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>87</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>88</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>89</th>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>264 rows × 128 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">normalized_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">chosen_text</span> <span class="o">-</span> <span class="n">chosen_text</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">chosen_text</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+<span class="c1"># Come back here on error</span>
+
+<span class="n">chosen_cov</span> <span class="o">=</span> <span class="n">chosen_text</span><span class="o">.</span><span class="n">cov</span><span class="p">()</span>
+
+<span class="n">eig_values</span><span class="p">,</span> <span class="n">eig_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">chosen_cov</span><span class="p">)</span>
+
+<span class="n">eig_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">eig_values</span><span class="p">)</span>
+
+<span class="n">k</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="n">phi_list</span> <span class="o">=</span> <span class="n">chosen_text</span> <span class="o">-</span> <span class="n">chosen_text</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">omega_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">phi_list</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">eig_vectors</span><span class="p">[:,</span> <span class="p">:</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="n">phi_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">omega_list</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">eig_vectors</span><span class="p">[:,</span> <span class="p">:</span><span class="n">k</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">phi_hat</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[12]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([ 4.47920538e-02,  0.00000000e+00,  1.53224178e+00, -5.83697816e-02,
+        0.00000000e+00,  0.00000000e+00,  4.02294904e-01,  7.29088295e-01,
+        5.07357202e-01, -8.64291239e-01,  0.00000000e+00,  0.00000000e+00,
+        5.25315395e-02,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        8.46131985e-01, -9.50091789e-03,  0.00000000e+00,  2.60812712e-01,
+        0.00000000e+00,  8.96931489e-01, -2.98463533e-01,  2.76977652e-02,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  1.33804924e+00,  3.68772350e-01, -2.02845384e-01,
+       -8.09682659e-03,  3.40950395e-01,  1.79054456e-02,  7.74634833e-01,
+        3.94648118e-02, -8.62435692e-02,  0.00000000e+00,  0.00000000e+00,
+       -8.09682659e-03, -2.83131320e-02, -4.37047634e-02,  0.00000000e+00,
+       -9.40831849e-02,  5.28782722e-02,  1.41645113e-01, -1.29995557e-01,
+        0.00000000e+00,  0.00000000e+00,  1.36705098e-01,  2.89766271e-01,
+        0.00000000e+00,  5.25760644e-01,  0.00000000e+00,  6.01528803e-02,
+        2.30636736e-02, -2.69599550e-01, -7.00607521e-02,  5.92131566e-02,
+       -5.72698981e-02, -2.51173303e-03, -5.08445870e-01, -3.58385130e-02,
+       -3.37017059e-01, -4.36605313e-01,  3.68259551e-01,  2.24482926e-02,
+        0.00000000e+00,  3.31594412e-02,  1.56655656e-02,  2.42951043e-01,
+        8.40679183e-02, -2.34561877e-01,  0.00000000e+00, -9.24749269e-02,
+        6.03295091e-01,  2.81521811e-01,  0.00000000e+00, -2.88565443e-02,
+        5.21329367e-02,  5.55926086e-04,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+        4.34825859e-01, -3.98178070e-02,  0.00000000e+00,  0.00000000e+00,
+        0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+       -1.70544458e-02,  0.00000000e+00,  0.00000000e+00, -4.93236029e-02,
+       -8.84043896e-02,  0.00000000e+00, -6.79082730e-02,  5.12510272e-01])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">profile_mean</span> <span class="o">=</span> <span class="n">chosen_text</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">cutoff_texts</span> <span class="o">=</span> <span class="n">chosen_text</span>
+
+<span class="n">diffs</span> <span class="o">=</span> <span class="n">cutoff_texts</span> <span class="o">-</span> <span class="n">chosen_text</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">phi_hat</span>
+
+<span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diffs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">distances</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[13]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([ 4.30909881,  3.90129018,  3.86625715,  5.04261801,  3.3712273 ,
+        3.66192225,  5.06568392,  4.76133649,  4.55022367,  3.96980319,
+        5.03162199,  2.83967262,  3.66514367,  5.27022859,  3.00600394,
+        4.22968855,  6.15763125,  7.84372377,  4.52777673,  5.18957802,
+        5.07791596,  5.57726838,  3.33463897,  3.35520677,  4.23218185,
+        4.54975521,  4.8711415 ,  4.74949844,  3.6370815 ,  3.96055303,
+        4.02838983,  3.48791901,  4.14312726,  5.95506037, 16.90054984,
+        3.86542881,  4.76030941,  5.59526493,  4.86466519,  2.9577449 ,
+        3.90253871,  4.20538188,  4.90648844,  3.48049663,  3.85128782,
+        4.00324898,  4.2801974 ,  4.62460439,  4.31129011,  5.23356298,
+        3.44311664,  3.84637224,  3.71014078,  3.06425761,  3.32134882,
+        3.93140969,  4.13547139,  4.14939764,  4.33059168,  6.43962412,
+        4.23297427,  9.64627545,  3.63704886,  5.33862037,  4.50509317,
+        4.73252506,  4.04926737,  5.62434613,  4.68161136,  3.99186512,
+        4.73074277,  4.13349535,  4.34898659,  3.93267518,  6.13139242,
+        5.59491141,  6.43105598,  9.36507768,  5.59491141,  6.29012125,
+        9.6186769 ,  5.59491141,  5.83447415,  3.99806279,  5.18971765,
+        4.64959955,  3.66970321,  8.34877358,  4.24319262,  4.10592907,
+        5.6836069 ,  4.63754288,  4.23169338,  4.57928963,  3.31643158,
+        5.47421931,  4.02321327,  3.40327825,  3.74264859,  5.50443399,
+        5.33028403,  4.83606831,  4.41683725,  4.37612602,  5.04877105,
+        5.01524047,  5.95506037,  9.10172483, 23.33468538, 16.99548936,
+        5.65611541,  4.08732835,  4.62312122,  4.87427039,  3.33624565,
+        5.62795672,  5.69534085,  4.61025495,  4.11839225,  4.07696451,
+        4.57440146,  6.04377138,  3.65220227,  5.29667681,  4.46089035,
+        3.73049722,  4.32701969,  5.93843774,  5.59491141,  5.9728076 ,
+        5.89794426,  5.59491141,  5.9728076 ,  5.89794426,  5.59491141,
+        5.9728076 ,  5.89794426,  5.59491141,  5.98614604,  3.61219042,
+        3.95466391,  3.09859989,  4.51970865,  4.20933877,  4.81311343,
+        3.58800539,  4.14939764,  4.3980238 ,  4.73440004,  3.65023991,
+        3.68353909,  4.40570216,  4.06478849,  3.71315931,  4.77832151,
+        4.20398925,  5.09270699,  3.73289147,  7.04408141,  5.86473437,
+        9.10172483,  7.94676086,  4.0960457 ,  6.31533658,  4.90308098,
+        4.27243772,  5.95506037,  7.84372377,  5.40982443,  6.33025134,
+        4.81339868,  4.18294289,  5.21151992,  6.07858779,  5.20722518,
+        4.19021202,  5.36533556,  5.63108104,  4.10330392,  4.52636324,
+        4.57738616,  4.92366514,  6.67682126,  5.7934958 ,  6.4109219 ,
+        5.47575584,  4.34899484,  4.48892387,  4.63572988,  3.44830664,
+        5.25825904,  5.03443957,  3.28002617,  3.51628432,  5.10692771,
+        4.99062568,  6.42432624,  6.15438278,  5.82992284,  5.40712942,
+        5.58098824,  4.54920833,  5.25114888,  5.35884624,  4.98526939,
+        5.25293147,  4.98399055,  5.125744  ,  4.41931995, 11.78318915,
+        5.39239657,  5.04444736,  4.0597915 ,  5.18341394,  4.3490835 ,
+        4.5996381 ,  6.07117824,  4.17550741,  4.2818831 ,  6.21058624,
+        4.78958673,  4.76649879,  3.53199512,  5.82046394,  4.27547559,
+        5.38697637,  8.087091  ,  7.02345749,  7.87631159,  7.81968343,
+        5.95795473,  4.91410735,  4.38279017,  3.83146591,  4.74572867,
+        5.74248062,  4.63404763,  3.24951364,  4.71931111,  6.89252411,
+        5.56911998,  4.83215332,  4.61101801,  4.6856876 ,  5.59325932,
+        8.34430895,  3.6936993 ,  3.9977619 ,  5.92792496,  8.41968688,
+       11.7122275 ,  3.32525715,  5.53812178,  4.17625908,  4.82989172,
+        4.62446586,  5.64000631,  6.61999081,  5.82613358,  5.46373011,
+        5.61082435,  5.44382549,  5.01450848,  3.78312941])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.5</span><span class="p">)</span>
+
+<span class="n">cutoff</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[14]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>5.757019085834935</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">same_distances</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">distances</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">outlier_cutoff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">same_distances</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">same_distances</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.5</span><span class="p">)</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">same_distances</span> <span class="o">&gt;</span> <span class="n">outlier_cutoff</span><span class="p">)</span> <span class="o">/</span> <span class="n">distances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[16]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.03787878787878788</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="n">suspect_texts</span> <span class="o">=</span> <span class="n">filtered_train</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">experiment_authors</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">0</span><span class="p">]</span>
+<span class="c1"># suspect_texts = chosen_author_sentences.loc[1]</span>
+
+<span class="n">suspect_diffs</span> <span class="o">=</span> <span class="n">suspect_texts</span> <span class="o">-</span> <span class="n">profile_mean</span> <span class="o">-</span> <span class="n">phi_hat</span>
+
+<span class="n">suspect_distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">suspect_diffs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">first_suspect_distances</span> <span class="o">=</span> <span class="n">suspect_distances</span><span class="p">[</span><span class="n">suspect_distances</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">]</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">first_suspect_distances</span> <span class="o">&gt;</span> <span class="n">outlier_cutoff</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">suspect_distances</span><span class="p">)</span>
+<span class="c1"># np.sum(first_suspect_distances &gt; outlier_cutoff) / len(first_suspect_distances)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[17]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.018518518518518517</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># def euclidean_distance(mean, df):</span>
+<span class="c1">#     return np.linalg.norm(mean - df, axis=1)</span>
+
+
+<span class="c1"># chosen_text_mean = chosen_text.mean()</span>
+
+<span class="c1"># same_texts = chosen_author_sentences.drop(index=(0,))</span>
+<span class="c1"># other_author_texts = filtered_train.drop(index=(chosen_author,))</span>
+
+<span class="c1"># same_sentence_classifications = pd.DataFrame(</span>
+<span class="c1">#     euclidean_distance(chosen_text_mean, same_texts) &gt; threshold, index=same_texts.index</span>
+<span class="c1"># )</span>
+<span class="c1"># other_sentence_classifications = pd.DataFrame(</span>
+<span class="c1">#     euclidean_distance(chosen_text_mean, other_author_texts) &gt; threshold, index=other_author_texts.index</span>
+<span class="c1"># )</span>
+
+<span class="c1"># same_text_classifications = same_sentence_classifications.groupby(level=(&quot;text_id&quot;)).mean() &gt; 0.5</span>
+<span class="c1"># other_text_classifications = other_sentence_classifications.groupby(level=(&quot;author&quot;, &quot;text_id&quot;)).mean() &gt; 0.5</span>
+
+<span class="c1"># same_flags = same_text_classifications.sum()</span>
+<span class="c1"># same_length = len(same_text_classifications)</span>
+<span class="c1"># other_flags = other_text_classifications.sum()</span>
+<span class="c1"># other_length = len(other_text_classifications)</span>
+
+<span class="c1"># tnr = (same_length - same_flags) / same_length</span>
+<span class="c1"># tpr = other_flags / other_length</span>
+
+<span class="c1"># tnr[0], tpr[0]</span>
+</pre></div>
+
+    </div>
 </div>
 </div>
 

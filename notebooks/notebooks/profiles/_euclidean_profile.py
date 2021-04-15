@@ -1,3 +1,5 @@
+import pickle
+from io import BytesIO
 import numpy as np
 import pandas as pd
 from notebooks.profiles import BaseProfile
@@ -9,9 +11,21 @@ class EuclideanProfile(BaseProfile):
     the suspect data.
     """
 
-    def __init__(self):
-        self._mean = None
-        self._count = 0
+    def __init__(self, bytesIO = None):
+        if bytesIO is not None:
+            state_dict = pickle.load(bytesIO)
+
+            if state_dict["mean"] is not None:
+                mean_bytes = BytesIO(state_dict["mean"])
+                mean_bytes.seek(0)
+                self._mean = np.load(mean_bytes)
+            else:
+                self._mean = None
+
+            self._count = state_dict["count"]
+        else:
+            self._mean = None
+            self._count = 0
 
     def _feed(self, author_texts: pd.DataFrame):
         """
@@ -60,3 +74,24 @@ class EuclideanProfile(BaseProfile):
         #      case testing here or refactor to something that doesn't contain this
         #      loophole.
         self._mean = None
+
+    @property
+    def binary(self):
+        mean_bytes = BytesIO()
+
+        if self._mean is not None:
+            np.save(mean_bytes, self._mean)
+
+            mean_bytes = mean_bytes.getvalue()
+        else:
+            mean_bytes = None
+
+        state_dict = {"mean": mean_bytes, "count": self._count}
+
+        state_bytes = BytesIO()
+
+        pickle.dump(state_dict, state_bytes)
+
+        state_bytes.seek(0)
+
+        return state_bytes
