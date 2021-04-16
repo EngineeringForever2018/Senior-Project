@@ -19,17 +19,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Debug
-        run: echo "$GITHUB_SHA"
-      -
         name: Build and push backend
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
+          file: backend/Dockerfile
           tags: | 
-            *******/grchr/avpd:${{ env.GITHUB_SHA }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/avpd:dev
+            grchr/avpd-backend:main."$GITHUB_SHA"
+            grchr/avpd-backend:dev
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
