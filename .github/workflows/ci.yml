@@ -34,9 +34,9 @@ jobs:
           file: backend/Dockerfile
           target: build
           tags: | 
+            gcr.io/team-25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
             grchr/avpd-backend:main.${{github.sha}}
             grchr/avpd-backend:dev
-            gcr.io/team-25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
