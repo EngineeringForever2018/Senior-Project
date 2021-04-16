@@ -11,21 +11,23 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from django.core.files.storage import FileSystemStorage
 
+env = environ.Env()
+
+environ.Env.read_env()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# AUTH0 variables
+AUTH0_AUDIENCE = env("DJANGO_AUTH0_AUDIENCE")
+AUTH0_ISSUER = env("DJANGO_AUTH0_ISSUER")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'u3quud34x!=4kb1qg6s419x6@(ie3f2z@8a0qb-enstzatp**7'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -39,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'backend.api',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -58,7 +59,6 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -106,9 +106,10 @@ CORS_ALLOW_METHODS = (
     'PUT'
 )
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost:3000',
+# )
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -178,8 +179,8 @@ JWT_AUTH = {
     'JWT_DECODE_HANDLER':
         'backend.api.utils.jwt_decode_token',
     'JWT_ALGORITHM': 'RS256',
-    'JWT_AUDIENCE': 'https://api.avpd',
-    'JWT_ISSUER': 'https://avpd.us.auth0.com/',
+    'JWT_AUDIENCE': AUTH0_AUDIENCE,
+    'JWT_ISSUER': AUTH0_ISSUER,
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 }
 
@@ -193,12 +194,3 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 AUTH_USER_MODEL = 'api.User'
 
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# REST_AUTH_SERIALIZERS = {
-#     'USER_DETAILS_SERIALIZER': 'user.serializers.UserSerializer',
-#     'TOKEN_SERIALIZER': 'user.serializers.TokenSerializer'
-# }
-#
-# REST_AUTH_REGISTER_SERIALIZERS = {
-#     'REGISTER_SERIALIZER': 'user.serializers.CustomRegisterSerializer',
-# }

@@ -1,3 +1,2 @@
--e ../notebooks
 -r requirements/common.txt
 -r requirements/dev.txt

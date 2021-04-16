@@ -4,18 +4,15 @@ WORKDIR /usr/src/app
 
 RUN python -m pip install --upgrade pip
 
-COPY ./notebooks /usr/lib/notebooks
-WORKDIR /usr/lib/notebooks
-RUN python setup.py install
-RUN python -m spacy download en_core_web_sm
-WORKDIR /usr/src/app
-
-COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY ./notebooks /usr/src/notebooks
 
 COPY ./backend .
+RUN pip install --no-cache-dir -U -r requirements/common.txt
+RUN pip install --no-cache-dir -U -r requirements/prod.txt
 
 RUN python manage.py makemigrations
 RUN python manage.py migrate
 
-CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000", "--noreload" ]
+# Gunicorn listens on 127.0.0.1 by default, which isn't for docker (172.17.0.1).
+# Changing this to 0.0.0.0 allows it to serve all interfaces, including docker.
+CMD [ "gunicorn", "backend.wsgi", "-b 0.0.0.0:8000" ]

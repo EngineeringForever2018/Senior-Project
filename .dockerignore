@@ -1,5 +1,23 @@
+# This .dockerignore is for the backend (yay docker build contexts)
+
+# Ignore everything in this directory
+*
+
+# Exceptions
+!notebooks/
+!backend/
+
+# Now on to the actual files we care about
+**/.git/
+**/venv/
+
 notebooks/data/
+notebooks/resources/
+notebooks/outputs/
 notebooks/develop/
 notebooks/deliver/
-backend/venv/
-frontend/
+
+backend/**.nb
+backend/db.sqlite3
+backend/backend/api/migrations/0001_initial.py
+backend/media/
