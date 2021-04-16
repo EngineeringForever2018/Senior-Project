@@ -19,9 +19,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Create service key file
-        run: echo ${{ secrets.GCLOUD_AUTH }} > ~./sa-private-key.json
-      -
         name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
