@@ -25,6 +25,7 @@ jobs:
         with:
           push: true
           file: backend/Dockerfile
+          target: build
           tags: | 
             grchr/avpd-backend:main.${{github.sha}}
             grchr/avpd-backend:dev
