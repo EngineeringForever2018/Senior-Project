@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Debug
-        run: echo ${{ secrets.DOCKERHUB_USERNAME }}/avpd:${{ env.GITHUB_SHA }}
+        run: echo ${{ secrets.DOCKERHUB_USERNAME }}/avpd:${{ GITHUB_SHA }}
       -
         name: Build and push backend
         id: docker_build
@@ -28,7 +28,7 @@ jobs:
         with:
           push: true
           tags: | 
-            ${{ secrets.DOCKERHUB_USERNAME }}/avpd:${{ env.GITHUB_SHA }}
+            *******/grchr/avpd:${{ env.GITHUB_SHA }}
             ${{ secrets.DOCKERHUB_USERNAME }}/avpd:dev
       -
         name: Image digest
