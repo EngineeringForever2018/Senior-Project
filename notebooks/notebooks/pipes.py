@@ -1,5 +1,3 @@
-from itertools import chain, tee, repeat
-
 import numpy as np
 import torch
 from torch.nn.utils.rnn import pack_padded_sequence
@@ -20,58 +18,63 @@ class IDText(PdPipelineStage):
     def _transform(self, df, verbose):
         def id_text(df_group):
             result = df_group.copy()
-            text_count = len(result['text'])
+            text_count = len(result["text"])
 
-            result['text_id'] = np.arange(text_count)
+            result["text_id"] = np.arange(text_count)
 
             return result
 
-        df = df.groupby('author').apply(id_text)
+        df = df.groupby("author").apply(id_text)
 
         # TODO: Drop other columns, don't just take text column
-        new_df = pd.DataFrame(df['text'].copy(), columns=['text'])
-        new_df.index = pd.MultiIndex.from_frame(df[['author', 'text_id']])
+        new_df = pd.DataFrame(df["text"].copy(), columns=["text"])
+        new_df.index = pd.MultiIndex.from_frame(df[["author", "text_id"]])
 
         return new_df
 
 
 class SplitText(PdPipelineStage):
     def __init__(self, nlp, show_loading=False):
-        desc = 'A pipeline that will split texts from a dataframe into sentences.'
+        desc = "A pipeline that will split texts from a dataframe into sentences."
         super().__init__(desc=desc)
         self.nlp = nlp
         self.show_loading = show_loading
 
     def _prec(self, df):  # noqa
-        return 'text' in df.columns
+        return "text" in df.columns
 
     def _transform(self, df, verbose):
         if self.show_loading:
             progress_bar = tqdm(total=len(df))
 
         def split_text(row):
-            sentences = list(split_into_sentences(row['text'].iloc[0], nlp=self.nlp))
+            sentences = list(split_into_sentences(row["text"].iloc[0], nlp=self.nlp))
 
-            new_row = row.drop(columns=['text']).copy()
+            new_row = row.drop(columns=["text"]).copy()
 
-            new_row['sentence'] = [sentences]
-            new_row = new_row.explode('sentence', ignore_index=True)
+            new_row["sentence"] = [sentences]
+            new_row = new_row.explode("sentence", ignore_index=True)
 
-            new_row.index = pd.MultiIndex.from_tuples(zip(new_row.index), names=['sentence_position'])
+            new_row.index = pd.MultiIndex.from_tuples(
+                zip(new_row.index), names=["sentence_position"]
+            )
 
             if self.show_loading:
                 progress_bar.update()
 
             return new_row
 
-        new_df = df.groupby(['author', 'text_id']).apply(split_text)
+        new_df = df.groupby(["author", "text_id"]).apply(split_text)
 
         return new_df
 
 
 class POSTokenize(PdPipelineStage):
     def __init__(self, nlp, pos_vocab, show_loading=False):
-        desc = 'A pipeline that will split sentences into tokens and then replace each token with a POS tag.'
+        desc = (
+            "A pipeline that will split sentences into tokens and then replace each"
+            + "token with a POS tag."
+        )
         super().__init__(desc=desc)
         self.tokenize = Tokenize(nlp=nlp, show_loading=show_loading)
         self.pos_tag = POSTag(pos_vocab=pos_vocab)
@@ -83,14 +86,17 @@ class POSTokenize(PdPipelineStage):
         df = self.tokenize(df)
         df = self.pos_tag(df)
 
-        df['sentence_length'] = [len(sentence) for sentence in df['sentence']]
+        df["sentence_length"] = [len(sentence) for sentence in df["sentence"]]
 
         return df
 
 
 class GroupSentences(PdPipelineStage):
     def __init__(self, n):
-        desc = 'A pipeline that will group sentences from a dataframe into ordered groups of n.'
+        desc = (
+            "A pipeline that will group sentences from a dataframe into ordered groups"
+            + "of n."
+        )
         super().__init__(desc=desc)
         self.n = n
 
@@ -103,8 +109,9 @@ class GroupSentences(PdPipelineStage):
             sentence_positions = np.array(sentence_positions)
             result = text_group.copy()
 
-            # Just integer divide by the group length. If the sentence positions are [0, 1, 2, 3], and the group length
-            # is 2, then the resulting group positions would be [0, 0, 1, 1], which is desirable.
+            # Just integer divide by the group length. If the sentence positions are
+            # [0, 1, 2, 3], and the group length is 2, then the resulting group
+            # positions would be [0, 0, 1, 1], which is desirable.
             # result['group_position'] = (sentence_positions / self.n).astype(int)
             group_positions = (sentence_positions / self.n).astype(int)
             # result['sentence_position'] -= result['group_position'] * self.n
@@ -114,25 +121,28 @@ class GroupSentences(PdPipelineStage):
             remainder = (last_sentence_position + 1) % self.n
             max_sentence_position = last_sentence_position - remainder
 
-            # Wherever the sentence position is greater than the max sentence position, we need to replace group with
-            # -1 (which means we're going to drop those rows later).
+            # Wherever the sentence position is greater than the max sentence position,
+            # we need to replace group with -1 (which means we're going to drop those
+            # rows later).
             group_positions[sentence_positions > max_sentence_position] = -1
 
-            result.index = pd.MultiIndex.from_tuples(zip(group_positions, new_sentence_positions),
-                                                     names=['group_position', 'sentence_position'])
+            result.index = pd.MultiIndex.from_tuples(
+                zip(group_positions, new_sentence_positions),
+                names=["group_position", "sentence_position"],
+            )
 
             return result
 
-        df = df.groupby(['author', 'text_id']).apply(group_sentences)
+        df = df.groupby(["author", "text_id"]).apply(group_sentences)
 
-        df = df.query('group_position != -1')
+        df = df.query("group_position != -1")
 
         return df
 
 
 class POSTag(PdPipelineStage):
     def __init__(self, pos_vocab):
-        desc = 'A pipeline that will tag tokens with their POS.'
+        desc = "A pipeline that will tag tokens with their POS."
         super().__init__(desc=desc)
         self.pos_vocab = pos_vocab
 
@@ -142,14 +152,16 @@ class POSTag(PdPipelineStage):
     def _transform(self, df, verbose):
         df = df.copy()
 
-        df['sentence'] = [pos_tag(sentence, pos_vocab=self.pos_vocab) for sentence in df['sentence']]
+        df["sentence"] = [
+            pos_tag(sentence, pos_vocab=self.pos_vocab) for sentence in df["sentence"]
+        ]
 
         return df
 
 
 class Tokenize(PdPipelineStage):
     def __init__(self, nlp, show_loading=False):
-        desc = 'A pipeline that will split sentences into tokens.'
+        desc = "A pipeline that will split sentences into tokens."
         super().__init__(desc=desc)
         self.nlp = nlp
         self.show_loading = show_loading
@@ -160,12 +172,12 @@ class Tokenize(PdPipelineStage):
     def _transform(self, df, verbose):
         df = df.copy()
 
-        sentence_itr = df['sentence']
+        sentence_itr = df["sentence"]
 
         if self.show_loading:
             sentence_itr = tqdm(sentence_itr)
 
-        df['sentence'] = [tokenize(sentence, nlp=self.nlp) for sentence in sentence_itr]
+        df["sentence"] = [tokenize(sentence, nlp=self.nlp) for sentence in sentence_itr]
 
         return df
 
@@ -175,22 +187,26 @@ class PackSequence(PdPipelineStage):
         super().__init__()
         self.dev = dev
 
-    def _prec(self, df): # noqa
+    def _prec(self, df):  # noqa
         return True
 
     def _transform(self, df, verbose):
-        sentences = df['sentence'].tolist()
-        sentence_lengths = torch.tensor(df['sentence_length'].tolist(), dtype=int)
+        sentences = df["sentence"].tolist()
+        sentence_lengths = torch.tensor(df["sentence_length"].tolist(), dtype=int)
         max_sentence_length = max(sentence_lengths)
         authors, _, _, _ = zip(*df.index.tolist())
         authors = torch.tensor(list(dict.fromkeys(authors).keys())).to(self.dev)
 
         result = torch.zeros(len(df), max_sentence_length, dtype=int)
 
-        for index, (sentence, sentence_length) in enumerate(zip(sentences, sentence_lengths)):
+        for index, (sentence, sentence_length) in enumerate(
+            zip(sentences, sentence_lengths)
+        ):
             result[index, :sentence_length] = torch.tensor(sentence)
 
-        result = pack_padded_sequence(torch.transpose(result, 0, 1), sentence_lengths, enforce_sorted=False)
+        result = pack_padded_sequence(
+            torch.transpose(result, 0, 1), sentence_lengths, enforce_sorted=False
+        )
         result = result.to(self.dev)
 
         return result, authors

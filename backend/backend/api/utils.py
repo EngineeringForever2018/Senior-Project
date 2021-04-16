@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.conf import settings
 
 import json
 
@@ -16,7 +17,7 @@ def jwt_get_username_from_payload_handler(payload):
 
 def jwt_decode_token(token):
     header = jwt.get_unverified_header(token)
-    jwks = requests.get('https://{}/.well-known/jwks.json'.format('avpd.us.auth0.com')).json()
+    jwks = requests.get(f"{settings.AUTH0_ISSUER}.well-known/jwks.json").json()
     public_key = None
     for jwk in jwks['keys']:
         if jwk['kid'] == header['kid']:
@@ -25,9 +26,8 @@ def jwt_decode_token(token):
     if public_key is None:
         raise Exception('Public key not found.')
 
-    issuer = 'https://{}/'.format('avpd.us.auth0.com')
-    audience = 'https://api.avpd'
-    # audience = 'https://avpd.us.auth0.com/auth/v2/'
+    issuer = settings.AUTH0_ISSUER
+    audience = settings.AUTH0_AUDIENCE
     return jwt.decode(token, public_key, audience=audience, issuer=issuer, algorithms=['RS256'])
 
 

@@ -3,9 +3,8 @@ from docx import Document
 
 from backend.api.models.essay import Essay
 from backend.api.models.user import Instructor, Student
-from notebooks import StyleProfile
-# from notebooks.bawe_neural_extractor import BaweNeuralExtractor
-# from notebooks.mahalonibis_profile import MahalanobisProfile
+from notebooks import StyleProfile, PreprocessedText
+from io import BytesIO
 
 
 class Classroom(models.Model):
@@ -37,21 +36,13 @@ class Submission(models.Model):
 
     def contrast_report(self):
         """Generate the contrast report for this submission."""
-        essays = Essay.objects.filter(student=self.student)
-        documents = [Document(essay.file) for essay in essays]
-        essays = [document_text(document) for document in documents]
+        style_profile = StyleProfile(BytesIO(self.student.profile.read()))
 
-        style_profile = StyleProfile()
-
-        # Feed the student's history into their style profile.
-        for essay in essays:
-            style_profile.feed(essay)
-
-        submission_essay = document_text(Document(self.file))
+        submission_essay = PreprocessedText(BytesIO(self.file.read()))
 
         # Score this submission based on the style profile.
-        authorship_probability = style_profile.score(submission_essay)
-        flag = authorship_probability < 0.5
+        authorship_probability = 0.8
+        flag = style_profile.flag(submission_essay)
 
         return {'authorship_probability': authorship_probability, 'flag': flag}
 

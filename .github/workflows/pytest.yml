@@ -1,0 +1,7 @@
+name: pytest
+on: [workflow_dispatch]
+jobs:
+  test-notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pytest notebooks/tests

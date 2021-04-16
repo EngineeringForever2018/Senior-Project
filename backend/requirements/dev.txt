@@ -1,0 +1,2 @@
+# Editable version of notebooks for debugging
+-e ../notebooks

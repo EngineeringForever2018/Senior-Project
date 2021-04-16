@@ -35,7 +35,7 @@ valid_df_exists = os.path.exists(valid_df_path)
 if not (train_df_exists and valid_df_exists) or resample_splits:
     print('Resampling...')
 
-    train_df = df.sample(frac=0.5).sort_values(by=['author', 'genre'])
+    train_df = df.sample(frac=0.8).sort_values(by=['author', 'genre'])
     valid_df = df.drop(train_df.index)
 
     train_df = train_df.reset_index(drop=True)

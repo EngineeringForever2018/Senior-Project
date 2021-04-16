@@ -16,6 +16,12 @@ from backend.api.serializers.classroom import ClassroomSerializer, ClassroomStud
     SubmissionSerializer
 from backend.api.utils import location
 from backend.api.views.utils import verify_user_type, post_serialize, put_serialize
+from notebooks import TextProcessor
+from backend.api.models.classroom import document_text
+from io import BytesIO
+from django.core.files import File
+from docx import Document
+from notebooks import StyleProfile, PreprocessedText
 
 
 # TODO: (Refactoring) Learn how to use query sets and see if that cleans up any of this code.
@@ -328,14 +334,27 @@ class SubmissionsView(APIView):
     Post a submission or view previously posted submissions.
     """
     parser_classes = (MultiPartParser, FormParser,)
+    i = 0
 
-    @staticmethod
-    def post(request, classroom_pk, assignment_pk):
+    @classmethod
+    def post(cls, request, classroom_pk, assignment_pk):
         """Post a submission for this assignment."""
         verify_user_type(request, 'student')
+        processor = TextProcessor()
 
         # TODO: (Bug) Check that assignment and student are valid.
         student = Student.objects.get(user=request.user)
+
+        doc = Document(request.data["file"]) 
+        preprocessed_text = processor(document_text(doc))
+
+        # RECAP: (Bug) Django says file is empty here. When seeking to 0, saved files
+        #        have no content
+        f = open(f"{student.user.id}-submission-{cls.i}.nb", "wb+")
+        cls.i += 1
+        f.write(preprocessed_text.binary.read())
+        f.seek(0)
+        request.data["file"] = File(f)
         request.data['assignment'] = assignment_pk
         request.data['student'] = student.id
         request.data['date'] = datetime.now(tz=pytz.UTC)
@@ -446,10 +465,17 @@ class AcceptedSubmissionsView(APIView):
         assignment = Assignment.objects.get(classroom=classroom, id=assignment_pk)
         submission = Submission.objects.get(assignment=assignment, id=submission_pk)
 
-        essay = Essay.objects.create(student=submission.student, file=submission.file)
+        profile = StyleProfile(BytesIO(submission.student.profile.file.read()))
 
-        response = Response({'id': essay.id}, status=status.HTTP_201_CREATED)
-        response['Location'] = location(request, f'/student/essays/{essay.id}')
+        profile.feed(PreprocessedText(BytesIO(submission.file.read())))
+
+        newfilename = f"{submission.student.user.id}-profile.nb"
+        submission.student.profile.save(newfilename, BytesIO(profile.binary.read()))
+
+        submission.student.save()
+
+        response = Response({}, status=status.HTTP_201_CREATED)
+        # response['Location'] = location(request, f'/student/essays/{essay.id}')
 
         return response
 
@@ -468,6 +494,7 @@ class ReportView(APIView):
         response = Response(submission.contrast_report())
 
         return response
+
 
 class DetailedReportView(APIView):
     @staticmethod

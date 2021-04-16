@@ -5,3 +5,5 @@ venv/
 .idea/
 **/__pycache
 notebooks.egg-info/
+*.nb
+backend/.env

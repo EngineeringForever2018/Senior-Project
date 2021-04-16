@@ -1,5 +1,6 @@
 from docx import Document
 
+
 class WordReconstructable:
     # @Hayden: The only hard requirement I have here is that you take in this word
     # document class from the docx library and act on it. You can change the function
@@ -19,17 +20,17 @@ class WordReconstructable:
         # @Hayden: When parsing word docs for the backend I used document.paragraphs,
         # and the actual paragraph text could be retrieved with paragraph.text. See
         # https://python-docx.readthedocs.io/en/latest/api/document.html
-        # 
+        #
         # @Hayden: To generate the keys you could simply get the paragraphs into a list
         # and use the index of each paragraph as its key. The following code would do
         # that.
-        # 
+        #
         # return dict(enumerate(paragraph_list))
-        # 
+        #
         # The reason that we return a dictionary instead of a list is because I feel
         # it's less rigid and prone to error, and because it opens the door for only
         # supplying some of the paragraphs to be highlighted instead of all of them.
-        return {'dummy-key': 'dummy value', 'dummy-key2': 'dummy value 2'}
+        return {"dummy-key": "dummy value", "dummy-key2": "dummy value 2"}
 
     @property
     def keys(self):
@@ -37,7 +38,7 @@ class WordReconstructable:
         Return the keys that would be used to uniquely identify paragraphs from the
         paragraphs property.
         """
-        return ['dummy-key', 'dummy-key2']
+        return ["dummy-key", "dummy-key2"]
 
     def highlight(self, annotated_paragraphs):
         """
