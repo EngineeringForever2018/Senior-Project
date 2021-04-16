@@ -269,49 +269,49 @@ class TestPOSTokenize:
         assert result.eq(expected_result).all().all()
 
 
-class DeprecatedTestPackSequence:
-    dataframes = [
-        pd.DataFrame(
-            [[[0, 1, 2], 3], [[0, 1, 2, 3], 4], [[0, 1], 2], [[0, 1, 2, 3, 4], 5]],
-            index=pd.MultiIndex.from_tuples(
-                [(5, 1, 0, 0), (5, 1, 0, 1), (7, 0, 1, 0), (7, 0, 1, 1)],
-                names=["author", "text_id", "group_position", "sentence_position"],
-            ),
-            columns=["sentence", "sentence_length"],
-        )
-    ]
-
-    tensors = [
-        (
-            pack_padded_sequence(
-                torch.tensor(
-                    [
-                        [0, 0, 0, 0],
-                        [1, 1, 1, 1],
-                        [2, 2, 0, 2],
-                        [0, 3, 0, 3],
-                        [0, 0, 0, 4],
-                    ]
-                ).to(torch.device(0)),
-                torch.tensor([3, 4, 2, 5]),
-                enforce_sorted=False,
-            ),
-            torch.tensor([5, 7]).to(torch.device(0)),
-        )
-    ]
-
-    @pytest.mark.parametrize("df, expected_result", zip(dataframes, tensors))
-    def test_dataframe_to_packed_sequence(self, df, expected_result):
-        pipeline = pipes.PackSequence(torch.device(0))
-
-        result = pipeline(df)
-        unpacked_result, result_lengths = pad_packed_sequence(result[0])
-        result_authors = result[1]
-        unpacked_expected_result, expected_result_lengths = pad_packed_sequence(
-            expected_result[0]
-        )
-        expected_result_authors = expected_result[1]
-
-        assert torch.all(unpacked_result == unpacked_expected_result)
-        assert torch.all(result_authors == expected_result_authors)
-        assert torch.all(result_lengths == expected_result_lengths)
+# class DeprecatedTestPackSequence:
+#     dataframes = [
+#         pd.DataFrame(
+#             [[[0, 1, 2], 3], [[0, 1, 2, 3], 4], [[0, 1], 2], [[0, 1, 2, 3, 4], 5]],
+#             index=pd.MultiIndex.from_tuples(
+#                 [(5, 1, 0, 0), (5, 1, 0, 1), (7, 0, 1, 0), (7, 0, 1, 1)],
+#                 names=["author", "text_id", "group_position", "sentence_position"],
+#             ),
+#             columns=["sentence", "sentence_length"],
+#         )
+#     ]
+# 
+#     tensors = [
+#         (
+#             pack_padded_sequence(
+#                 torch.tensor(
+#                     [
+#                         [0, 0, 0, 0],
+#                         [1, 1, 1, 1],
+#                         [2, 2, 0, 2],
+#                         [0, 3, 0, 3],
+#                         [0, 0, 0, 4],
+#                     ]
+#                 ).to(torch.device(0)),
+#                 torch.tensor([3, 4, 2, 5]),
+#                 enforce_sorted=False,
+#             ),
+#             torch.tensor([5, 7]).to(torch.device(0)),
+#         )
+#     ]
+# 
+#     @pytest.mark.parametrize("df, expected_result", zip(dataframes, tensors))
+#     def test_dataframe_to_packed_sequence(self, df, expected_result):
+#         pipeline = pipes.PackSequence(torch.device(0))
+# 
+#         result = pipeline(df)
+#         unpacked_result, result_lengths = pad_packed_sequence(result[0])
+#         result_authors = result[1]
+#         unpacked_expected_result, expected_result_lengths = pad_packed_sequence(
+#             expected_result[0]
+#         )
+#         expected_result_authors = expected_result[1]
+# 
+#         assert torch.all(unpacked_result == unpacked_expected_result)
+#         assert torch.all(result_authors == expected_result_authors)
+#         assert torch.all(result_lengths == expected_result_lengths)
