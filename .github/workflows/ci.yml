@@ -26,7 +26,7 @@ jobs:
           push: true
           file: backend/Dockerfile
           tags: | 
-            grchr/avpd-backend:main.$GITHUB_SHA
+            "grchr/avpd-backend:main.$GITHUB_SHA"
             grchr/avpd-backend:dev
       -
         name: Image digest
