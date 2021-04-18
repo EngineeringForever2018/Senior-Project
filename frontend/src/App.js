@@ -2,6 +2,7 @@ import './App.scss';
 import {Route,} from 'react-router-dom';
 import {Switch} from 'react-router';
 import React from "react";
+//other imports
 import {Home} from "./Home";
 import About from "./About";
 import {MessageHome} from "./Message/MessageHome"
@@ -41,11 +42,12 @@ function Main() {
       <Route exact path="/instructor/classrooms/:classroomID/assignments/:id" component={InstructorAssignment}/>
       <Route exact path="/instructor/classrooms/:id/students" component={InstructorNameList}/>
       <Route exact path="/instructor/classrooms/:classroomID/assignments/:id/submissions" component={InstructorSubmissionsList}/>
+      <Route exact path="/instructor/classrooms/:classroomID/assignments/:assignmentID/submissions/:id/report" component={ReportScreen}/>
+
       {/*Student menu*/}
       <Route exact path="/student/classrooms/:classroomID/assignments/:id" component={StudentAssignment}/>
       <Route exact path="/student/classrooms/:classroomID/assignments/:id/submit" component={PostSubmit}/>
       <Route exact path="/student/classrooms/:classroomID/assignments/:id/submitList" component={PostSubmitList}/>
-      <Route exact path="/instructor/classrooms/:classroomID/assignments/:assignmentID/submissions/:id/report" component={ReportScreen}/>
     </Switch>
   )
 }
