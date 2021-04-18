@@ -28,6 +28,7 @@ jobs:
         name: Login to GCloud
         uses: docker/login-action@v1
         with:
+          registry: gcr.io
           username: ${{ steps.gcloud.outputs.username }}
           password: ${{ steps.gcloud.outputs.password }}
       -
