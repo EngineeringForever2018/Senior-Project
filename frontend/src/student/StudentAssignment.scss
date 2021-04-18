@@ -14,9 +14,13 @@
       }
 
   }
-}
+  .essayImage{
+    width: 25%;
+    height: 25%;
+  }
 
-.essayImage{
-  width: 40%;
-  height: 40%;
+  .essayPDF{
+    height: 25em;
+    border: '1px solid rgba(0, 0, 0, 0.3)',    
+  }
 }
