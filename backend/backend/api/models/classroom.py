@@ -11,14 +11,14 @@ class Classroom(models.Model):
     # Instructors can have many classrooms. Classrooms can have only one instructor.
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE)
     # Classrooms can have many students. Students can be enrolled in many classrooms.
-    students = models.ManyToManyField(Student)
+    students = models.ManyToManyField(Student, related_name="classrooms")
 
     title = models.CharField(max_length=30)
 
 
 class Assignment(models.Model):
     # Classrooms can have many assignments. Assignments can only belong to one classroom.
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="assignments")
 
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=1000)

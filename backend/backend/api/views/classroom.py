@@ -3,19 +3,23 @@ from datetime import datetime
 import pytz
 from django.http import Http404, FileResponse, HttpResponse
 from rest_framework import status
+from rest_framework import viewsets, generics
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 import os
 
 from backend.api.models.classroom import Classroom, Assignment, Submission
 from backend.api.models.essay import Essay
 from backend.api.models.user import Instructor, Student, User
+from backend.api.serializers import JoinedClassroomSerializer
 from backend.api.serializers.classroom import ClassroomSerializer, ClassroomStudentSerializer, AssignmentSerializer, \
     SubmissionSerializer
 from backend.api.utils import location
 from backend.api.views.utils import verify_user_type, post_serialize, put_serialize
+from backend.api.permissions import IsClassMember, IsClaimedInstructor, IsClassInstructorOrReadOnly, IsStudent, IsAssignmentStudent, IsAssignmentInstructorOrReadOnly
 from notebooks import TextProcessor
 from backend.api.models.classroom import document_text
 from io import BytesIO
@@ -25,6 +29,49 @@ from notebooks import StyleProfile, PreprocessedText
 
 
 # TODO: (Refactoring) Learn how to use query sets and see if that cleans up any of this code.
+
+
+class ClassroomViewSet(viewsets.ModelViewSet):
+    queryset = Classroom.objects.all()
+    serializer_class = ClassroomSerializer
+    permission_classes = [IsAuthenticated, IsClassMember, IsClassInstructorOrReadOnly]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "student":
+            return Classroom.objects.filter(students=user.student)
+        else:
+            return Classroom.objects.filter(instructor=user.instructor)
+
+    def perform_create(self, serializer):
+        serializer.save(instructor=self.request.user.instructor)
+
+
+class JoinedClassroomDetail(generics.UpdateAPIView):
+    lookup_field = "pk"
+    queryset = Classroom.objects.all()
+    serializer_class = JoinedClassroomSerializer
+    permission_classes = [IsAuthenticated, IsStudent]
+
+    def perform_update(self, serializer):
+        serializer.save(student=self.request.user.student)
+
+
+class AssignmentViewSet(viewsets.ModelViewSet):
+    queryset = Assignment.objects.all()
+    serializer_class = AssignmentSerializer
+    permission_classes = [IsAuthenticated, IsAssignmentStudent, IsAssignmentInstructorOrReadOnly]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "student":
+            classrooms = user.student.classrooms.all()
+        else:
+            classrooms = Classroom.objects.filter(instructor=user.instructor)
+
+        return Assignment.objects.filter(classroom__in=classrooms)
 
 
 class ClassroomsView(APIView):
@@ -67,7 +114,7 @@ class ClassroomView(APIView):
         verify_user_type(request, "instructor")
 
         classroom = self.get_object(request, pk)
-        serializer = ClassroomSerializer(classroom)
+        serializer = ClassroomSerializer(classroom, context={"request": request})
         return Response(serializer.data)
 
     def put(self, request, pk):
