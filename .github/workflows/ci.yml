@@ -38,7 +38,7 @@ jobs:
         with:
           push: false
           file: backend/Dockerfile
-          outputs: type=local,dest=/home
+          outputs: type=docker
           target: build
           tags: | 
             gcr.io/team25-avpd/gchristensen/avpd-backend-dev
