@@ -13,3 +13,5 @@
           push: false
           file: backend/Dockerfile
           target: test
+grchr/avpd-backend:main.${{github.sha}}
+grchr/avpd-backend:dev
