@@ -40,14 +40,14 @@ jobs:
           file: backend/Dockerfile
           target: build
           tags: | 
-            gcr.io/team25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
+            gcr.io/team25-avpd/gchristensen/avpd-backend-dev
       -
         name: Deploy service to Cloud Run
         uses: stefda/action-cloud-run@v1.2
         with:
-          image: gcr.io/team25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
+          image: gcr.io/team25-avpd/gchristensen/avpd-backend-dev
           service: avpd-backend-dev
-          project: team-25-avpd
+          project: team25-avpd
           region: us-west1
           service key: ${{ secrets.GCLOUD_AUTH }}
       -
