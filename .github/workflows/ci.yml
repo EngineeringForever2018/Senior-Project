@@ -19,12 +19,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        name: Get GCloud Credentials
+        id: gcloud
+        uses: elgohr/gcloud-login-action@master
         with:
-          project_id: team-25-avpd
-          service_account_key: ${{ secrets.GCLOUD_AUTH }}
-          export_default_credentials: true
+          account_key: ${{ secrets.GCLOUD_AUTH }}
+      -
+        name: Login to GCloud
+        uses: docker/login-action@v1
+        with:
+          username: ${{ steps.gcloud.outputs.username }}
+          password: ${{ steps.gcloud.outputs.password }}
       -
         name: Build and push backend
         id: docker_build
