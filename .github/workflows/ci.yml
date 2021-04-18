@@ -52,7 +52,7 @@ jobs:
         name: Deploy service to Cloud Run
         uses: stefda/action-cloud-run@v1.2
         with:
-          image: gcr.io/team-25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
+          image: gcr.io/team25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
           service: avpd-backend-dev
           project: team-25-avpd
           region: us-west1
