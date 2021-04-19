@@ -25,3 +25,6 @@ WORKDIR /usr/src/notebooks
 RUN pip install --no-cache-dir -U -r requirements/dev.txt
 
 RUN pytest tests
+
+
+FROM build as bin

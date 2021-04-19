@@ -14,6 +14,7 @@ router = SimpleRouter(trailing_slash=False)
 router.register(r"instructors", views.InstructorViewSet)
 router.register(r"students", views.StudentViewSet)
 router.register(r"classrooms", views.ClassroomViewSet)
+router.register(r"instructor/classrooms", views.ClassroomViewSet)
 router.register(r"assignments", views.AssignmentViewSet)
 
 

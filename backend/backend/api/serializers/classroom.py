@@ -6,10 +6,10 @@ from backend.api.models.user import Student
 
 
 class ClassroomSerializer(HyperlinkedModelSerializer):
-    instructor = serializers.HyperlinkedRelatedField(view_name="instructor-detail", read_only=True)
     class Meta:
         model = Classroom
         fields = ['id', 'instructor', "students", "assignments", 'title']
+        read_only_fields = ["instructor", "students", "assignments"]
 
 
 class JoinedClassroomSerializer(ModelSerializer):

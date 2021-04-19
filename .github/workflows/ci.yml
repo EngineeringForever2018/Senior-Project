@@ -32,22 +32,43 @@ jobs:
           username: ${{ steps.gcloud.outputs.username }}
           password: ${{ steps.gcloud.outputs.password }}
       -
-        name: Build and push backend
+        name: Build and test backend
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          push: false
+          push: true
+          load: true
           file: backend/Dockerfile
-          outputs: type=docker
-          target: build
           tags: | 
+            gcr.io/team25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
             gcr.io/team25-avpd/gchristensen/avpd-backend-dev
+            grchr/avpd-backend-dev
       -
-        name: Deploy service to Cloud Run
+        name: Build and test frontend
+        id: docker_build_frontend
+        with:
+          push: true
+          load: true
+          context: frontend/
+          tags: |
+            gcr.io/team25-avpd/gchristensen/avpd-frontend:main.${{github.sha}}
+            gcr.io/team25-avpd/gchristensen/avpd-frontend-dev
+            grchr/avpd-frontend-dev
+      -
+        name: Deploy backend to Cloud Run
         uses: stefda/action-cloud-run@v1.2
         with:
           image: gcr.io/team25-avpd/gchristensen/avpd-backend-dev
           service: avpd-backend-dev
+          project: team25-avpd
+          region: us-west1
+          service key: ${{ secrets.GCLOUD_AUTH }}
+      -
+        name: Deploy frontend to Cloud Run
+        uses: stefda/action-cloud-run@v1.2
+        with:
+          image: gcr.io/team25-avpd/gchristensen/avpd-frontend-dev
+          service: avpd-frontend-dev
           project: team25-avpd
           region: us-west1
           service key: ${{ secrets.GCLOUD_AUTH }}
