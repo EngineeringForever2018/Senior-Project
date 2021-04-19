@@ -6,7 +6,34 @@ on:
       - 'main'
 
 jobs:
-  build-test-deploy:
+  build-test-deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Build and test
+        id: docker_build_frontend
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          context: frontend/
+          tags: |
+            gcr.io/team25-avpd/gchristensen/avpd-frontend-dev
+      -
+        name: Deploy frontend to Cloud Run
+        uses: stefda/action-cloud-run@v1.2
+        with:
+          image: gcr.io/team25-avpd/gchristensen/avpd-frontend-dev
+          service: avpd-frontend-dev
+          project: team25-avpd
+          region: us-west1
+          service key: ${{ secrets.GCLOUD_AUTH }}
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+  build-test-deploy-backend:
     runs-on: ubuntu-latest
     steps:
       -
@@ -32,15 +59,6 @@ jobs:
           username: ${{ steps.gcloud.outputs.username }}
           password: ${{ steps.gcloud.outputs.password }}
       -
-        name: Build and test backend
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          load: true
-          file: backend/Dockerfile
-          tags: | 
-            gcr.io/team25-avpd/gchristensen/avpd-backend-dev
-      -
         name: Build and test frontend
         id: docker_build_frontend
         uses: docker/build-push-action@v2
@@ -49,15 +67,6 @@ jobs:
           context: frontend/
           tags: |
             gcr.io/team25-avpd/gchristensen/avpd-frontend-dev
-      -
-        name: Deploy backend to Cloud Run
-        uses: stefda/action-cloud-run@v1.2
-        with:
-          image: gcr.io/team25-avpd/gchristensen/avpd-backend-dev
-          service: avpd-backend-dev
-          project: team25-avpd
-          region: us-west1
-          service key: ${{ secrets.GCLOUD_AUTH }}
       -
         name: Deploy frontend to Cloud Run
         uses: stefda/action-cloud-run@v1.2
