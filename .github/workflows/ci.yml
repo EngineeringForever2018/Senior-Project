@@ -36,25 +36,19 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          push: true
           load: true
           file: backend/Dockerfile
           tags: | 
-            gcr.io/team25-avpd/gchristensen/avpd-backend:main.${{github.sha}}
             gcr.io/team25-avpd/gchristensen/avpd-backend-dev
-            grchr/avpd-backend-dev
       -
         name: Build and test frontend
         id: docker_build_frontend
         uses: docker/build-push-action@v2
         with:
-          push: true
           load: true
           context: frontend/
           tags: |
-            gcr.io/team25-avpd/gchristensen/avpd-frontend:main.${{github.sha}}
             gcr.io/team25-avpd/gchristensen/avpd-frontend-dev
-            grchr/avpd-frontend-dev
       -
         name: Deploy backend to Cloud Run
         uses: stefda/action-cloud-run@v1.2
