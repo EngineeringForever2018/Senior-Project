@@ -46,6 +46,7 @@ jobs:
       -
         name: Build and test frontend
         id: docker_build_frontend
+        uses: docker/build-push-action@v2
         with:
           push: true
           load: true
