@@ -26,9 +26,21 @@ from io import BytesIO
 from django.core.files import File
 from docx import Document
 from notebooks import StyleProfile, PreprocessedText
+import mimetypes
 
 
 # TODO: (Refactoring) Learn how to use query sets and see if that cleans up any of this code.
+
+def download_file(request):
+    # fill these variables with real values
+    fl_path = '1.docx'
+    filename = '1.docx'
+
+    fl = open(fl_path, 'rb')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response
 
 
 class ClassroomViewSet(viewsets.ModelViewSet):

@@ -20,6 +20,7 @@ router.register(r"assignments", views.AssignmentViewSet)
 
 urlpatterns = [
     path(r"", include(router.urls)),
+    path("downloadfile", views.download_file),
     path("joined-classrooms/<int:pk>", views.JoinedClassroomDetail.as_view()),
     path('public-dummy', views.dummy.public_dummy),
     path('private-dummy', views.dummy.private_dummy),
@@ -27,7 +28,7 @@ urlpatterns = [
     path("special-dummies", views.dummy.AfterDummyView.as_view(), name="dummy-list"),
     path('users', views.user.UsersView.as_view()),
     path('user', views.user.UserView.as_view()),
-    path("students/<int:pk>/home", views.StudentHomeView.as_view()),
+    path("student/home", views.StudentHomeView.as_view()),
     path('instructor/classrooms/<int:classroom_pk>/assignments', views.classroom.AssignmentsView.as_view()),
     path('instructor/classrooms/<int:classroom_pk>/assignments/<int:pk>', views.classroom.AssignmentView.as_view()),
     # path('classrooms/<int:classroom_pk>/students', views.classroom.ClassroomStudentsView.as_view()),

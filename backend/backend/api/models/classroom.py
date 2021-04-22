@@ -1,8 +1,7 @@
 from django.db import models
 from docx import Document
 
-from backend.api.models.essay import Essay
-from backend.api.models.user import Instructor, Student
+from backend.api.models import Instructor, Student, Essay
 from notebooks import StyleProfile, PreprocessedText
 from io import BytesIO
 
