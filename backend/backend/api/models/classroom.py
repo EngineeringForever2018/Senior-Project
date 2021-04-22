@@ -1,7 +1,8 @@
 from django.db import models
 from docx import Document
 
-from backend.api.models import Instructor, Student, Essay
+from backend.api.models.user import Instructor, Student
+from backend.api.models.essay import Essay
 from notebooks import StyleProfile, PreprocessedText
 from io import BytesIO
 
@@ -44,6 +45,23 @@ class Submission(models.Model):
         flag = style_profile.flag(submission_essay)
 
         return {'authorship_probability': authorship_probability, 'flag': flag}
+
+    def detailed_report(self):
+        """Generate the contrast report for this submission."""
+        style_profile = StyleProfile(BytesIO(self.student.profile.read()))
+
+        submission_essay = PreprocessedText(BytesIO(self.file.read()))
+
+        # Score this submission based on the style profile.
+        detailed = style_profile.detailed(submission_essay)
+        return make_docx(*detailed)
+
+    def preprocessed(self):
+        style_profile = StyleProfile(BytesIO(self.student.profile.read()))
+
+        submission_essay = PreprocessedText(BytesIO(self.file.read()))
+
+        return submission_essay
 
 
 def document_text(document):

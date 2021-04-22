@@ -11,13 +11,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 import os
 
-from backend.api.models.classroom import Classroom, Assignment, Submission
+from backend.api.models.classroom import Classroom, Submission, Assignment
 from backend.api.models.essay import Essay
 from backend.api.models.user import Instructor, Student, User
 from backend.api.serializers import JoinedClassroomSerializer
 from backend.api.serializers.classroom import ClassroomSerializer, ClassroomStudentSerializer, AssignmentSerializer, \
     SubmissionSerializer
-from backend.api.utils import location
+from backend.api.utils import location, make_docx
 from backend.api.views.utils import verify_user_type, post_serialize, put_serialize
 from backend.api.permissions import IsClassMember, IsClaimedInstructor, IsClassInstructorOrReadOnly, IsStudent, IsAssignmentStudent, IsAssignmentInstructorOrReadOnly
 from notebooks import TextProcessor
@@ -564,15 +564,16 @@ class DetailedReportView(APIView):
         assignment = Assignment.objects.get(classroom=classroom, id=assignment_pk)
         submission = Submission.objects.get(assignment=assignment, id=submission_pk)
 
-        # wf = open('dummy-detailed-report.docx', 'rb')
-        # response = Response({'file': wf}, content_type='Multipart/Form-data')
-        # response = FileResponse(wf, content_type='docx')
-        # response['Content-Length'] = len(wf.read())
-        # response['Content-Length'] = os.fstat(wf.fileno()).st_size
-        # response['Content-Disposition'] = f'attachment; filename="dummy-detailed-report.docx"'
-        # file_path = os.path.join(settings.MEDIA_ROOT, path)
-        # if os.path.exists(file_path):
-        with open('dummy-detailed-report.docx', 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/docx")
-            response['Content-Disposition'] = 'inline; filename=' + "dummy-detailed-report.docx"
-            return response
+        doc = submission.detailed_report()
+
+        # fill these variables with real values
+        fl_path = '1.docx'
+        filename = '1.docx'
+
+        doc.save(fl_path)
+
+        fl = open(fl_path, 'rb')
+        mime_type, _ = mimetypes.guess_type(fl_path)
+        response = HttpResponse(fl, content_type=mime_type)
+        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        return response

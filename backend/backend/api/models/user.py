@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.files import File
 from django.db import models
-from backend.api.models import Assignment
 from notebooks import StyleProfile
 
 
@@ -57,10 +56,6 @@ class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     profile = models.FileField()
-
-    @property
-    def assignments(self):
-        return Assignment.objects.filter(classrooms=self.classrooms)
 
     def __str__(self):
         return self.user.username
