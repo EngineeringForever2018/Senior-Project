@@ -28,7 +28,7 @@ setup(
         "spacy",
         "scipy",
         "pandas",
-        "tables",
+        #"tables",
         "pdpipe",
         "nltk",
         "sklearn",
