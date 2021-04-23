@@ -3,6 +3,7 @@ from docx import Document
 
 from backend.api.models.user import Instructor, Student
 from backend.api.models.essay import Essay
+from backend.api.utils import make_docx
 from notebooks import StyleProfile, PreprocessedText
 from io import BytesIO
 

@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+import docx
+from docx.enum.text import WD_COLOR_INDEX
 from django.conf import settings
 
 import json
@@ -45,4 +47,4 @@ def make_docx(bool_list, string_list):
         else:
             para.add_run(string_list[i] + "")
 
-    return True
+    return doc

@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 import os
 
 from backend.api.models.classroom import Classroom, Submission, Assignment
@@ -230,7 +230,7 @@ class ClassroomStudentView(APIView):
     @staticmethod
     def get_object(classroom, pk):
         try:
-            return Student.objects.get(classroom=classroom, id=pk)
+            return Student.objects.get(classrooms=classroom, id=pk)
         except Student.DoesNotExist:
             raise NotFound(detail="Student does not belong to this classroom.")
 
@@ -556,10 +556,10 @@ class ReportView(APIView):
 
 
 class DetailedReportView(APIView):
+    permission_classes = [AllowAny]
+
     @staticmethod
     def get(request, classroom_pk, assignment_pk, submission_pk):
-        verify_user_type(request, 'instructor')
-
         classroom = Classroom.objects.get(id=classroom_pk)
         assignment = Assignment.objects.get(classroom=classroom, id=assignment_pk)
         submission = Submission.objects.get(assignment=assignment, id=submission_pk)

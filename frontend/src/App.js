@@ -2,6 +2,7 @@ import './App.scss';
 import {Route,} from 'react-router-dom';
 import {Switch} from 'react-router';
 import React from "react";
+import DocViewer, { PNGRenderer } from "react-doc-viewer";
 //other imports
 import {Home} from "./Home";
 import About from "./About";

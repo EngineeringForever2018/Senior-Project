@@ -58,7 +58,7 @@ class PreprocessedText:
 class StyleProfile:
     def __init__(self, bytesIO: BytesIO = None):
         if bytesIO is not None:
-            self._profile = VotingProfile(bytesIO=bytesIO)
+            self._profile = VotingProfile(p=0.7, bytesIO=bytesIO)
         else:
             self._profile = VotingProfile(p=0.7)
         self._threshold = 0.5
