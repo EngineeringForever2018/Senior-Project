@@ -23,36 +23,6 @@ export async function listClassroom(token) {
   return axios.get(`${serverUrl()}/instructor/classrooms`, requestConfig)
 }
 
-export async function getSubmission(classroomID, assignmentID, id, token) {
-  let requestConfig = {}
-
-  requestConfig = await authenticateRequest(requestConfig, token)
-
-  return axios.get(
-    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}`,
-    requestConfig)
-}
-
-export async function getSubmissionReport(classroomID, assignmentID, id, token) {
-  let requestConfig = {}
-
-  requestConfig = await authenticateRequest(requestConfig, token)
-
-  return axios.get(
-    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/report`,
-    requestConfig)
-}
-
-export async function getClassroomStudent(classroomID, id, token) {
-  let requestConfig = {}
-
-  requestConfig = await authenticateRequest(requestConfig, token)
-
-  return axios.get(
-    `${serverUrl()}/classrooms/${classroomID}/students/${id}`,
-    requestConfig)
-}
-
 export async function viewClassroom(Classid, token) {
   let requestConfig = {}
 
@@ -169,18 +139,72 @@ export async function viewReport(classroomID, assignmentID, id, token) {
     requestConfig)
 }
 
-//accept submission post
+export async function acceptSubmission(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  const data = {
+    'id': id
+  }
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.post(`${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/accepted-submissions`, data, requestConfig)
+}
 
 //comments requests
+
+//accept submission post
+export async function getSubmissionReport(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/report`,
+    requestConfig)
+}
+
+export async function getDetailedReport(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/detailed-report`,
+    requestConfig)
+}
+
+export async function getClassroomStudent(classroomID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/classrooms/${classroomID}/students/${id}`,
+    requestConfig)
+}
+
+export async function getSubmission(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}`,
+    requestConfig)
+}
 
 //instructor and student requests
 //classroom students
 export async function joinClassroom(classroomID, token) {
   let requestConfig = {}
 
+  const data = {}
+
   requestConfig = await authenticateRequest(requestConfig, token)
 
-  return axios.post(`${serverUrl()}/classrooms/${classroomID}/students`, requestConfig)
+  return axios.post(
+    `${serverUrl()}/classrooms/${classroomID}/students`, data, requestConfig)
 }
 
 export async function listStudents(classroomID, token) {

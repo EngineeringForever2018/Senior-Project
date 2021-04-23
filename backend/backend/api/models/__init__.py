@@ -5,5 +5,6 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 
-# Import this here so that the settings file can refer to it.
-from backend.api.models.user import User
+from backend.api.models.user import User, Instructor, Student
+from backend.api.models.classroom import Classroom, Assignment, Submission
+from backend.api.models.dummy import Dummy, AfterDummy

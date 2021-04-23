@@ -5,6 +5,24 @@ import {getUserInfo, viewAssignmentStudent, listSubmissionsStudent, viewSubmissi
 import {useHistory, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
 
+//matirial-ui imports
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import Container from '@material-ui/core/Container';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile';
+
 export function PostSubmit() {
   const {getAccessTokenSilently} = useAuth0()
   const history = useHistory()
@@ -57,24 +75,39 @@ export function PostSubmit() {
     })
   }, [])
 
+  var boxSpace = 30;
+
   return(
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
-      <div className = "StudentPostSubmit">
-        <div className = "background">
-          <p className = "text"> assignment information</p>
-          <p className = "text"> title: {assignmentTitles.title}</p>
-          <p className = "text"> description: {assignmentTitles.description}</p>
-          <p className = "text"> due date: {assignmentTitles.due_date}</p>
-          <p className = "text"> submission information</p>
-          <p className = "text"> current ID:{submitID}</p>
-          <p className = "text"> current ID:{submitDate}</p>
-          <p className = "text"> current ID:{submitFile}</p>
-          <button onClick={() => {  history.push(`/student/classrooms/${classroomID}/assignments/${id}/submitList`)}}>
-            All assignment
-          </button>
-        </div>
-      </div>
+      <Container maxWidth="md">
+      <Box height={boxSpace} />
+
+      <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+        <Typography variant="h6">
+          Assignment Info
+        </Typography>
+        <p className = "text"> Assignment information</p>
+        <p className = "text"> title: {assignmentTitles.title}</p>
+        <p className = "text"> description: {assignmentTitles.description}</p>
+        <p className = "text"> due date: {assignmentTitles.due_date}</p>
+        <p className = "text"> submission information</p>
+        <p className = "text"> current ID:{submitID}</p>
+        <p className = "text"> current ID:{submitDate}</p>
+        <p className = "text"> current ID:{submitFile}</p>
+      </Box>
+
+      <Box height={boxSpace} />
+        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+            Student Options:
+          </Typography>
+          
+          <Button variant="contained" color="primary" onClick={() => {  history.push(`/student/classrooms/${classroomID}/assignments/${id}/submitList`)}}>
+            All assignments
+          </Button>
+      </Box>
+      </Container>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 from django.db import models
 
-from backend.api.models.user import Student
+from backend.api.models import Student
 
 
 class Essay(models.Model):

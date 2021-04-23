@@ -4,12 +4,50 @@ import {NavBar} from "../nav/NavBar";
 import {getUserInfo, deleteAssignment, updateAssignment, viewAssignment} from "../requests";
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
+import moment from 'moment';
+
+//matirial-ui imports
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
+
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+  root: {
+    '& > *': {
+      margin: theme.spacing(1),
+      width: '25ch',
+    },
+  },
+}));
 
 export function InstructorAssignment() {
   const {getAccessTokenSilently} = useAuth0()
   const history = useHistory()
   const {classroomID, id} = useParams()
 
+  const [parseTime, setParseTime] = useState({
+    year: '',
+    month: '',
+    day: '',
+    hour: '',
+    min: ''
+  })
   const [assignmentTitles, setAssignmentTitles] = useState({
     id: '',
     classroom: '',
@@ -22,6 +60,17 @@ export function InstructorAssignment() {
     last_name:''
   })
 
+  var day = new Date().getDate(); //To get the Current Date
+  var month = new Date().getMonth() + 1; //To get the Current Month
+  var year = new Date().getFullYear(); //To get the Current Year
+  var hours = new Date().getHours(); //To get the Current Hours
+
+  //hooks used for date
+  const [date, setDate] = useState(0)
+  const [onTime, setOnTime] = useState("Not changed")
+  const [timeLeft, setTimeLeft] = useState(0)
+  const [unitLeft, setUnitLeft] = useState("Not changed")
+
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
       viewAssignment( classroomID,id, token).then((response) => {
@@ -33,6 +82,7 @@ export function InstructorAssignment() {
           description: response.data.description,
           due_date: response.data.due_date
         }));
+        setDate(date + 1)
       })
       getUserInfo(token).then((response) => {
         setUserInfo(prevState => ({
@@ -44,53 +94,190 @@ export function InstructorAssignment() {
     })
   }, [])
 
+  //use effect to compare assignment time to current time down to hour
+  useEffect(() => {
+    var time = (assignmentTitles.due_date).split("T")
+    var date = (time[0]).split("-")
+    var today = time[1]
+
+    setParseTime(prevState => ({
+      ...prevState,
+      year: date[0],
+      month: date[1],
+      day: date[2],
+    }));
+    if(parseInt(date[0], 10) < parseInt(year)) {
+      setOnTime("overdue")
+      setUnitLeft("year")
+      setTimeLeft(parseInt(year) - parseInt(date[0], 10))
+    }
+    if(parseInt(date[0], 10) > parseInt(year)) {
+      setOnTime("due")
+      setUnitLeft("year")
+      setTimeLeft(parseInt(date[0], 10) - parseInt(year))
+    }
+    if(parseInt(date[0], 10) == parseInt(year)) {
+      if(parseInt(date[1], 10) < parseInt(month)) {
+        setOnTime("overdue")
+        setUnitLeft("month")
+        setTimeLeft(parseInt(month) - parseInt(date[1], 10))
+      }
+      if(parseInt(date[1], 10) > parseInt(month)) {
+        setOnTime("due")
+        setUnitLeft("month")
+        setTimeLeft(parseInt(date[1], 10) - parseInt(month))
+      }
+      if(parseInt(date[1], 10) == parseInt(month)) {
+        if(parseInt(date[2], 10) < parseInt(day)) {
+          setOnTime("overdue")
+          setUnitLeft("day")
+          setTimeLeft(parseInt(day) - parseInt(date[2], 10))
+        }
+        if(parseInt(date[2], 10) > parseInt(day)) {
+          setOnTime("due")
+          setUnitLeft("day")
+          setTimeLeft(parseInt(date[2], 10) - parseInt(day))
+        }
+      }
+      if(parseInt(date[2], 10) == parseInt(day)) {
+        if(parseInt(today, 10) < parseInt(hours)) {
+          setOnTime("overdue")
+          setUnitLeft("hours")
+          setTimeLeft(parseInt(hours) - parseInt(today, 10))          
+        }
+        if(parseInt(today, 10) > parseInt(hours)) {
+          setOnTime("due")
+          setUnitLeft("hours")
+          setTimeLeft(parseInt(today, 10) - parseInt(hours))
+        }
+      }
+    }
+  }, [date])
+
+  const DisplayStatus = () => {
+    if(onTime == "overdue") {
+      return(
+        <Typography variant="h7">
+          Assignment overdue by: {timeLeft} {unitLeft}
+        </Typography>
+      )
+    } else {
+      return(
+        <Typography variant="h7">
+          Time remaining: {timeLeft} - {unitLeft}
+        </Typography>
+      )
+    }
+  }
+
+  const DisplayMonth = () => {
+    var curMonth = parseTime.month
+    if(curMonth == 1){
+      return("January")
+    } else if(curMonth == 2){
+      return("February")
+    } else if(curMonth == 3){
+      return("March")
+    } else if(curMonth == 4){
+      return("April")
+    } else if(curMonth == 5){
+      return("May")
+    } else if(curMonth == 6){
+      return("June")
+    } else if(curMonth == 7){
+      return("July")
+    } else if(curMonth == 8){
+      return("August")
+    } else if(curMonth == 9){
+      return("September")
+    } else if(curMonth == 10){
+      return("October")
+    } else if(curMonth == 11){
+      return("November")
+    } else if(curMonth == 12){
+      return("December")
+    } else {
+      return("fail")
+    }
+  }
+
   return (
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
+      <Container maxWidth="md">
+      <Box height={50} />
+      <Typography variant="h3" align="center">
+        Assignment Info
+      </Typography>
+        <Box height={50} />
+        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+            Assignment Info
+          </Typography>
+          <Box height={30}>
+            <Typography variant="h7"> title: {assignmentTitles.title}</Typography>
+          </Box>
+          <Box height={30}>
+            <Typography variant="h7"> description: {assignmentTitles.description}</Typography>
+          </Box>
+          <Box height={30}>
+            <DisplayStatus />
+          </Box>
+          <Box height={30}>
+            <Typography variant="h7">
+              due date: <DisplayMonth/>{" "}{parseTime.day}{" "}{parseTime.year}
+            </Typography>
+          </Box>
+        </Box>
 
-      <div className = "Instructor-Assignment-Info">
-        <div className="background">
-          <div className="title">
-            <p className="text">Assignment Info</p>
-          </div>
-
-          <div className="body-text">
-            <p className = "text"> title: {assignmentTitles.title}</p>
-            <p className = "text"> due date: {assignmentTitles.due_date}</p>
-            <p className = "text"> description: {assignmentTitles.description}</p>
-          </div>
-
-          <div className="options-test">
-
-            <button onClick={() => {
-              history.push(`/instructor/classrooms/${classroomID}/assignments/${id}/submissions`)
-            }}>List Submissions</button>
-
-            <button onClick={() => {
-              getAccessTokenSilently().then((token) => {
-              deleteAssignment(classroomID, id, token).then(() =>
-              history.push('/instructor/classroom/1'), (error) => console.log(error.response))
-              }, (error) => console.log(error))
-            }}>Delete</button>
-
-            <button onClick={() => {
-              history.push('/update-assignment', 
-              {classroomID: assignmentTitles.id,
-              assignmentID: assignmentTitles.classroom})
-            }}>Update Assignment</button>
-          </div>
-        </div>
-      </div>
+        <Box height={30} />
+        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+            Instructor Options:
+          </Typography>
+          <Button variant="contained" color="primary" onClick={() => {
+            history.push(`/instructor/classrooms/${classroomID}/assignments/${id}/submissions`)
+          }}>List Submissions</Button>
+  
+          <Button variant="contained" color="primary" onClick={() => {
+            history.push('/update-assignment', 
+            {classroomID: assignmentTitles.id,
+            assignmentID: assignmentTitles.classroom})
+          }}>Update Assignment</Button>
+  
+          <Button variant="contained" color="primary" onClick={() => {
+            getAccessTokenSilently().then((token) => {
+            deleteAssignment(classroomID, id, token).then(() =>
+            history.push('/instructor/classrooms/1'), (error) => console.log(error.response))
+            }, (error) => console.log(error))
+          }}>Delete Assignment</Button>
+  
+          <Button variant="contained" color="primary" onClick={() => {
+            history.push(`/instructor/classrooms/${classroomID}`, {classroomID: id})
+          }}>Return</Button>
+        </Box>
+      </Container>
     </div>
   )
 }
 
 export function UpdateAssignmentForm(props) {
+  const classes = useStyles();
   const location = useLocation()
+  const {getAccessTokenSilently} = useAuth0()
+  const history = useHistory()
 
   const Cid = location.state.classroomID
   const Aid = location.state.assignmentID
 
+  var day = new Date().getDate(); //To get the Current Date
+  var month = new Date().getMonth() + 1; //To get the Current Month
+  var year = new Date().getFullYear(); //To get the Current Year
+
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+
+  const [selectedDate, setSelectedDate] = useState(new Date(`${year}-01-${day}T24:00:00`));
   const [assignmentTitles, setAssignmentTitles] = useState({
     id: '',
     classroom: '',
@@ -125,18 +312,12 @@ export function UpdateAssignmentForm(props) {
     })
     setTitle(assignmentTitles.title)
     setDescription(assignmentTitles.description)
+    if(month < 10){
+      setSelectedDate(`${year}-0${month}-${day}T24:00:00`)
+    } else {
+      setSelectedDate(`${year}-${month}-${day}T24:00:00`)
+    }
   }, [])
-
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [dueYear, setDueYear] = useState("")
-  const [dueMonth, setDueMonth] = useState("")
-  const [dueDay, setDueDay] = useState("")
-  const [dueHour, setDueHour] = useState("")
-  const [dueMinute, setDueMinute] = useState("")
-  const {getAccessTokenSilently} = useAuth0()
-
-  const history = useHistory()
 
   function handleTitleChange(event) {
     setTitle(event.target.value);
@@ -146,34 +327,14 @@ export function UpdateAssignmentForm(props) {
     setDescription(event.target.value)
   }
 
-  function handleDueYearChange(event) {
-    setDueYear(event.target.value)
-  }
-
-  function handleDueMonthChange(event) {
-    setDueMonth(event.target.value)
-  }
-
-  function handleDueDayChange(event) {
-    setDueDay(event.target.value)
-  }
-
-  function handleDueHourChange(event) {
-    setDueHour(event.target.value)
-  }
-
-  function handleDueMinuteChange(event) {
-    setDueMinute(event.target.value)
-  }
-
   function handleSubmit(event) {
     getAccessTokenSilently().then((token) => {
       updateAssignment(Cid, Aid, title, description, {
-        'year': parseInt(dueYear),
-        'month': parseInt(dueMonth),
-        'day': parseInt(dueDay),
-        'hour': parseInt(dueHour),
-        'minute': parseInt(dueMinute)
+        'year': parseInt(moment(selectedDate).format('YYYY')),
+        'month': parseInt(moment(selectedDate).format('MM')),
+        'day': parseInt(moment(selectedDate).format('DD')),
+        'hour': parseInt(moment(selectedDate).format('HH')),
+        'minute': parseInt(moment(selectedDate).format('mm'))
       }, token).then((response) => {
         history.push(`/instructor/classrooms/${Aid}/assignments/${Cid}`)
       }, (error) => console.log(error.response))
@@ -181,54 +342,55 @@ export function UpdateAssignmentForm(props) {
     event.preventDefault()
   }
 
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
   return (
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
 
-      <div className="Instructor-Assignment-Update">
-        <div className="form-background">
-          <div className="form-title">
-            <p className="form-text">Update Assignment</p>
-          </div>
-
-
-          <form onSubmit={handleSubmit}>
-            <label>
-              Title:
-              <input type="text" value={title} onChange={handleTitleChange}/>
-            </label>
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <Container maxWidth="md">
+      <Box height={30} />
+        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+          Create Assignment
+          </Typography>
+          <form className={classes.root} noValidate autoComplete="off">
+            <TextField id="filled-basic" label="Title" variant="filled" onChange={handleTitleChange}/>
+            <TextField id="filled-basic"  label="Description" variant="filled" onChange={handleDescriptionChange}/>
             <div/>
-            <label>
-              Description:
-              <input type="text" value={description} onChange={handleDescriptionChange}/>
-            </label>
-            <p>Due Date:</p>
-            <label>
-              Year:
-              <input type="text" value={dueYear} onChange={handleDueYearChange}/>
-            </label>
-            <label>
-              Month:
-              <input type="text" value={dueMonth} onChange={handleDueMonthChange}/>
-            </label>
-            <label>
-              Day:
-              <input type="text" value={dueDay} onChange={handleDueDayChange}/>
-            </label>
-            <label>
-              Hour:
-             <input type="text" value={dueHour} onChange={handleDueHourChange}/>
-            </label>
-            <label>
-              Minute:
-              <input type="text" value={dueMinute} onChange={handleDueMinuteChange}/>
-            </label>
-            <div>
-              <input type="submit" value="Submit"/>
-            </div>
+            <KeyboardDatePicker
+              label="Date picker dialog"
+              format="MM/dd/yyyy"
+              value={selectedDate}
+              onChange={handleDateChange}
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+            />
+            <KeyboardTimePicker
+              margin="normal"
+              label="Time picker"
+              value={selectedDate}
+              onChange={handleDateChange}
+              KeyboardButtonProps={{
+                'aria-label': 'change time',
+              }}
+        />
+            <div/>
+            <Button variant="contained" color="primary" onClick={handleSubmit}>
+              Submit
+            </Button>
+
+            <Button variant="contained" color="primary" onClick={() => {
+              history.push(`/instructor/classrooms/${Aid}/assignments/${Cid}`)
+            }}>Return</Button>
           </form>
-        </div>
-      </div>
+        </Box>
+      </Container>
+      </MuiPickersUtilsProvider>
     </div>
   )
 }

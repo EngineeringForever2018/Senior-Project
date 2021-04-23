@@ -5,22 +5,28 @@ from notebooks import StyleProfile
 
 
 class User(AbstractUser):
-    # Convenience method for creating users correctly
     @classmethod
-    def create(cls, user_type='student', *args, **kwargs):
-        if user_type == 'student':
-            user = cls.objects.create(is_student=True, is_instructor=False, *args, **kwargs)
-            f = open(f"{user.id}-profile.nb", "wb+")
-            f.write(StyleProfile().binary.read())
-            profile=File(f)
-            Student.objects.create(user=user, profile=profile)
+    def create(cls, user_type="student", *args, **kwargs):
+        is_student = user_type == "student"
+        is_instructor = user_type != "student"
 
-            return user
-        else:
-            user = cls.objects.create(is_student=False, is_instructor=True, *args, **kwargs)
-            Instructor.objects.create(user=user)
+        return cls.objects.create(is_student=is_student, is_instructor=is_instructor, *args, **kwargs)
+    # @classmethod
+    # def create(cls, user_type='student', *args, **kwargs):
+    #     if user_type == 'student':
+    #         user = cls.objects.create(is_student=True, is_instructor=False, *args, **kwargs)
+    #         f = open(f"{user.id}-profile.nb", "wb+")
+    #         f.write(StyleProfile().binary.read())
+    #         profile=File(f)
+    #         home = StudentHome.objects.create()
+    #         Student.objects.create(user=user, profile=profile, home=home)
 
-            return user
+    #         return user
+    #     else:
+    #         user = cls.objects.create(is_student=False, is_instructor=True, *args, **kwargs)
+    #         Instructor.objects.create(user=user)
+
+    #         return user
 
     is_student = models.BooleanField(default=True)
     is_instructor = models.BooleanField(default=False)
@@ -30,6 +36,10 @@ class User(AbstractUser):
             return 'student'
         else:
             return 'instructor'
+
+    @property
+    def role(self):
+        return self.user_type()
 
     def __str__(self):
         return self.username
@@ -49,3 +59,16 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+def post_user_create(instance, created, raw, **kwargs):
+    if instance.user_type() == "student":
+        f = open(f"{instance.id}-profile.nb", "wb+")
+        f.write(StyleProfile().binary.read())
+        profile=File(f)
+        Student.objects.create(user=instance, profile=profile)
+    else:
+        Instructor.objects.create(user=instance)
+
+
+models.signals.post_save.connect(post_user_create, sender=User)
