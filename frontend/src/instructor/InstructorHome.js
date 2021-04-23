@@ -167,21 +167,20 @@ export function CreateClassroomForm() {
 
     <Container maxWidth="md">
       <Box height={30} />
-        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
-          <Typography variant="h6">
-          Create Classroom
-          </Typography>
-          <form className={classes.root} noValidate autoComplete="off">
-            <TextField id="filled-basic" label="Classroom Name" variant="filled" onChange={handleChange}/>
-            <Box height={20} />
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
-
-            <Button variant="contained" color="primary" onClick={() => {
-              history.push(`/`)
-            }}>Return</Button>
-      </form>
+      <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+        <Typography variant="h6">
+        Create Classroom
+        </Typography>
+        <form className={classes.root} noValidate autoComplete="off" onSubmit={handleSubmit}>
+          <TextField id="filled-basic" label="Classroom Name" variant="filled" onChange={handleChange}/>
+          <Box height={20} />
+          <Button variant="contained" color="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
+          <Button variant="contained" color="primary" onClick={() => {
+            history.push(`/`)
+          }}>Return</Button>
+        </form>
       </Box>
     </Container>
   </div>

@@ -47,6 +47,14 @@ export function StudentAssignment() {
   const [timeLeft, setTimeLeft] = useState(0)
   const [unitLeft, setUnitLeft] = useState("Not changed")
 
+  const [parseTime, setParseTime] = useState({
+    year: '',
+    month: '',
+    day: '',
+    hour: '',
+    min: ''
+  })
+
   const [assignmentTitles, setAssignmentTitles] = useState({
     id: '',
     classroom: '',
@@ -113,7 +121,12 @@ export function StudentAssignment() {
     var time = (assignmentTitles.due_date).split("T")
     var date = (time[0]).split("-")
     var today = time[1]
-    
+    setParseTime(prevState => ({
+      ...prevState,
+      year: date[0],
+      month: date[1],
+      day: date[2],
+    }));
     if(parseInt(date[0], 10) < parseInt(year)) {
       setOnTime("overdue")
       setUnitLeft("year")
@@ -196,12 +209,47 @@ export function StudentAssignment() {
   const DisplayStatus = () => {
     if(onTime == "overdue") {
       return(
-        <p className = "text"> Assignment overdue by: {timeLeft} {unitLeft}</p>
+        <Typography variant="h7">
+          Assignment overdue by: {timeLeft} {unitLeft}
+        </Typography>
       )
     } else {
       return(
-        <p className = "text"> Time remaining: {timeLeft} - {unitLeft}</p>
+        <Typography variant="h7">
+          Time remaining: {timeLeft} - {unitLeft}
+        </Typography>
       )
+    }
+  }
+
+  const DisplayMonth = () => {
+    var curMonth = parseTime.month
+    if(curMonth == 1){
+      return("January")
+    } else if(curMonth == 2){
+      return("February")
+    } else if(curMonth == 3){
+      return("March")
+    } else if(curMonth == 4){
+      return("April")
+    } else if(curMonth == 5){
+      return("May")
+    } else if(curMonth == 6){
+      return("June")
+    } else if(curMonth == 7){
+      return("July")
+    } else if(curMonth == 8){
+      return("August")
+    } else if(curMonth == 9){
+      return("September")
+    } else if(curMonth == 10){
+      return("October")
+    } else if(curMonth == 11){
+      return("November")
+    } else if(curMonth == 12){
+      return("December")
+    } else {
+      return("fail")
     }
   }
 
@@ -228,14 +276,27 @@ export function StudentAssignment() {
           <Typography variant="h6">
             Assignment Info
           </Typography>
-          <DisplayStatus />
-          <p className = "text"> title: {assignmentTitles.title}</p>
-          <p className = "text"> description: {assignmentTitles.description}</p>
-          <p className = "text"> due date: {assignmentTitles.due_date}</p>
+          <Box height={30}>
+            <Typography variant="h7"> title: {assignmentTitles.title}</Typography>
+          </Box>
+          <Box height={30}>
+            <Typography variant="h7"> description: {assignmentTitles.description}</Typography>
+          </Box>
+          <Box height={30}>
+            <DisplayStatus />
+          </Box>
+          <Box height={30}>
+            <Typography variant="h7">
+              due date: <DisplayMonth/>{" "}{parseTime.day}{" "}{parseTime.year}
+            </Typography>
+          </Box>
         </Box>
 
         <Box height={boxSpace} />
         <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+            Submit Assignment
+          </Typography>
           <input type="file" onChange={handleUpload} />
           <p>Filename: {file.name}</p>
           <p>File type: {file.type}</p>

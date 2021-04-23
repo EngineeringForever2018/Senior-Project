@@ -41,6 +41,13 @@ export function InstructorAssignment() {
   const history = useHistory()
   const {classroomID, id} = useParams()
 
+  const [parseTime, setParseTime] = useState({
+    year: '',
+    month: '',
+    day: '',
+    hour: '',
+    min: ''
+  })
   const [assignmentTitles, setAssignmentTitles] = useState({
     id: '',
     classroom: '',
@@ -87,87 +94,140 @@ export function InstructorAssignment() {
     })
   }, [])
 
-    //use effect to compare assignment time to current time down to hour
-    useEffect(() => {
-      var time = (assignmentTitles.due_date).split("T")
-      var date = (time[0]).split("-")
-      var today = time[1]
-      
-      if(parseInt(date[0], 10) < parseInt(year)) {
-        setOnTime("overdue")
-        setUnitLeft("year")
-        setTimeLeft(parseInt(year) - parseInt(date[0], 10))
-      }
-      if(parseInt(date[0], 10) > parseInt(year)) {
-        setOnTime("due")
-        setUnitLeft("year")
-        setTimeLeft(parseInt(date[0], 10) - parseInt(year))
-      }
-      if(parseInt(date[0], 10) == parseInt(year)) {
-        if(parseInt(date[1], 10) < parseInt(month)) {
-          setOnTime("overdue")
-          setUnitLeft("month")
-          setTimeLeft(parseInt(month) - parseInt(date[1], 10))
-        }
-        if(parseInt(date[1], 10) > parseInt(month)) {
-          setOnTime("due")
-          setUnitLeft("month")
-          setTimeLeft(parseInt(date[1], 10) - parseInt(month))
-        }
-        if(parseInt(date[1], 10) == parseInt(month)) {
-          if(parseInt(date[2], 10) < parseInt(day)) {
-            setOnTime("overdue")
-            setUnitLeft("day")
-            setTimeLeft(parseInt(day) - parseInt(date[2], 10))
-          }
-          if(parseInt(date[2], 10) > parseInt(day)) {
-            setOnTime("due")
-            setUnitLeft("day")
-            setTimeLeft(parseInt(date[2], 10) - parseInt(day))
-          }
-        }
-        if(parseInt(date[2], 10) == parseInt(day)) {
-          if(parseInt(today, 10) < parseInt(hours)) {
-            setOnTime("overdue")
-            setUnitLeft("hours")
-            setTimeLeft(parseInt(hours) - parseInt(today, 10))          
-          }
-          if(parseInt(today, 10) > parseInt(hours)) {
-            setOnTime("due")
-            setUnitLeft("hours")
-            setTimeLeft(parseInt(today, 10) - parseInt(hours))
-          }
-        }
-      }
-    }, [date])
+  //use effect to compare assignment time to current time down to hour
+  useEffect(() => {
+    var time = (assignmentTitles.due_date).split("T")
+    var date = (time[0]).split("-")
+    var today = time[1]
 
-    const DisplayStatus = () => {
-      if(onTime == "overdue") {
-        return(
-          <p className = "text"> Assignment finished from: {timeLeft} {unitLeft}</p>
-        )
-      } else {
-        return(
-          <p className = "text"> Time remaining: {timeLeft} - {unitLeft}</p>
-        )
+    setParseTime(prevState => ({
+      ...prevState,
+      year: date[0],
+      month: date[1],
+      day: date[2],
+    }));
+    if(parseInt(date[0], 10) < parseInt(year)) {
+      setOnTime("overdue")
+      setUnitLeft("year")
+      setTimeLeft(parseInt(year) - parseInt(date[0], 10))
+    }
+    if(parseInt(date[0], 10) > parseInt(year)) {
+      setOnTime("due")
+      setUnitLeft("year")
+      setTimeLeft(parseInt(date[0], 10) - parseInt(year))
+    }
+    if(parseInt(date[0], 10) == parseInt(year)) {
+      if(parseInt(date[1], 10) < parseInt(month)) {
+        setOnTime("overdue")
+        setUnitLeft("month")
+        setTimeLeft(parseInt(month) - parseInt(date[1], 10))
+      }
+      if(parseInt(date[1], 10) > parseInt(month)) {
+        setOnTime("due")
+        setUnitLeft("month")
+        setTimeLeft(parseInt(date[1], 10) - parseInt(month))
+      }
+      if(parseInt(date[1], 10) == parseInt(month)) {
+        if(parseInt(date[2], 10) < parseInt(day)) {
+          setOnTime("overdue")
+          setUnitLeft("day")
+          setTimeLeft(parseInt(day) - parseInt(date[2], 10))
+        }
+        if(parseInt(date[2], 10) > parseInt(day)) {
+          setOnTime("due")
+          setUnitLeft("day")
+          setTimeLeft(parseInt(date[2], 10) - parseInt(day))
+        }
+      }
+      if(parseInt(date[2], 10) == parseInt(day)) {
+        if(parseInt(today, 10) < parseInt(hours)) {
+          setOnTime("overdue")
+          setUnitLeft("hours")
+          setTimeLeft(parseInt(hours) - parseInt(today, 10))          
+        }
+        if(parseInt(today, 10) > parseInt(hours)) {
+          setOnTime("due")
+          setUnitLeft("hours")
+          setTimeLeft(parseInt(today, 10) - parseInt(hours))
+        }
       }
     }
+  }, [date])
+
+  const DisplayStatus = () => {
+    if(onTime == "overdue") {
+      return(
+        <Typography variant="h7">
+          Assignment overdue by: {timeLeft} {unitLeft}
+        </Typography>
+      )
+    } else {
+      return(
+        <Typography variant="h7">
+          Time remaining: {timeLeft} - {unitLeft}
+        </Typography>
+      )
+    }
+  }
+
+  const DisplayMonth = () => {
+    var curMonth = parseTime.month
+    if(curMonth == 1){
+      return("January")
+    } else if(curMonth == 2){
+      return("February")
+    } else if(curMonth == 3){
+      return("March")
+    } else if(curMonth == 4){
+      return("April")
+    } else if(curMonth == 5){
+      return("May")
+    } else if(curMonth == 6){
+      return("June")
+    } else if(curMonth == 7){
+      return("July")
+    } else if(curMonth == 8){
+      return("August")
+    } else if(curMonth == 9){
+      return("September")
+    } else if(curMonth == 10){
+      return("October")
+    } else if(curMonth == 11){
+      return("November")
+    } else if(curMonth == 12){
+      return("December")
+    } else {
+      return("fail")
+    }
+  }
 
   return (
     <div>
       <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
-
       <Container maxWidth="md">
-        <Box height={50} />
-        <Typography variant="h3" align="center">
+      <Box height={50} />
+      <Typography variant="h3" align="center">
         Assignment Info
-        </Typography>
+      </Typography>
         <Box height={50} />
-          <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
-          <p className = "text"> title: {assignmentTitles.title}</p>
-          <p className = "text"> due date: {assignmentTitles.due_date}</p>
-          <DisplayStatus />
-          <p className = "text"> description: {assignmentTitles.description}</p>
+        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+            Assignment Info
+          </Typography>
+          <Box height={30}>
+            <Typography variant="h7"> title: {assignmentTitles.title}</Typography>
+          </Box>
+          <Box height={30}>
+            <Typography variant="h7"> description: {assignmentTitles.description}</Typography>
+          </Box>
+          <Box height={30}>
+            <DisplayStatus />
+          </Box>
+          <Box height={30}>
+            <Typography variant="h7">
+              due date: <DisplayMonth/>{" "}{parseTime.day}{" "}{parseTime.year}
+            </Typography>
+          </Box>
         </Box>
 
         <Box height={30} />
