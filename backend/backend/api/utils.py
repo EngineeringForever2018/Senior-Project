@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate
+import docx
+from docx.enum.text import WD_COLOR_INDEX
 from django.conf import settings
 
 import json
@@ -33,3 +35,16 @@ def jwt_decode_token(token):
 
 def location(request, path):
     return '{scheme}://{host}'.format(scheme=request.scheme, host=request.get_host()) + path
+
+
+def make_docx(bool_list, string_list):
+    doc = docx.Document()
+    para = doc.add_paragraph("")
+    
+    for i in range(len(string_list)):
+        if i < len(bool_list) and bool_list[i] == True:
+            para.add_run(string_list[i] + "").font.highlight_color = WD_COLOR_INDEX.GRAY_25
+        else:
+            para.add_run(string_list[i] + "")
+
+    return doc

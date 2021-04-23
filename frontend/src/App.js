@@ -2,6 +2,7 @@ import './App.scss';
 import {Route,} from 'react-router-dom';
 import {Switch} from 'react-router';
 import React from "react";
+import DocViewer, { PNGRenderer } from "react-doc-viewer";
 //other imports
 import {Home} from "./Home";
 import About from "./About";
@@ -20,6 +21,7 @@ import {StudentAssignment} from "./student/StudentAssignment.js";
 import {PostSubmit} from "./student/PostSubmit.js";
 import {PostSubmitList} from "./student/PostSubmitList";
 
+// TODO: Update doc viewer to 1.5.0 and then make sure everything works
 function App() {
   return (
     <Main/>

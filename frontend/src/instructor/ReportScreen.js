@@ -1,10 +1,12 @@
 // import {useLocation} from 'react-router-dom';
 import React, {useEffect, useState} from "react";
+import {serverUrl} from "../utils";
 import './ReportScreen.scss'
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
-import {getUserInfo, getClassroomStudent, getSubmission, getSubmissionReport, acceptSubmission} from "../requests";
+import {getDetailedReport, getUserInfo, getClassroomStudent, getSubmission, getSubmissionReport, acceptSubmission} from "../requests";
 import {NavBar} from "../nav/NavBar";
+import DocViewer, {DocViewerRenderers} from "react-doc-viewer";
 
 //display pdf
 import { Viewer,SpecialZoomLevel } from '@react-pdf-viewer/core';
@@ -74,6 +76,7 @@ function ReportScreen() {
   })
 
   let report = undefined
+  let detailedPath = undefined
   let studentInfo = undefined
 
   useEffect(() => {
@@ -91,6 +94,7 @@ function ReportScreen() {
   //run code
   if (location.state !== undefined) {
     report = location.state.report
+    detailedPath = location.state.detailedPath
     studentInfo = location.state.studentInfo
   }
 
@@ -99,8 +103,9 @@ function ReportScreen() {
       getSubmissionReport(classroomID, assignmentID, id, token).then((response) => {
         getSubmission(classroomID, assignmentID, id, token).then((submissionResponse) => {
           const studentID = submissionResponse.data['student']
-          getClassroomStudent(classroomID, studentID, token).then((studentResponse) => {
-            history.push(location.pathname, {report: response.data, studentInfo: studentResponse.data})
+            getClassroomStudent(classroomID, studentID, token).then((studentResponse) => {
+            let detailed = `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/detailed-report`
+            history.push(location.pathname, {report: response.data, studentInfo: studentResponse.data, detailedPath: detailed})
           }, (error) => console.log(error.response))
         }, (error) => console.log(error.response))
       }, (error) => console.log(error.response))
@@ -124,7 +129,7 @@ function ReportScreen() {
     
     return (
       <ReportScreenFlag authorshipProbability={authorshipProbability} studentFirstName={studentFirstName}
-                      studentLastName={studentLastName} authorshipFlag={flag}/>
+                      studentLastName={studentLastName} detailedPath={detailedPath} authorshipFlag={flag}/>
     )
   }
 }
@@ -134,6 +139,7 @@ function ReportScreenFlag(props) {
   const studentFirstName = props.studentFirstName
   const studentLastName = props.studentLastName
   const authorshipFlag = props.authorshipFlag
+  const detailedPath = props.detailedPath
 
   const classes = useStyles();
 
@@ -147,29 +153,37 @@ function ReportScreenFlag(props) {
   const [file, setFile] = React.useState("");
   const [reportMessage, setReportMessage] = useState();
 
-  const DisplayFile = ({ image }) => {
-    if(image.type == "image/jpeg" ) {
-      return(
-        <div className = "StudentAssignments">
-          <img src={URL.createObjectURL(image)} className = "essayImage"/>
-        </div>
-      );
-    }
-    if(image.type == "application/pdf" ) {    
-      return(
-        <div className = "StudentAssignments"> 
-          <div className = "essayPDF">
-            {<Viewer fileUrl={URL.createObjectURL(image)} defaultScale={SpecialZoomLevel.PageFit}/>}
-          </div>
-        </div>
-      )
-    }
-    return(
-      <div>
-        not able to view file type
-      </div>
-    )
-  };
+	// const DisplayFile = ({ image }) => {
+  	//   if(image.type == "image/jpeg" ) {
+  	//     return(
+  	//       <div className = "StudentAssignments">
+  	//         <img src={URL.createObjectURL(image)} className = "essayImage"/>
+  	//       </div>
+  	//     );
+  	//   }
+  	//   if(image.type == "application/pdf" ) {    
+  	//     return(
+  	//       <div className = "StudentAssignments"> 
+  	//         <div className = "essayPDF">
+  	//           {<Viewer fileUrl={URL.createObjectURL(image)} defaultScale={SpecialZoomLevel.PageFit}/>}
+  	//         </div>
+  	//       </div>
+  	//     )
+  	//   }
+  	//   return(
+  	//     <div>
+  	//       not able to view file type
+  	//     </div>
+  	//   )
+  	// };
+  // const DisplayFile = () => {
+  //   return(
+  //     <div className = "StudentAssignments">
+  //       {<Viewer fileUrl={URL.createObjectURL(detailedReport)} defaultScale={SpecialZoomLevel.PageFit}/>}
+  //     </div>
+  //   );
+  // }
+  const docs = [ { uri: detailedPath } ]
 
   const DisplayFlag = ({flag}) => {
     if(flag) {
@@ -223,9 +237,12 @@ function ReportScreenFlag(props) {
             <Grid item sm={6}>
               <Box height={500} width="100%" bgcolor="background.paper">
                 <Box size="auto" height={45} p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
-                  Display Report
+                  <p>Display Report</p><br />
                 </Box>
-                {file && <DisplayFile image={file} />}
+                <Box size="auto" height={45} p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
+	          <a href={detailedPath}>Click to download detailed report</a>
+                </Box>
+                <DocViewer documents={docs} config={{header: {disableFileName: true, retainURLParams: true}}} />
               </Box>
             </Grid>
 
@@ -235,7 +252,6 @@ function ReportScreenFlag(props) {
                   <Grid height={30} width="60%" >
                     <Box size="auto" p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
                       Report Results
-                      <DisplayFile flag ={authorshipFlag}/>
                     </Box>
                   </Grid>
 
@@ -265,7 +281,6 @@ function ReportScreenFlag(props) {
 
           {reportMessage}
         </Container>
-        <input type="file" onChange={handleUpload} />
     </div>
   )
 }

@@ -164,6 +164,16 @@ export async function getSubmissionReport(classroomID, assignmentID, id, token) 
     requestConfig)
 }
 
+export async function getDetailedReport(classroomID, assignmentID, id, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(
+    `${serverUrl()}/instructor/classrooms/${classroomID}/assignments/${assignmentID}/submissions/${id}/detailed-report`,
+    requestConfig)
+}
+
 export async function getClassroomStudent(classroomID, id, token) {
   let requestConfig = {}
 

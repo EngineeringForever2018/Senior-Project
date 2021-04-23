@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0fbfd2ea-51da-4883-b6dc-7100f2f8e4e0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/backend/api/migrations/0002_auto_20210420_1743.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/test.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/notebooks/profiles/_voting_profile.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/tests/profiles/test_voting_profile.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_essays/1.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_essays/2.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_essays/3.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_essays/4.docx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_essays/agriculture.docx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/ci.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/ci.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/models/classroom.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/models/classroom.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/models/essay.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/models/essay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/serializers/classroom.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/serializers/classroom.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/serializers/homes.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/serializers/homes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/views/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/views/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/views/classroom.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/views/classroom.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/api/views/home.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/api/views/home.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend/settings/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend/settings/common.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.eslintcache" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.eslintcache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/instructor/ReportScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/instructor/ReportScreen.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/requests.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/requests.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/2021-03-03-gc-profile-benchmarking.html" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/2021-03-03-gc-profile-benchmarking.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/2021-03-03-gc-profile-benchmarking.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/2021-03-03-gc-profile-benchmarking.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/2021-03-03-gc-profile-benchmarking.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/2021-03-03-gc-profile-benchmarking.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/bawe_data_information.html" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/bawe_data_information.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/bawe_data_information.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/bawe_data_information.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/bawe_profile_tests.html" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/bawe_profile_tests.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/bawe_profile_tests.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/bawe_profile_tests.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/deliver/bawe_profile_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/deliver/bawe_profile_tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-02-08-gc-bawe-par_encoder.html" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-02-08-gc-bawe-par_encoder.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-02-08-gc-bawe-par_encoder.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-02-08-gc-bawe-par_encoder.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-02-08-gc-bawe-par_encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-02-08-gc-bawe-par_encoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-04-08-gc-custom_thresholds.html" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-04-08-gc-custom_thresholds.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-04-08-gc-custom_thresholds.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-04-08-gc-custom_thresholds.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-04-08-gc-custom_thresholds.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-04-08-gc-custom_thresholds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-04-14-gc-hd-pos2gram_testing.html" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-04-14-gc-hd-pos2gram_testing.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-04-14-gc-hd-pos2gram_testing.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-04-14-gc-hd-pos2gram_testing.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/develop/2021-04-14-gc-hd-pos2gram_testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/develop/2021-04-14-gc-hd-pos2gram_testing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/notebooks/_real_init.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/notebooks/_real_init.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/notebooks/profiles/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/notebooks/profiles/__init__.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1raHFLrsnctP3gjegQyPzA91tip" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0fbfd2ea-51da-4883-b6dc-7100f2f8e4e0" name="Default Changelist" comment="" />
+      <created>1619207182620</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1619207182620</updated>
+      <workItem from="1619207189088" duration="152000" />
+    </task>
+    <servers />
+  </component>
+</project>
