@@ -3,6 +3,7 @@ from django.urls import path, include
 import backend.api.views.classroom
 import backend.api.views.dummy
 import backend.api.views.user
+import backend.api.views.home
 from backend.api import views
 from backend.api.views.utils import error404
 from rest_framework.routers import SimpleRouter
@@ -52,5 +53,8 @@ urlpatterns = [
         'instructor/classrooms/<int:classroom_pk>/assignments/<int:assignment_pk>/' +
         'submissions/<int:submission_pk>/detailed-report',
         views.classroom.DetailedReportView.as_view()
+    ),
+    path(
+        'student-home', views.home.StudentHomeView.as_view()
     ),
 ]

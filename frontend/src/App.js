@@ -21,6 +21,7 @@ import {StudentAssignment} from "./student/StudentAssignment.js";
 import {PostSubmit} from "./student/PostSubmit.js";
 import {PostSubmitList} from "./student/PostSubmitList";
 
+// TODO: Update doc viewer to 1.5.0 and then make sure everything works
 function App() {
   return (
     <Main/>

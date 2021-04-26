@@ -211,7 +211,7 @@ export function UpdateClassroomForm() {
         <Typography variant="h6">
           Update Classroom
         </Typography>
-        <form className={classes.root} noValidate autoComplete="off">
+        <form className={classes.root} noValidate autoComplete="off" onSubmit={handleSubmit}>
           <TextField id="filled-basic" label="Classroom Name" variant="filled" onChange={handleChange}/>
           <Box height={10} />
           <Button variant="contained" color="primary" onClick={handleSubmit}>
