@@ -54,4 +54,5 @@ class POS2GramCounter(BaseSegmentExtractor):
                 l = posVector.index(str(posArr[i + 1]))
                 Phi[k * len(posVector) + l] += 1
                 k = l
-        return Phi
+
+        return Phi.tolist()

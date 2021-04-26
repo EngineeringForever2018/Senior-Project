@@ -7,7 +7,8 @@ from pathlib import Path
 
 import os
 import numpy as np
-from notebooks.feature_extractors import FeatureConcatenator, CommaCounter, WordCounter
+from pkg_resources import resource_stream
+from notebooks.feature_extractors import FeatureConcatenator, CommaCounter, WordCounter, FunctionWordCounter, POS2GramCounter, ComponentsExtractor, FeatureSelector
 from notebooks.profiles import EuclideanProfile, VotingProfile
 from numpy import ndarray
 from io import BytesIO
@@ -82,8 +83,30 @@ class StyleProfile:
 
 class TextProcessor:
     def __init__(self):
+        with (resource_stream("notebooks.resources", "pca_components.npy")) as f:
+            pca_components = np.load(f)
+
+        with (resource_stream("notebooks.resources", "lda_components.npy")) as f:
+            lda_components = np.load(f)
+
+        with (resource_stream("notebooks.resources", "chosen_features.p")) as f:
+            chosen_columns = pickle.load(f)
+
         self._segmenter = Sentencizer()
-        self._feature_extractor = FeatureConcatenator(CommaCounter(), WordCounter())
+        self._feature_extractor = ComponentsExtractor(
+            ComponentsExtractor(
+                FeatureSelector(
+                    FeatureConcatenator(
+                        POS2GramCounter(),
+                        FunctionWordCounter(),
+                    ),
+                    chosen_columns,
+                ),
+                pca_components[:, :50],
+            ),
+            lda_components[:, :15],
+        )
+        # self._feature_extractor = FeatureConcatenator(CommaCounter(), WordCounter())
 
     def __call__(self, text: str) -> PreprocessedText:
         segments = self._segmenter(text)
