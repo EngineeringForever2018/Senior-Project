@@ -307,3 +307,28 @@ export async function getFile(fileName, token) {
 
   return axios.get(`${serverUrl()}${fileName}`, requestConfig)
 }
+
+export async function getData(fileName, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(`${fileName}`, requestConfig)  
+}
+
+//New Classroom calls
+export async function newListClassroom(token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(`${serverUrl()}/classrooms`, requestConfig)
+}
+
+export async function newViewClassroom(Classid, token) {
+  let requestConfig = {}
+
+  requestConfig = await authenticateRequest(requestConfig, token)
+
+  return axios.get(`${serverUrl()}/classrooms/${Classid}`, requestConfig)
+}
