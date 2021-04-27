@@ -18,3 +18,9 @@ from notebooks.feature_extractors._normalizer import Normalizer  # noqa: F401
 from notebooks.feature_extractors._heuristics_extractor import (  # noqa: F401
     HeuristicsExtractor,
 )
+from notebooks.feature_extractors._components_extractor import (  # noqa: F401
+    ComponentsExtractor,
+)
+from notebooks.feature_extractors._feature_selector import (  # noqa: F401
+    FeatureSelector,
+)
