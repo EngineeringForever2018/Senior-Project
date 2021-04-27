@@ -43,7 +43,7 @@ class VotingProfile(BaseProfile):
 
         self._threshold = sorted_distances[math.floor(len(sorted_distances) * self._p)]
 
-        self._mean = np.mean(self._author_sentences)
+        self._mean = np.mean(self._author_sentences, axis=0)
     
     def _distances(self, suspect_texts):
         flags = self.sentence_flags(suspect_texts)
