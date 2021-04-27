@@ -34,6 +34,7 @@ class Submission(models.Model):
 
     date = models.DateTimeField()
     file = models.FileField()
+    title = models.CharField(max_length=50)
 
     def contrast_report(self):
         """Generate the contrast report for this submission."""

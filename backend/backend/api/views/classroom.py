@@ -404,6 +404,7 @@ class SubmissionsView(APIView):
         # TODO: (Bug) Check that assignment and student are valid.
         student = Student.objects.get(user=request.user)
 
+        request.data["title"] = os.path.basename(request.data["file"].name)
         doc = Document(request.data["file"]) 
         preprocessed_text = processor(document_text(doc))
 
@@ -567,8 +568,8 @@ class DetailedReportView(APIView):
         doc = submission.detailed_report()
 
         # fill these variables with real values
-        fl_path = '1.docx'
-        filename = '1.docx'
+        fl_path = 'detailed-report.docx'
+        filename = 'detailed-report.docx'
 
         doc.save(fl_path)
 

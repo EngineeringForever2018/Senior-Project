@@ -75,7 +75,7 @@ export function InstructorSubmissionsList() {
               <ListItemIcon>
                 <InsertDriveFile />
               </ListItemIcon>
-              <ListItemText primary={assignment['file']} />
+              <ListItemText primary={assignment['title']} />
             </ListItem>
           </li>)
         )

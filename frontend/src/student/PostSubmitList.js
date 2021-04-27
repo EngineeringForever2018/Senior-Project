@@ -83,7 +83,7 @@ export function PostSubmitList() {
               <ListItemIcon>
                 <InsertDriveFile />
               </ListItemIcon>
-              <ListItemText primary={assignment['file']} />
+              <ListItemText primary={assignment['title']} />
             </ListItem>
           </li>)
         )
@@ -120,7 +120,7 @@ export function PostSubmitList() {
         <Box mx="auto" bgcolor="background.paper" p={1}>
           <Box bgcolor={boxCol}>
             <ListItem button onClick={handleClickOpen}>
-              <ListItemText primary="Current Assignments" />
+              <ListItemText primary="Current Submissions" />
               {openCurrent ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
           </Box>
