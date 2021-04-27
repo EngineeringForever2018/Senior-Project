@@ -4,14 +4,9 @@ from backend.api.models import Student, Classroom, Assignment
 from backend.api.serializers import AssignmentSerializer
 
 
-<<<<<<< HEAD
-class StudentHomeSerializer(HyperlinkedModelSerializer):
-    assignments =
-=======
 class StudentHomeSerializer(serializers.ModelSerializer):
     #assignments = serializers.PrimaryKeyRelatedField(source = 'classrooms.assignments', queryset = Assignment.objects.all())
     assignments = serializers.SerializerMethodField()
->>>>>>> dc5cd27d1fa63245aaa3d2aff860bc2abf277368
     class Meta:
         model = Student
         fields = ['classrooms', 'assignments', 'id']
