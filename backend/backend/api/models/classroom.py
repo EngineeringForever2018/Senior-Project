@@ -42,7 +42,7 @@ class Submission(models.Model):
         submission_essay = PreprocessedText(BytesIO(self.file.read()))
 
         # Score this submission based on the style profile.
-        authorship_probability = 0.8
+        authorship_probability = style_profile.score(submission_essay)
         flag = style_profile.flag(submission_essay)
 
         return {'authorship_probability': authorship_probability, 'flag': flag}

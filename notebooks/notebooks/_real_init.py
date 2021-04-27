@@ -71,6 +71,9 @@ class StyleProfile:
         distance = self._profile.distances(text.data)
         return distance > self._threshold
 
+    def score(self, text: PreprocessedText) -> float:
+        return 1. - float(self._profile.distances(text.data))
+
     def detailed(self, text: PreprocessedText):
         flags = self._profile.sentence_flags(text.data)[0].tolist()
 
