@@ -4,6 +4,7 @@ from backend.api.models import Student, Classroom, Assignment
 
 
 class StudentHomeSerializer(HyperlinkedModelSerializer):
+    assignments =
     class Meta:
         model = Student
         fields = [ "classrooms", "assignments" ]
