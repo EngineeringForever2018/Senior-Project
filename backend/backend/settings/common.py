@@ -20,7 +20,7 @@ env = environ.Env()
 
 environ.Env.read_env()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # AUTH0 variables
 AUTH0_AUDIENCE = env("DJANGO_AUTH0_AUDIENCE")
@@ -28,6 +28,7 @@ AUTH0_ISSUER = env("DJANGO_AUTH0_ISSUER")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
+# GENERATED SETTINGS FROM HERE
 
 ALLOWED_HOSTS = ['*']
 
