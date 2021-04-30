@@ -4,6 +4,9 @@
 
 AVPD is an API that helps instructors monitor student plagiarism in student writing. AVPD will be able to detect if a student's newly submitted essay differs greatly from their previous works in terms of writing style to ensure that student is submitting their own proper work. The instructor will see the student’s essay and be able to compare prior essays. Each essay submitted will be stored in an SQL database and if an instructor accepts the assignment, the assignment will be added to a student profile. Each student has a profile that contains information based upon how the given student writes. The profiles are made to analyze the way in which a student writes, not what they write, this way the vocabulary doesn't affect the outcome of the plagiarism determination as much as the typical grammatical structures that a given person uses. The system can allow student submissions based on an assignment by assignment basis. The assignments get assigned to a particular student on a classroom wide basis. The server application will load student’s essay, stored the student’s work, submit the student’s work, create assignments and manage the class. In order to showcase the features of the API, we built a web application demonstrating the necessary components of the API.
 
+![Screenshot 1](/screenshot1.png)
+![Screenshot 2](/screenshot2.png)
+
 ### Advisors
 
 We are advised by Dr. Emily Hand. She is an assistant professor at the University of Nevada, Reno. She is the Director of the Machine Perception Lab and guided us on this project in terms of management, authorship verification methods, machine learning models, and more.
