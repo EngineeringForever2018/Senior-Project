@@ -1,3 +1,6 @@
+# Development storage
+media/
+
 # Secrets
 backend/settings/.env.local
 

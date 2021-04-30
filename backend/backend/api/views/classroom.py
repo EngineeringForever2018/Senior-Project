@@ -399,22 +399,23 @@ class SubmissionsView(APIView):
     def post(cls, request, classroom_pk, assignment_pk):
         """Post a submission for this assignment."""
         verify_user_type(request, 'student')
-        processor = TextProcessor()
+        # processor = TextProcessor()
 
         # TODO: (Bug) Check that assignment and student are valid.
         student = Student.objects.get(user=request.user)
 
         request.data["title"] = os.path.basename(request.data["file"].name)
-        doc = Document(request.data["file"]) 
-        preprocessed_text = processor(document_text(doc))
+        request.data["docx_file"] = request.data["file"]
+        # doc = Document(request.data["file"]) 
+        # preprocessed_text = processor(document_text(doc))
 
         # RECAP: (Bug) Django says file is empty here. When seeking to 0, saved files
         #        have no content
-        f = open(f"{student.user.id}-submission-{cls.i}.nb", "wb+")
-        cls.i += 1
-        f.write(preprocessed_text.binary.read())
-        f.seek(0)
-        request.data["file"] = File(f)
+        # f = open(f"{student.user.id}-submission-{cls.i}.nb", "wb+")
+        # cls.i += 1
+        # f.write(preprocessed_text.binary.read())
+        # f.seek(0)
+        # request.data["file"] = File(f)
         request.data['assignment'] = assignment_pk
         request.data['student'] = student.id
         request.data['date'] = datetime.now(tz=pytz.UTC)
@@ -525,12 +526,14 @@ class AcceptedSubmissionsView(APIView):
         assignment = Assignment.objects.get(classroom=classroom, id=assignment_pk)
         submission = Submission.objects.get(assignment=assignment, id=submission_pk)
 
-        profile = StyleProfile(BytesIO(submission.student.profile.file.read()))
+        # profile = StyleProfile(BytesIO(submission.student.profile.file.read()))
 
-        profile.feed(PreprocessedText(BytesIO(submission.file.read())))
+        # profile.feed(PreprocessedText(BytesIO(submission.file.read())))
 
-        newfilename = f"{submission.student.user.id}-profile.nb"
-        submission.student.profile.save(newfilename, BytesIO(profile.binary.read()))
+        # newfilename = f"{submission.student.user.id}-profile.nb"
+        # submission.student.profile.save(newfilename, BytesIO(profile.binary.read()))
+
+        submission.student.profile.feed(submission.preprocessed_text)
 
         submission.student.save()
 

@@ -46,4 +46,4 @@ class AssignmentSerializer(serializers.ModelSerializer):
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ['id', "title", 'assignment', 'student', 'date', 'file']
+        fields = ["docx_file", 'id', "title", 'assignment', 'student', 'date']

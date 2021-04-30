@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.files import File
 from django.db import models
+
+from backend.api.models.fields import NBField
 from notebooks import StyleProfile
 
 
@@ -55,7 +57,7 @@ class Instructor(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    profile = models.FileField()
+    profile = NBField()
 
     def __str__(self):
         return self.user.username
@@ -63,9 +65,7 @@ class Student(models.Model):
 
 def post_user_create(instance, created, raw, **kwargs):
     if instance.user_type() == "student":
-        f = open(f"{instance.id}-profile.nb", "wb+")
-        f.write(StyleProfile().binary.read())
-        profile=File(f)
+        profile = StyleProfile()
         Student.objects.create(user=instance, profile=profile)
     else:
         Instructor.objects.create(user=instance)
