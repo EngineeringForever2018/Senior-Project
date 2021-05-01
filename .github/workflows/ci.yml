@@ -49,6 +49,9 @@ jobs:
           echo "SQL_CONNECTION_NAME=team25-avpd:us-central1:sql-dev" >> backend/.env.local
           echo DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY >> backend/backend/settings/.env.local
           echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD >> backend/backend/settings/.env.local
+          ls
+          ls backend
+          ls backend/settings/
         env:
           SERVICE_KEY: ${{ secrets.SERVICE_KEY }}
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
