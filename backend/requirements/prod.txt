@@ -1,4 +1,7 @@
 # Production version of notebooks
 ../notebooks
 
+psycopg2
+django-storages
+google-cloud-storage
 gunicorn

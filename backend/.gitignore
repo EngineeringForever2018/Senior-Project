@@ -5,7 +5,9 @@ detailed-report.docx
 media/
 
 # Secrets
+.env.local
 backend/settings/.env.local
+service-key.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
