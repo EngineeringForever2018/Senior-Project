@@ -59,6 +59,7 @@ jobs:
       -
         name: Debug environment variables
         run: |
+          cat backend/service-key.json
           ls -a
           ls backend -a
           ls backend/backend/settings/ -a
