@@ -57,6 +57,12 @@ jobs:
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       -
+        name: Debug environment variables
+        run: |
+          ls -a
+          ls backend -a
+          ls backend/backend/settings/ -a
+      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       -
