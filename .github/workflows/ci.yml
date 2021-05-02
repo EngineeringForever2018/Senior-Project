@@ -62,6 +62,7 @@ jobs:
           ls -a
           ls backend -a
           ls backend/backend/settings/ -a
+          cat backend/backend/settings/.env.local
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
