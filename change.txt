@@ -1,1 +1,2 @@
 test
+          echo $SERVICE_KEY | base64 -d -w 0 >> backend/service-key.json
