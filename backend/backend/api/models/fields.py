@@ -13,11 +13,11 @@ class NBField(models.BinaryField):
 
         # The bytes to save the object with are appended with either 0 or 1, based on
         # whether we are saving a PreprocessedText object or a StyleProfile object.
-        if value[0] == 0:
+        if value[0] == b'\x00':
             bytes_io = BytesIO(value[1:])
             return PreprocessedText(bytes_io)
 
-        if value[0] == 1:
+        if value[0] == b'\x01':
             bytes_io = BytesIO(value[1:])
             return StyleProfile(bytes_io)
 
