@@ -11,7 +11,3 @@ Once the container is built, you can run it at any time with:
 ```bash
 docker run -p 8000:8000 avpd-backend
 ```
-
-## Installation (Development)
-
-Coming soon...
