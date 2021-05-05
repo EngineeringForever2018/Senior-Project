@@ -1,7 +1,7 @@
 import './InstructorClassrooms.scss'
 import React, {useEffect, useState} from "react";
 import {NavBar} from "../nav/NavBar";
-import {getUserInfo, viewClassroom, listAssignments, createAssignment, deleteClassroom, updateClassroom} from "../requests";
+import {getUserInfo, listAssignments, createAssignment, deleteClassroom, updateClassroom, newViewClassroom, getData} from "../requests";
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
 import moment from 'moment';
@@ -59,7 +59,7 @@ export function InstructorClassroom() {
     last_name:''
   })
   const [classInfo, setClassinfo] = useState({
-    title:''
+    title:'',
   })
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export function InstructorClassroom() {
           last_name: response.data.last_name          
         }));
       })
-      viewClassroom(id, token).then((response) => {
+      newViewClassroom(id, token).then((response) => {
         setClassinfo(prevState => ({
           ...prevState,
           title: response.data.title,
@@ -112,6 +112,17 @@ export function InstructorClassroom() {
         </Typography>
         <Box height={50} />
         
+        <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
+          <Typography variant="h6">
+            Classroom information:
+          </Typography>
+          <Typography variant="h7">
+            Classroom ID: {id}
+          </Typography>
+          <Box height = {10}/>
+        </Box>
+        <Box height={50} />
+
         <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>
           <Box bgcolor={boxCol}>
             <ListItem button onClick={handleClickOpen}>
@@ -154,7 +165,10 @@ export function InstructorClassroom() {
           <Button variant="contained" color="primary" onClick={() => {
             history.push(`/`)
           }}>Return</Button>
+
+          <Box height = {20}/>
         </Box>
+
       </Container>
       </MuiPickersUtilsProvider>
     </div>
@@ -174,6 +188,11 @@ export function UpdateClassroomForm() {
     first_name:'',
     last_name:''
   })
+
+  const [classInfo, setClassinfo] = useState({
+    title:'',
+  })
+
 
   function handleChange(event) {
     setTitle(event.target.value);
@@ -196,6 +215,12 @@ export function UpdateClassroomForm() {
           ...prevState,
           first_name: response.data.first_name,
           last_name: response.data.last_name          
+        }));
+      })
+      newViewClassroom(id, token).then((response) => {
+        setClassinfo(prevState => ({
+          ...prevState,
+          title: response.data.title,
         }));
       })
     })

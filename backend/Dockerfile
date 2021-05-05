@@ -2,20 +2,24 @@ FROM python:3 as build
 
 WORKDIR /usr/src/app
 
+COPY --from=gcr.io/cloudsql-docker/gce-proxy:1.19.1 /cloud_sql_proxy .
+
 RUN python -m pip install --upgrade pip
 
 COPY ./notebooks /usr/src/notebooks
 
 COPY ./backend .
-RUN pip install --no-cache-dir -U -r requirements/common.txt
-RUN pip install --no-cache-dir -U -r requirements/prod.txt
 
-RUN python manage.py makemigrations
-RUN python manage.py migrate
+RUN pip install -U -r requirements/common.txt
+RUN pip install -U -r requirements/prod.txt
 
-# Gunicorn listens on 127.0.0.1 by default, which isn't for docker (172.17.0.1).
-# Changing this to 0.0.0.0 allows it to serve all interfaces, including docker.
-CMD [ "gunicorn", "backend.wsgi", "-b 0.0.0.0:8000" ]
+RUN chmod +x migrate.sh
+RUN bash migrate.sh
+
+RUN chmod +x dockerstart.sh
+
+ENV GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/service-key.json
+ENTRYPOINT ["/usr/src/app/dockerstart.sh"]
 
 
 FROM build as test

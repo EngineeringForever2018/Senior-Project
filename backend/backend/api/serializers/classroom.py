@@ -2,13 +2,17 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer
 
 from backend.api.models.classroom import Classroom, Assignment, Submission
+from backend.api.serializers import StudentSerializer
 from backend.api.models.user import Student
 
 
-class ClassroomSerializer(HyperlinkedModelSerializer):
+class ClassroomSerializer(ModelSerializer):
+    students = StudentSerializer(many=True, read_only=True)
+
     class Meta:
         model = Classroom
         fields = ['id', 'instructor', "students", "assignments", 'title']
+        depth = 1
         read_only_fields = ["instructor", "students", "assignments"]
 
 
@@ -42,4 +46,4 @@ class AssignmentSerializer(serializers.ModelSerializer):
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ['id', 'assignment', 'student', 'date', 'file']
+        fields = ["docx_file", 'id', "title", 'assignment', 'student', 'date']

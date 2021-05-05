@@ -43,8 +43,8 @@ def make_docx(bool_list, string_list):
     
     for i in range(len(string_list)):
         if i < len(bool_list) and bool_list[i] == True:
-            para.add_run(string_list[i] + "").font.highlight_color = WD_COLOR_INDEX.GRAY_25
+            para.add_run(string_list[i] + " ").font.highlight_color = WD_COLOR_INDEX.GRAY_25
         else:
-            para.add_run(string_list[i] + "")
+            para.add_run(string_list[i] + " ")
 
     return doc

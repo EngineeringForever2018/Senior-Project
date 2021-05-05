@@ -200,9 +200,7 @@ export function StudentAssignment() {
       )
     }
     return(
-      <div>
-        not able to view file type
-      </div>
+      <div/>
     )
   };
 

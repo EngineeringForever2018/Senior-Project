@@ -22,6 +22,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import grey from '@material-ui/core/colors/grey';
+import red from '@material-ui/core/colors/red';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -38,26 +40,50 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const badFlag = red[500]
+
 function CircularProgressWithLabel(props) {
-  return (
-    <Box position="relative" display="inline-flex">
-      <CircularProgress size = {200} variant="determinate" {...props} />
-      <Box
-        top={0}
-        left={0}
-        bottom={0}
-        right={0}
-        position="absolute"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Typography variant="caption" component="div" color="textSecondary">{`${Math.round(
-          props.value,
-        )}%`}</Typography>
+  if(props.flag) {
+    return (
+      <Box position="relative" display="inline-flex">
+        <CircularProgress size = {200} variant="determinate" {...props} />
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="caption" component="div">{`${Math.round(
+            props.value,
+          )}%`}</Typography>
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  } else {
+    return (
+      <Box position="relative" display="inline-flex">
+        <CircularProgress size = {200} variant="determinate" style={{'color': badFlag}} {...props} />
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="caption" component="div">{`${Math.round(
+            props.value,
+          )}%`}</Typography>
+        </Box>
+      </Box>
+    );
+  }
 }
 
 function ReportScreen() {
@@ -188,11 +214,15 @@ function ReportScreenFlag(props) {
   const DisplayFlag = ({flag}) => {
     if(flag) {
       return(
-        "this is a good report"
+        <Typography variant="h7">
+          This is flagged as a good report.
+        </Typography>
       )
     } else {
       return(
-        "this is a bad report"
+        <Typography variant="h7">
+          This is flagged as a bad report.
+        </Typography>
       )
     }
   }
@@ -227,22 +257,37 @@ function ReportScreenFlag(props) {
     })
   }, [])
 
+  const boxCol = grey[300]
+
   return (
     <div>
         <NavBar firstName={userInfo.first_name} lastName={userInfo.last_name}/>
-        
         <Container maxWidth="md">
-          <p>{`Name: ${studentFirstName} ${studentLastName}`}</p>
+          <Box height = {60}/>
           <Grid direction="row" container spacing={3} alignItems="center">
             <Grid item sm={6}>
               <Box height={500} width="100%" bgcolor="background.paper">
-                <Box size="auto" height={45} p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
-                  <p>Display Report</p><br />
+                <Container>
+                  <Box height = {20}/>
+                  <Typography variant="h5">
+                    Report Details:
+                  </Typography>
+                  <Box height = {20}/>
+                  <Typography variant="h7">
+                    {`Student Name: ${studentFirstName} ${studentLastName}`}
+                  </Typography>
+                  <Box height = {20}/>
+                  <DisplayFlag flag = {authorshipFlag} />
+                </Container>
+
+                <Box height = {260} />
+
+                <Box size="auto" height={80} bgcolor={boxCol} p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
+	                <a href={detailedPath}>Click to download detailed report</a>
                 </Box>
-                <Box size="auto" height={45} p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
-	          <a href={detailedPath}>Click to download detailed report</a>
-                </Box>
-                <DocViewer documents={docs} config={{header: {disableFileName: true, retainURLParams: true}}} />
+                {/*<DocViewer documents={docs} config={{header: {disableFileName: true, retainURLParams: true}}} />*/}
+
+
               </Box>
             </Grid>
 
@@ -251,13 +296,16 @@ function ReportScreenFlag(props) {
                 <Grid direction="column" container alignItems="center" justify="space-between">
                   <Grid height={30} width="60%" >
                     <Box size="auto" p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
-                      Report Results
+                      <Typography variant="h5">
+                        Report Results:
+                      </Typography>
+                      
                     </Box>
                   </Grid>
 
                   <Grid width="60%" >
                     <Box size="auto" p={1} display="flex" alignItems="center" justifyContent="center" m={1} p={1}>
-                      <CircularProgressWithLabel value={authorshipProbability * 100} />
+                      <CircularProgressWithLabel value={authorshipProbability * 100} flag={authorshipFlag}/>
                     </Box>
                   </Grid>
 

@@ -17,7 +17,5 @@ notebooks/outputs/
 notebooks/develop/
 notebooks/deliver/
 
-backend/**.nb
 backend/db.sqlite3
-backend/backend/api/migrations/0001_initial.py
 backend/media/

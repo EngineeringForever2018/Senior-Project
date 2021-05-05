@@ -5,7 +5,7 @@ import React, {useEffect, useState} from "react";
 
 import {useAuth0} from "@auth0/auth0-react";
 import {useHistory} from "react-router-dom";
-import {getUserInfo, listAssignmentsStudent, joinClassroom} from "../requests";
+import {getUserInfo, newListClassroom, listAssignmentsStudent, joinClassroom} from "../requests";
 
 //matirial-ui imports
 import { makeStyles } from '@material-ui/core/styles';
@@ -59,6 +59,8 @@ function Essay() {
   const [classNumber, setClassNumber] = useState(1);
   const [openCurrent, setOpenCurrent] = useState(true);
 
+  const [allClasses, setAllClasses] = useState();
+
   function handleSetClassNumber(e) {
     setClassNumber(e.target.value);
   }
@@ -87,6 +89,20 @@ function Essay() {
     })
   }, [classNumber])
 
+  useEffect(() => {
+    getAccessTokenSilently().then((token) => {
+      newListClassroom(token).then((response) => {
+        setAllClasses(
+          response.data.map((data) => 
+            <option value = {data['id']}>
+              {data['title']}
+            </option>
+          )
+        )
+      })
+    })
+  }, [])
+
   const boxCol = grey[300]
 
   return (
@@ -101,17 +117,15 @@ function Essay() {
           <Typography variant="h6">
             Select Classroom
           </Typography>
+
           <FormControl className={classes.formControl}>
             <InputLabel htmlFor="age-native-simple">Class</InputLabel>
             <Select value={classNumber} onChange={handleSetClassNumber}>
-              <option aria-label="None" value="" />
-              <option value = {1}> Class 1 </option>
-              <option value = {2}> Class 2 </option>
-              <option value = {3}> Class 3 </option>
-              <option value = {4}> Class 4 </option>
+              {allClasses}
             </Select>
             <FormHelperText>input for class number</FormHelperText>
           </FormControl>
+
         </Box>
         <Box height={30} />
         <Box mx="auto" bgcolor="background.paper" borderRadius="borderRadius" p={1}>

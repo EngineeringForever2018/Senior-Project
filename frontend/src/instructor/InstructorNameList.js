@@ -1,7 +1,7 @@
 import './InstructorNameList.scss'
 import React, {useEffect, useState} from "react";
 import {NavBar} from "../nav/NavBar";
-import {getUserInfo, viewClassroom, listStudents, removeStudentFromClass} from "../requests";
+import {getUserInfo, newViewClassroom, listStudents, removeStudentFromClass, getData} from "../requests";
 import {useHistory, useLocation, useParams} from "react-router";
 import {useAuth0} from "@auth0/auth0-react";
 
@@ -40,15 +40,22 @@ export function InstructorNameList() {
   const [currentStudent, setCurrentStudent] = useState(0)
   const [studentList, setStudentList] = useState()
   const [openCurrent, setOpenCurrent] = useState(true);
+  const initialName = [{
+    id:'',
+    first_name: '',
+    last_name:'',
+  }]
 
   const [userInfo, setUserInfo] = useState({
     first_name:'',
     last_name:''
   })
   const [classInfo, setClassinfo] = useState({
-    title:''
+    title:'',
+    students:''
   })
 
+  const [studentArr, setStudentArr] = useState()
   useEffect(() => {
     getAccessTokenSilently().then((token) => {
       listStudents(id, token).then((response) => {
@@ -72,11 +79,18 @@ export function InstructorNameList() {
           last_name: response.data.last_name          
         }));
       })
-      viewClassroom(id, token).then((response) => {
+      newViewClassroom(id, token).then((response) => {
         setClassinfo(prevState => ({
           ...prevState,
           title: response.data.title,
         }));
+        setStudentArr(
+          response.data.students.map((test) => <li>
+            <ListItem button onClick={() => {setCurrentStudent(test['id'])}}>
+              {test['first_name']}  {test['last_name']}
+            </ListItem>
+          </li>)
+        )
       })
     })
   }, [])
@@ -107,7 +121,7 @@ export function InstructorNameList() {
 
           <List component="div" disablePadding>
             <Collapse in={openCurrent} timeout="auto" unmountOnExit>
-              {studentList}
+              {studentArr}
             </Collapse>
           </List>
         </Box>

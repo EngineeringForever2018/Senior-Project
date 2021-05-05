@@ -3,8 +3,9 @@ from docx import Document
 
 from backend.api.models.user import Instructor, Student
 from backend.api.models.essay import Essay
+from backend.api.models.fields import NBField
 from backend.api.utils import make_docx
-from notebooks import StyleProfile, PreprocessedText
+from notebooks import StyleProfile, PreprocessedText, TextProcessor
 from io import BytesIO
 
 
@@ -34,35 +35,41 @@ class Submission(models.Model):
 
     date = models.DateTimeField()
     file = models.FileField()
+    title = models.CharField(max_length=50)
+
+    # TODO: Override save so that preprocessed_text is automatically generated from
+    #       docx_file.
+    docx_file = models.FileField()
+    preprocessed_text = NBField()
+
+    processor = TextProcessor()
+
+    def save(self, *args, **kwargs):
+        document = Document(self.docx_file)
+        self.preprocessed_text = self.processor(document_text(document))
+
+        super(Submission, self).save(*args, **kwargs)
 
     def contrast_report(self):
         """Generate the contrast report for this submission."""
-        style_profile = StyleProfile(BytesIO(self.student.profile.read()))
-
-        submission_essay = PreprocessedText(BytesIO(self.file.read()))
+        style_profile = self.student.profile
 
         # Score this submission based on the style profile.
-        authorship_probability = 0.8
-        flag = style_profile.flag(submission_essay)
+        authorship_probability = style_profile.score(self.preprocessed_text)
+        flag = style_profile.flag(self.preprocessed_text)
 
         return {'authorship_probability': authorship_probability, 'flag': flag}
 
     def detailed_report(self):
         """Generate the contrast report for this submission."""
-        style_profile = StyleProfile(BytesIO(self.student.profile.read()))
-
-        submission_essay = PreprocessedText(BytesIO(self.file.read()))
+        style_profile = self.student.profile
 
         # Score this submission based on the style profile.
-        detailed = style_profile.detailed(submission_essay)
+        detailed = style_profile.detailed(self.preprocessed_text)
         return make_docx(*detailed)
 
     def preprocessed(self):
-        style_profile = StyleProfile(BytesIO(self.student.profile.read()))
-
-        submission_essay = PreprocessedText(BytesIO(self.file.read()))
-
-        return submission_essay
+        return self.preprocessed_text
 
 
 def document_text(document):
